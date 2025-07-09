@@ -1,0 +1,643 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editing %}Edit Version{% else %}Add New Version{% endif %} - {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .version-form-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+    
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .form-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title i {
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .improvement-card {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .improvement-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .improvement-card.removing {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+    
+    .improvement-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .improvement-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .btn-remove {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-remove:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .btn-add-improvement {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-add-improvement:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .form-actions {
+        padding: 2rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .current-version-badge {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .improvement-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .type-feature { background: #007bff; color: white; }
+    .type-enhancement { background: #28a745; color: white; }
+    .type-bugfix { background: #dc3545; color: white; }
+    .type-security { background: #fd7e14; color: white; }
+    .type-performance { background: #6f42c1; color: white; }
+    .type-ui { background: #20c997; color: white; }
+    .type-api { background: #6c757d; color: white; }
+    .type-documentation { background: #17a2b8; color: white; }
+    
+    .form-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .animate-in {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="version-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-card">
+                    <div class="form-header">
+                        <h1>
+                            <i class="fas fa-code-branch"></i>
+                            {% if editing %}
+                                Edit Version {{ version.version_number }}
+                            {% else %}
+                                Add New Version
+                            {% endif %}
+                        </h1>
+                        <p>
+                            {% if editing %}
+                                Update version information and improvements
+                            {% else %}
+                                Create a new version with detailed improvements
+                            {% endif %}
+                        </p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Version Information Section -->
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                Version Information
+                            </h2>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="{{ form.version_number.id_for_label }}">
+                                            Version Number *
+                                        </label>
+                                        {{ form.version_number }}
+                                        <div class="form-help">Format: Major.Minor.Patch (e.g., 1.2.0)</div>
+                                        {% if form.version_number.errors %}
+                                            <div class="text-danger mt-1">{{ form.version_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="{{ form.version_type.id_for_label }}">
+                                            Version Type *
+                                        </label>
+                                        {{ form.version_type }}
+                                        <div class="form-help">Choose the type of release</div>
+                                        {% if form.version_type.errors %}
+                                            <div class="text-danger mt-1">{{ form.version_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.description.id_for_label }}">
+                                    Description
+                                </label>
+                                {{ form.description }}
+                                <div class="form-help">Brief overview of this version release</div>
+                                {% if form.description.errors %}
+                                    <div class="text-danger mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="d-flex align-items-center">
+                                    {{ form.is_current }}
+                                    <label class="form-label mb-0 ml-2" for="{{ form.is_current.id_for_label }}">
+                                        <span class="current-version-badge">
+                                            <i class="fas fa-star"></i>
+                                            Mark as current version
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-help mt-2">
+                                    <i class="fas fa-info-circle"></i>
+                                    This will update the application version and unmark any other current version.
+                                </div>
+                                {% if form.is_current.errors %}
+                                    <div class="text-danger mt-1">{{ form.is_current.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Improvements Section -->
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-plus-circle"></i>
+                                Version Improvements
+                            </h2>
+                            <p class="text-muted mb-4">Document what's new, improved, or fixed in this version:</p>
+                            
+                            {{ formset.management_form }}
+                            
+                            <div id="improvement-forms">
+                                {% for form in formset %}
+                                    <div class="improvement-card animate-in">
+                                        <div class="improvement-header">
+                                            <div class="improvement-number">
+                                                <i class="fas fa-code"></i>
+                                                Improvement {{ forloop.counter }}
+                                            </div>
+                                            {% if not forloop.first %}
+                                                <button type="button" class="btn-remove remove-improvement">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% for hidden in form.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="{{ form.improvement_type.id_for_label }}">
+                                                        Type *
+                                                    </label>
+                                                    {{ form.improvement_type }}
+                                                    {% if form.improvement_type.errors %}
+                                                        <div class="text-danger mt-1">{{ form.improvement_type.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="{{ form.title.id_for_label }}">
+                                                        Title *
+                                                    </label>
+                                                    {{ form.title }}
+                                                    {% if form.title.errors %}
+                                                        <div class="text-danger mt-1">{{ form.title.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="{{ form.order.id_for_label }}">
+                                                        Order
+                                                    </label>
+                                                    {{ form.order }}
+                                                    <div class="form-help">Display order</div>
+                                                    {% if form.order.errors %}
+                                                        <div class="text-danger mt-1">{{ form.order.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.description.id_for_label }}">
+                                                Description *
+                                            </label>
+                                            {{ form.description }}
+                                            <div class="form-help">Detailed explanation of the improvement</div>
+                                            {% if form.description.errors %}
+                                                <div class="text-danger mt-1">{{ form.description.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if form.DELETE %}
+                                            <div class="form-check">
+                                                {{ form.DELETE }}
+                                                <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">
+                                                    <i class="fas fa-trash"></i> Delete this improvement
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button type="button" id="add-improvement" class="btn-add-improvement">
+                                <i class="fas fa-plus"></i>
+                                Add Another Improvement
+                            </button>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <a href="{% url 'core:version_history' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if editing %}
+                                    <i class="fas fa-save"></i> Update Version
+                                {% else %}
+                                    <i class="fas fa-plus"></i> Create Version
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formCount = {{ formset.total_form_count }};
+    const maxForms = {{ formset.max_num }};
+    
+    // Add improvement form
+    document.getElementById('add-improvement').addEventListener('click', function() {
+        if (formCount < maxForms) {
+            const formContainer = document.getElementById('improvement-forms');
+            const emptyForm = document.querySelector('.improvement-card').cloneNode(true);
+            
+            // Update form indices
+            emptyForm.innerHTML = emptyForm.innerHTML.replace(/form-\d+/g, `form-${formCount}`);
+            emptyForm.innerHTML = emptyForm.innerHTML.replace(/\d+/g, function(match, offset, string) {
+                // Only replace if it's in an id or name attribute
+                if (string.substring(offset - 10, offset).includes('id_') || 
+                    string.substring(offset - 10, offset).includes('name="')) {
+                    return formCount;
+                }
+                return match;
+            });
+            
+            // Clear form values
+            emptyForm.querySelectorAll('input, select, textarea').forEach(function(element) {
+                if (element.type !== 'hidden') {
+                    element.value = '';
+                }
+            });
+            
+            // Update form counter in header
+            emptyForm.querySelector('.improvement-number').innerHTML = `<i class="fas fa-code"></i> Improvement ${formCount + 1}`;
+            
+            // Add remove button if not first form
+            if (formCount > 0) {
+                const removeBtn = emptyForm.querySelector('.remove-improvement');
+                if (removeBtn) {
+                    removeBtn.style.display = 'inline-block';
+                }
+            }
+            
+            // Add animation class
+            emptyForm.classList.add('animate-in');
+            
+            formContainer.appendChild(emptyForm);
+            formCount++;
+            
+            // Update management form
+            document.getElementById('id_form-TOTAL_FORMS').value = formCount;
+            
+            // Scroll to new form
+            emptyForm.scrollIntoView({ behavior: 'smooth' });
+            
+            // Focus on first input
+            const firstInput = emptyForm.querySelector('select, input, textarea');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 300);
+            }
+        }
+    });
+    
+    // Remove improvement form
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-improvement') || 
+            e.target.closest('.remove-improvement')) {
+            const form = e.target.closest('.improvement-card');
+            const deleteInput = form.querySelector('input[name$="-DELETE"]');
+            
+            // Add removing animation
+            form.classList.add('removing');
+            
+            setTimeout(() => {
+                if (deleteInput) {
+                    // For existing forms, mark for deletion
+                    deleteInput.checked = true;
+                    form.style.display = 'none';
+                } else {
+                    // For new forms, remove entirely
+                    form.remove();
+                    formCount--;
+                    document.getElementById('id_form-TOTAL_FORMS').value = formCount;
+                    
+                    // Update improvement numbers
+                    updateImprovementNumbers();
+                }
+            }, 300);
+        }
+    });
+    
+    // Update improvement numbers
+    function updateImprovementNumbers() {
+        const improvements = document.querySelectorAll('.improvement-card:not([style*="display: none"])');
+        improvements.forEach((improvement, index) => {
+            const numberElement = improvement.querySelector('.improvement-number');
+            if (numberElement) {
+                numberElement.innerHTML = `<i class="fas fa-code"></i> Improvement ${index + 1}`;
+            }
+        });
+    }
+    
+    // Add type change event listener for badge updates
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('select[name*="improvement_type"]')) {
+            const card = e.target.closest('.improvement-card');
+            const typeValue = e.target.value;
+            
+            // Add visual feedback
+            card.classList.add('pulse');
+            setTimeout(() => card.classList.remove('pulse'), 1000);
+        }
+    });
+    
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+    });
+    
+    // Auto-save draft functionality (optional)
+    let autoSaveTimer;
+    const autoSaveInputs = document.querySelectorAll('input, textarea, select');
+    
+    autoSaveInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                // Show auto-save indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'auto-save-indicator';
+                indicator.innerHTML = '<i class="fas fa-save"></i> Draft saved';
+                indicator.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 10px 15px; border-radius: 5px; z-index: 1000; font-size: 14px;';
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    indicator.remove();
+                }, 2000);
+            }, 2000);
+        });
+    });
+});
+</script>
+
+{% endblock %}

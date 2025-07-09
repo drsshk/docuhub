@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ version }} Details - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            Version {{ version.version_number }}
+                            {% if version.is_current %}
+                                <span class="badge badge-success ml-2">Current</span>
+                            {% endif %}
+                            <span class="badge badge-info ml-2">{{ version.get_version_type_display }}</span>
+                        </h3>
+                        <div>
+                            {% if user.is_staff %}
+                                <a href="{% url 'core:edit_version' version.pk %}" class="btn btn-primary btn-sm mr-2">
+                                    <i class="fas fa-edit"></i> Edit Version
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'core:version_history' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="info-card">
+                                <h6>Release Information</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Version:</strong></td>
+                                        <td>{{ version.version_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Type:</strong></td>
+                                        <td>{{ version.get_version_type_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Released:</strong></td>
+                                        <td>{{ version.release_date|date:"F j, Y g:i A" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Status:</strong></td>
+                                        <td>
+                                            {% if version.is_current %}
+                                                <span class="badge badge-success">Current</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Previous</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            {% if version.description %}
+                                <div class="description-card">
+                                    <h6>Description</h6>
+                                    <p>{{ version.description|linebreaks }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="improvements-section">
+                        <h5>What's New in This Version</h5>
+                        {% if improvements %}
+                            <div class="row">
+                                {% regroup improvements by improvement_type as improvement_groups %}
+                                {% for group in improvement_groups %}
+                                    <div class="col-md-6 mb-4">
+                                        <div class="improvement-category">
+                                            <h6 class="category-title">
+                                                <i class="fas fa-{{ group.grouper|improvement_icon }}"></i>
+                                                {{ group.list.0.get_improvement_type_display }}
+                                                <span class="badge badge-{{ group.grouper|improvement_color }}">{{ group.list|length }}</span>
+                                            </h6>
+                                            <ul class="list-group list-group-flush">
+                                                {% for improvement in group.list %}
+                                                    <li class="list-group-item">
+                                                        <strong>{{ improvement.title }}</strong>
+                                                        {% if improvement.description %}
+                                                            <p class="text-muted small mt-1 mb-0">{{ improvement.description }}</p>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">No improvements documented for this version.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-card, .description-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.info-card h6, .description-card h6 {
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.improvement-category {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-title {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+    color: #333;
+}
+
+.category-title i {
+    margin-right: 8px;
+}
+
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.badge-feature { background-color: #007bff; }
+.badge-enhancement { background-color: #28a745; }
+.badge-bugfix { background-color: #dc3545; }
+.badge-security { background-color: #fd7e14; }
+.badge-performance { background-color: #6f42c1; }
+.badge-ui { background-color: #20c997; }
+.badge-api { background-color: #6c757d; }
+.badge-documentation { background-color: #17a2b8; }
+</style>
+{% endblock %}

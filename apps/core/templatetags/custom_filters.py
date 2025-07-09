@@ -15,3 +15,35 @@ def replace(value, arg):
         except ValueError:
             return value  # Return original value if arg is not in 'old,new' format
     return value
+
+
+@register.filter
+def improvement_color(improvement_type):
+    """Return CSS color class for improvement type"""
+    color_map = {
+        'feature': 'primary',
+        'enhancement': 'success',
+        'bugfix': 'danger',
+        'security': 'warning',
+        'performance': 'info',
+        'ui': 'info',
+        'api': 'secondary',
+        'documentation': 'info',
+    }
+    return color_map.get(improvement_type, 'secondary')
+
+
+@register.filter
+def improvement_icon(improvement_type):
+    """Return FontAwesome icon for improvement type"""
+    icon_map = {
+        'feature': 'star',
+        'enhancement': 'plus-circle',
+        'bugfix': 'bug',
+        'security': 'shield-alt',
+        'performance': 'tachometer-alt',
+        'ui': 'paint-brush',
+        'api': 'code',
+        'documentation': 'file-alt',
+    }
+    return icon_map.get(improvement_type, 'circle')
