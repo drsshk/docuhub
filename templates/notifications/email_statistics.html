@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Statistics - DocuHub{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Email Statistics</h1>
+        <p class="mt-2 text-gray-600">Comprehensive email notification analytics and performance metrics</p>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Emails</dt>
+                            <dd class="text-2xl font-bold text-gray-900">{{ total_emails|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
+                            <dd class="text-2xl font-bold text-green-600">
+                                {% if total_emails > 0 %}
+                                    {% widthratio status_stats.delivered 1 total_emails %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Last 30 Days</dt>
+                            <dd class="text-2xl font-bold text-yellow-600">{{ recent_count|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Failed Rate</dt>
+                            <dd class="text-2xl font-bold text-red-600">
+                                {% if total_emails > 0 %}
+                                    {% widthratio status_stats.failed 1 total_emails %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Status Distribution -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Email Status Distribution</h3>
+            </div>
+            <div class="p-6">
+                {% if status_stats %}
+                <div class="space-y-4">
+                    {% for stat in status_stats %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                {% if stat.status == 'SENT' %}bg-blue-100 text-blue-800
+                                {% elif stat.status == 'DELIVERED' %}bg-green-100 text-green-800
+                                {% elif stat.status == 'FAILED' %}bg-red-100 text-red-800
+                                {% elif stat.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                {% elif stat.status == 'BOUNCED' %}bg-orange-100 text-orange-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ stat.status }}
+                            </span>
+                            <span class="ml-3 text-sm text-gray-900">{{ stat.count }} emails</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                <div class="h-2 rounded-full 
+                                    {% if stat.status == 'SENT' %}bg-blue-600
+                                    {% elif stat.status == 'DELIVERED' %}bg-green-600
+                                    {% elif stat.status == 'FAILED' %}bg-red-600
+                                    {% elif stat.status == 'PENDING' %}bg-yellow-600
+                                    {% elif stat.status == 'BOUNCED' %}bg-orange-600
+                                    {% else %}bg-gray-600{% endif %}" 
+                                    style="width: {% if total_emails > 0 %}{% widthratio stat.count 1 total_emails %}%{% else %}0%{% endif %}">
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-500">
+                                {% if total_emails > 0 %}
+                                    {% widthratio stat.count 1 total_emails %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <p class="text-gray-500">No email data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Template Usage -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Template Usage</h3>
+            </div>
+            <div class="p-6">
+                {% if template_stats %}
+                <div class="space-y-4">
+                    {% for stat in template_stats %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                                {{ stat.template_type }}
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-900 mr-3">{{ stat.count }}</span>
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+                                <div class="bg-blue-600 h-2 rounded-full" 
+                                    style="width: {% if total_emails > 0 %}{% widthratio stat.count 1 total_emails %}%{% else %}0%{% endif %}">
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-500">
+                                {% if total_emails > 0 %}
+                                    {% widthratio stat.count 1 total_emails %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <p class="text-gray-500">No template data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Activity Chart -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Daily Email Activity (Last 7 Days)</h3>
+        </div>
+        <div class="p-6">
+            {% if daily_stats %}
+            <div class="space-y-3">
+                {% for day in daily_stats %}
+                <div class="flex items-center">
+                    <div class="w-20 text-sm text-gray-500">{{ day.date }}</div>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-3">
+                            {% if daily_stats %}
+                                {% for d in daily_stats %}
+                                    {% if d.count > max_count %}
+                                        {% with d.count as max_count %}{% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            <div class="bg-blue-600 h-3 rounded-full" 
+                                style="width: {% if day.count > 0 and max_count > 0 %}{% widthratio day.count 1 max_count %}%{% else %}0%{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-12 text-sm text-gray-900 text-right">{{ day.count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6">
+                <p class="text-gray-500">No daily activity data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'notifications:email_logs' %}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            View Detailed Logs
+        </a>
+        
+        <a href="{% url 'dashboard' %}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Information Panel -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Email Performance Information</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Statistics are updated in real-time as emails are sent</li>
+                        <li>Success rate includes both sent and delivered emails</li>
+                        <li>Failed emails may indicate configuration issues or invalid addresses</li>
+                        <li>Template usage helps identify most common notification types</li>
+                        <li>Daily activity shows email sending patterns over time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+<div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+    <h3 class="text-lg font-medium text-gray-900">Drawings ({{ drawings.count }})</h3>
+    {% if can_edit %}
+    <a href="{% url 'projects:add_drawing' project.pk %}" 
+        hx-get="{% url 'projects:add_drawing' project.pk %}"
+        hx-target="#modal-content"
+        hx-trigger="click"
+        onclick="document.getElementById('modal').style.display='block'"
+        class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Add Drawing
+    </a>
+    {% endif %}
+</div>
+
+{% if drawings %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawing No.</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discipline</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for drawing in drawings %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ drawing.drawing_no }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                    {{ drawing.drawing_title|default:"No title" }}
+                    {% if drawing.drawing_description %}
+                    <div class="text-xs text-gray-500 mt-1">{{ drawing.drawing_description|truncatewords:10 }}</div>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ drawing.get_discipline_display|default:"—" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {% if drawing.drawing_list_link %}
+                    <a href="{{ drawing.drawing_list_link }}" target="_blank" 
+                        class="text-blue-600 hover:text-blue-900 flex items-center">
+                        View
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ drawing.date_added|date:"M d, Y" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="px-6 py-8 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No drawings yet</h3>
+    <p class="mt-1 text-sm text-gray-500">Get started by adding the first drawing.</p>
+    {% if can_edit %}
+    <div class="mt-6">
+        <a href="{% url 'projects:add_drawing' project.pk %}"
+            hx-get="{% url 'projects:add_drawing' project.pk %}"
+            hx-target="#modal-content"
+            hx-trigger="click"
+            onclick="document.getElementById('modal').style.display='block'"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add First Drawing
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

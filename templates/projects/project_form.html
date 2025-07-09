@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if object %}
+    {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
+        Edit Project
+    {% else %}
+        Create New Version
+    {% endif %}
+{% else %}
+    Create New Project
+{% endif %} - DocuHub
+{% endblock %}
+
+{% block content %}
+<div class="fade-in max-w-4xl mx-auto">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            {% if object %}
+                {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
+                    Edit Project
+                {% else %}
+                    Create New Version of "{{ object.project_name }}"
+                {% endif %}
+            {% else %}
+                Create New Project
+            {% endif %}
+        </h1>
+        <p class="mt-2 text-gray-600">
+            {% if object %}
+                {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
+                    Update the project details below.
+                {% else %}
+                    You are creating a new version. The current version ({{ object.version_display }}) will be marked as 'Obsolete'.
+                {% endif %}
+            {% else %}
+                Fill in the project information to get started.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" class="space-y-6 p-6">
+            {% csrf_token %}
+            
+            <!-- Project Name -->
+            <div>
+                <label for="{{ form.project_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Project Name <span class="text-red-500">*</span>
+                </label>
+                {{ form.project_name }}
+                {% if form.project_name.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.project_name.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Project Description -->
+            <div>
+                <label for="{{ form.project_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Project Description
+                </label>
+                {{ form.project_description }}
+                {% if form.project_description.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.project_description.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Revision Notes (only when creating a new version) -->
+            {% if object and object.status != 'Draft' and object.status != 'Revise_and_Resubmit' %}
+             <div>
+                <label for="{{ form.revision_notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Revision Notes <span class="text-gray-500">(Optional)</span>
+                </label>
+                {{ form.revision_notes }}
+                <p class="mt-1 text-sm text-gray-500">Explain what has changed in this new version. This will be visible in the activity log.</p>
+                {% if form.revision_notes.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.revision_notes.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+
+            <!-- Client/Department -->
+            <div>
+                <label for="{{ form.client_department.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Client/Department
+                </label>
+                {{ form.client_department }}
+                {% if form.client_department.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.client_department.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Priority and Deadline -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.project_priority.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Priority
+                    </label>
+                    {{ form.project_priority }}
+                    {% if form.project_priority.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.project_priority.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.deadline_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Deadline Date
+                    </label>
+                    {{ form.deadline_date }}
+                    {% if form.deadline_date.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.deadline_date.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{% if object %}{% url 'projects:detail' object.pk %}{% else %}{% url 'projects:list' %}{% endif %}" 
+                   class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    Cancel
+                </a>
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                     {% if object %}
+                        {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
+                            Save Changes
+                        {% else %}
+                            Create New Version
+                        {% endif %}
+                    {% else %}
+                        Create Project
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

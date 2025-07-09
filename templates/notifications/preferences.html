@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Notification Preferences - DocuHub{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Notification Preferences</h1>
+        <p class="mt-2 text-gray-600">Manage your email notification settings</p>
+    </div>
+
+    <!-- Preferences Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" class="space-y-6 p-6">
+            {% csrf_token %}
+            
+            <!-- Email Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Email Settings</h3>
+                
+                <div class="space-y-4">
+                    <!-- Email Enabled -->
+                    <div class="flex items-center">
+                        {{ form.email_enabled }}
+                        <label for="{{ form.email_enabled.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.email_enabled.label }}
+                        </label>
+                    </div>
+                    
+                    <!-- Email Frequency -->
+                    <div>
+                        <label for="{{ form.email_frequency.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.email_frequency.label }}
+                        </label>
+                        {{ form.email_frequency }}
+                        {% if form.email_frequency.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.email_frequency.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Notifications -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Project Notifications</h3>
+                
+                <div class="space-y-4">
+                    <!-- Submission Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_submission }}
+                        <label for="{{ form.notify_submission.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_submission.label }}
+                        </label>
+                        {% if form.notify_submission.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_submission.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Approval Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_approval }}
+                        <label for="{{ form.notify_approval.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_approval.label }}
+                        </label>
+                        {% if form.notify_approval.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_approval.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Rejection Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_rejection }}
+                        <label for="{{ form.notify_rejection.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_rejection.label }}
+                        </label>
+                        {% if form.notify_rejection.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_rejection.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Revision Request Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_revision_request }}
+                        <label for="{{ form.notify_revision_request.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_revision_request.label }}
+                        </label>
+                        {% if form.notify_revision_request.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_revision_request.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Obsolete Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_obsolete }}
+                        <label for="{{ form.notify_obsolete.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_obsolete.label }}
+                        </label>
+                        {% if form.notify_obsolete.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_obsolete.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Notifications (only show if user is admin) -->
+            {% if user.is_staff %}
+            <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Admin Notifications</h3>
+                
+                <div class="space-y-4">
+                    <!-- New Submission Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_admin_new_submission }}
+                        <label for="{{ form.notify_admin_new_submission.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_admin_new_submission.label }}
+                        </label>
+                        {% if form.notify_admin_new_submission.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_admin_new_submission.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Resubmission Notifications -->
+                    <div class="flex items-center">
+                        {{ form.notify_admin_resubmission }}
+                        <label for="{{ form.notify_admin_resubmission.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.notify_admin_resubmission.label }}
+                        </label>
+                        {% if form.notify_admin_resubmission.help_text %}
+                            <p class="ml-6 text-xs text-gray-500">{{ form.notify_admin_resubmission.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{% url 'dashboard' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    Back to Dashboard
+                </a>
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    Update Preferences
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Information Panel -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Email Notification Information</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Email notifications keep you informed of project status changes</li>
+                        <li>You can disable all notifications or choose specific events</li>
+                        <li>Admin users receive additional notifications about project submissions</li>
+                        <li>Email frequency controls how often you receive digest emails</li>
+                        <li>Changes to preferences take effect immediately</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

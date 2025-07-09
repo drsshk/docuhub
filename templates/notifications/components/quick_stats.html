@@ -1,0 +1,21 @@
+<div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Stats</h3>
+    <div class="space-y-3">
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Emails Today</span>
+            <span class="text-sm font-medium text-gray-900">{{ emails_today|default:0 }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">This Week</span>
+            <span class="text-sm font-medium text-gray-900">{{ emails_week|default:0 }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Success Rate</span>
+            <span class="text-sm font-medium text-green-600">{{ success_rate|default:"0" }}%</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Active Users</span>
+            <span class="text-sm font-medium text-gray-900">{{ active_users|default:0 }}</span>
+        </div>
+    </div>
+</div>

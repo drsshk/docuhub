@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - DocuHub{% endblock %}
+
+{% block extra_head %}
+<style>
+    .login-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .login-card {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-input {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .login-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 1);
+    }
+    
+    .login-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+        transform: translateY(0);
+    }
+    
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .floating-label {
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-group input:focus + .floating-label,
+    .input-group input:not(:placeholder-shown) + .floating-label {
+        transform: translateY(-12px) scale(0.8);
+        color: #667eea;
+        font-weight: 500;
+    }
+    
+    .logo-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .card-slide-in {
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm logo-animation">
+                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-bold text-white">
+                Welcome to DocuHub
+            </h2>
+            <p class="mt-2 text-center text-sm text-white/80">
+                Sign in to manage your documents and projects
+            </p>
+        </div>
+        
+        <div class="login-card rounded-xl p-8 card-slide-in">
+        
+            <h3 class="text-2xl font-bold text-gray-800 text-center mb-6">Sign In</h3>
+            
+            <form class="space-y-6" method="post">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    <div class="input-group">
+                        <input id="id_username" name="username" type="text" required 
+                               class="login-input w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none text-gray-800 placeholder-transparent"
+                               placeholder="Username" value="{{ form.username.value|default:'' }}">
+                        <label for="id_username" class="floating-label absolute left-4 top-3 text-gray-600">
+                            <i class="fas fa-user mr-2"></i>Username
+                        </label>
+                        {% if form.username.errors %}
+                            <div class="mt-2 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.username.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="input-group">
+                        <input id="id_password" name="password" type="password" required 
+                               class="login-input w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none text-gray-800 placeholder-transparent"
+                               placeholder="Password">
+                        <label for="id_password" class="floating-label absolute left-4 top-3 text-gray-600">
+                            <i class="fas fa-lock mr-2"></i>Password
+                        </label>
+                        {% if form.password.errors %}
+                            <div class="mt-2 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.password.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-800">{{ form.non_field_errors.0 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" 
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="{% url 'accounts:password_reset_request' %}" class="font-medium text-purple-600 hover:text-purple-500 transition-colors">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="login-button w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        <span class="flex items-center">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Sign in to DocuHub
+                        </span>
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Need help? 
+                        <a href="mailto:support@docuhub.com" class="font-medium text-purple-600 hover:text-purple-500 transition-colors">
+                            Contact Support
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <div class="text-center">
+            <p class="text-sm text-white/60">
+                © 2024 DocuHub. All rights reserved.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
