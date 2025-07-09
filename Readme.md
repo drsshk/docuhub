@@ -19,6 +19,7 @@ A professional Django application for managing technical drawing versions with a
 ✅ **Environment-Specific Settings** - Separate configurations for development and production  
 ✅ **Query Optimization** - Database queries optimized with select_related and prefetch_related  
 ✅ **Structured Logging** - Comprehensive logging system with file and console output  
+✅ **Version Tracking System** - Built-in application version management with detailed release notes and modal display  
 
 ## 📋 System Requirements
 
@@ -47,16 +48,58 @@ cp .env.example .env
 
 Key environment variables:
 ```env
-DJANGO_ENVIRONMENT=development  # or production
-SECRET_KEY=your-secret-key-here
+# Django Environment Configuration
+DJANGO_ENVIRONMENT=development
+SECRET_KEY=your-secret-key-here-change-in-production
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=sqlite:///db.sqlite3
+
+# Database Configuration
+DATABASE_URL=your-database-url # e.g., mysql://user:password@host:port/database or sqlite:///db.sqlite3
+# For MySQL:
+DB_NAME=your-db-name
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_HOST=your-db-host
+DB_PORT=your-db-port
+
+# Email Configuration (Brevo)
 BREVO_API_KEY=your-brevo-api-key
-DEFAULT_FROM_EMAIL=noreply@docuhub.com
+DEFAULT_FROM_EMAIL=your-default-from-email
 BREVO_SENDER_NAME=DocuHub System
+
+ADMIN_EMAIL=your-admin-email
+
+# Email Template IDs (Brevo)
+EMAIL_TEMPLATE_PROJECT_SUBMITTED=1
+EMAIL_TEMPLATE_PROJECT_APPROVED=2
+EMAIL_TEMPLATE_PROJECT_REJECTED=3
+EMAIL_TEMPLATE_PROJECT_REVISE_RESUBMIT=4
+EMAIL_TEMPLATE_PROJECT_OBSOLETE=5
+EMAIL_TEMPLATE_ADMIN_NEW_SUBMISSION=6
+EMAIL_TEMPLATE_ADMIN_RESUBMISSION=7
+
+# Frontend Configuration
 FRONTEND_URL=http://localhost:8000
+
+# Redis Configuration (for cache and Celery)
 REDIS_URL=redis://localhost:6379/0
+
+# CORS Configuration (production)
+CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
+# Production Email (SMTP)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+# Monitoring (optional)
+SENTRY_DSN=your-sentry-dsn-here
+
+# Admin URL (production security)
+ADMIN_URL=secure-admin-path/
 ```
 
 ### 3. Database Setup
@@ -103,7 +146,10 @@ docuhub/
 │   │   ├── services.py           # Email sending services
 │   │   └── views.py              # Notification management
 │   ├── core/                      # Core functionality
-│   │   ├── views.py              # Dashboard, home page
+│   │   ├── views.py              # Dashboard, home page, version management
+│   │   ├── models.py             # Version tracking models
+│   │   ├── forms.py              # Version management forms
+│   │   ├── admin.py              # Version administration
 │   │   ├── context_processors.py # Global template context
 │   │   └── urls.py               # Core URLs
 ├── templates/                     # HTML templates
@@ -234,6 +280,194 @@ This role is defined in the system for future use but is not fully implemented i
 - **Foreign Key Relations** - Proper relationships with cascading deletes
 - **Data Validation** - Model-level validation for data integrity
 
+## 📋 Version Tracking System
+
+DocuHub includes a comprehensive version tracking system that allows administrators to manage application versions with detailed release notes and improvements.
+
+### 🚀 Features
+
+**Version Management:**
+- **Version Creation**: Create new versions with semantic version numbers (e.g., 1.0.0, 1.1.0, 2.0.0)
+- **Version Types**: Support for Major, Minor, Patch, and Beta releases
+- **Current Version Tracking**: Mark specific versions as current with automatic version file updates
+- **Release Documentation**: Detailed descriptions for each version release
+
+**Improvement Tracking:**
+- **Categorized Improvements**: Track different types of improvements:
+  - 🌟 **Feature**: New functionality and capabilities
+  - 🔧 **Enhancement**: Improvements to existing features
+  - 🐛 **Bug Fix**: Resolved issues and problems
+  - 🔒 **Security**: Security-related updates and fixes
+  - ⚡ **Performance**: Speed and efficiency improvements
+  - 🎨 **UI/UX**: User interface and experience enhancements
+  - 🔌 **API**: API changes and additions
+  - 📚 **Documentation**: Documentation updates and additions
+
+**User Experience:**
+- **Footer Version Display**: Current version shown in page footer with clickable link
+- **Version Modal**: Interactive modal showing detailed version information
+- **Version History Page**: Complete timeline of all releases with improvements
+- **Version Detail Pages**: Detailed view of specific versions with all improvements
+
+### 🔧 Admin Interface
+
+**Version Administration:**
+- **Django Admin Integration**: Full admin interface for version management
+- **Inline Improvements**: Add/edit improvements directly within version forms
+- **Rich Admin Forms**: User-friendly forms with proper validation
+- **Auto-sync**: Automatically updates `docuhub/version.py` when marking versions as current
+
+**Modern UI Forms:**
+- **Enhanced Form Design**: Beautiful, responsive forms with gradient backgrounds
+- **Dynamic Form Management**: Add/remove improvement forms dynamically
+- **Real-time Validation**: Instant feedback on form validation
+- **Smooth Animations**: Polished user experience with animations and transitions
+
+### 🎯 Usage
+
+**For Administrators:**
+
+1. **Access Admin Interface**:
+   ```
+   /admin/core/version/
+   ```
+
+2. **Create New Version**:
+   - Navigate to Version History page
+   - Click "Add Version" button
+   - Fill in version details and improvements
+   - Mark as current if active release
+
+3. **Edit Existing Version**:
+   - Click "Edit Version" on version detail page
+   - Update version information and improvements
+   - Save changes
+
+**For Users:**
+
+1. **View Current Version**:
+   - Check footer of any page
+   - Click version number for detailed information
+
+2. **Browse Version History**:
+   - Navigate to Settings → Version History
+   - View complete timeline of releases
+   - Click any version for detailed view
+
+### 🔗 API Integration
+
+**Version API Endpoint:**
+```
+GET /api/current-version/
+```
+
+**Response Format:**
+```json
+{
+  "version_number": "1.0.0",
+  "version_type": "Major Release",
+  "description": "Initial release with core functionality",
+  "release_date": "2024-01-15T10:30:00Z",
+  "is_current": true,
+  "improvements": [
+    {
+      "improvement_type": "feature",
+      "improvement_type_display": "New Feature",
+      "title": "User Management System",
+      "description": "Complete user authentication and management",
+      "order": 0
+    }
+  ]
+}
+```
+
+### 📁 File Structure
+
+```
+apps/core/
+├── models.py                 # Version and VersionImprovement models
+├── admin.py                  # Admin interface configuration
+├── forms.py                  # Version management forms
+├── views.py                  # Version views and API endpoints
+├── urls.py                   # Version-related URLs
+├── management/
+│   └── commands/
+│       ├── version.py        # Version management command
+│       └── create_sample_versions.py  # Sample data generator
+└── templatetags/
+    └── custom_filters.py     # Version display filters
+
+templates/core/
+├── version_history.html      # Version timeline page
+├── version_detail.html       # Individual version details
+└── add_version.html          # Version creation/editing form
+
+docuhub/
+├── version.py               # Current version file (auto-updated)
+└── __init__.py             # Version import
+```
+
+### 🛠️ Management Commands
+
+**Check Current Version:**
+```bash
+python manage.py version
+```
+
+**Set New Version:**
+```bash
+python manage.py version --set 1.1.0
+```
+
+**Create Sample Versions:**
+```bash
+python manage.py create_sample_versions
+```
+
+### 🎨 UI Components
+
+**Version Modal Features:**
+- **Version Badges**: Color-coded version information
+- **Release Information**: Date, type, and current status
+- **Improvement Categories**: Organized by improvement type
+- **Navigation**: Links to full version history
+- **Responsive Design**: Works on all device sizes
+
+**Version History Timeline:**
+- **Chronological Layout**: Timeline view of all versions
+- **Improvement Previews**: Quick overview of changes
+- **Interactive Elements**: Hover effects and animations
+- **Search & Filter**: Find specific versions easily
+
+### 🔄 Version Workflow
+
+1. **Development**: Work on new features and improvements
+2. **Version Creation**: Admin creates new version entry
+3. **Improvement Documentation**: Add detailed improvement descriptions
+4. **Release**: Mark version as current (auto-updates app version)
+5. **User Notification**: Version appears in footer and history
+6. **Feedback**: Users can view changes and improvements
+
+### 🔍 Integration Points
+
+**Template Integration:**
+- `{{ APP_VERSION }}` - Current version number in templates
+- Footer version link with modal functionality
+- Settings menu version history access
+
+**Context Processor:**
+- Automatic version injection into all templates
+- Current version availability globally
+
+**Admin Integration:**
+- Seamless Django admin interface
+- Inline improvement editing
+- Automatic version file updates
+
+This version tracking system provides complete transparency about application changes and improvements, enhancing user experience and administrative control over release management.
+
+---
+
 ## 🔌 API Endpoints
 
 ### Authentication
@@ -254,6 +488,9 @@ This role is defined in the system for future use but is not fully implemented i
 - `POST /api/projects/{id}/drawings/` - Add drawing to project
 - `PUT /api/drawings/{id}/` - Update drawing
 - `DELETE /api/drawings/{id}/` - Delete drawing
+
+### Version Management
+- `GET /api/current-version/` - Get current version details with improvements
 
 ## API Documentation
 
