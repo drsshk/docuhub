@@ -101,6 +101,20 @@
                 {% endif %}
             </div>
 
+            <!-- Project Folder Link -->
+            <div>
+                <label for="{{ form.project_folder_link.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Project Folder Link
+                </label>
+                {{ form.project_folder_link }}
+                {% if form.project_folder_link.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.project_folder_link.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500">Link to the project folder containing all related documents and drawings.</p>
+            </div>
+
             <!-- Priority and Deadline -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

@@ -2,6 +2,7 @@
 Business logic services for project management
 """
 import logging
+import uuid
 from typing import Optional, Dict, Any
 from django.db import transaction
 from django.contrib.auth.models import User

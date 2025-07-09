@@ -8,7 +8,7 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = [
             'project_name', 'project_description', 'client_department', 
-            'project_priority', 'deadline_date'
+            'project_priority', 'deadline_date', 'project_folder_link'
         ]
         widgets = {
             'project_name': forms.TextInput(attrs={
@@ -30,6 +30,10 @@ class ProjectForm(forms.ModelForm):
             'deadline_date': forms.DateInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'type': 'date'
+            }),
+            'project_folder_link': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://example.com/project-folder-link'
             })
         }
 
@@ -47,7 +51,7 @@ class DrawingForm(forms.ModelForm):
         model = Drawing
         fields = [
             'drawing_no', 'drawing_title', 'drawing_description', 
-            'drawing_list_link', 'discipline', 'drawing_type'
+            'discipline', 'drawing_type'
         ]
         widgets = {
             'drawing_no': forms.TextInput(attrs={
@@ -63,10 +67,6 @@ class DrawingForm(forms.ModelForm):
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'rows': 3,
                 'placeholder': 'Enter drawing description (optional)'
-            }),
-            'drawing_list_link': forms.URLInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': 'https://example.com/drawing-link'
             }),
             'discipline': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'

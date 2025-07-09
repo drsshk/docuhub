@@ -152,6 +152,25 @@
                         </div>
                         {% endif %}
                     </div>
+                    
+                    {% if project.project_folder_link %}
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <dt class="text-sm font-medium text-gray-500">Project Folder</dt>
+                        <dd class="mt-1">
+                            <a href="{{ project.project_folder_link }}" target="_blank" 
+                               class="inline-flex items-center text-sm text-blue-600 hover:text-blue-900">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h2a2 2 0 012 2v3H8V5z"/>
+                                </svg>
+                                Access Project Folder
+                                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </dd>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 

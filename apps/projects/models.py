@@ -46,6 +46,7 @@ class Project(models.Model):
     client_department = models.CharField(max_length=100, blank=True)
     project_priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Normal')
     deadline_date = models.DateField(null=True, blank=True)
+    project_folder_link = models.URLField(max_length=500, blank=True, validators=[validate_url_format])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -156,7 +157,6 @@ class Drawing(models.Model):
     )
     drawing_title = models.CharField(max_length=255, blank=True, validators=[validate_drawing_title])
     drawing_description = models.TextField(blank=True)
-    drawing_list_link = models.URLField(max_length=500, blank=True, validators=[validate_url_format])
     drawing_type = models.CharField(max_length=50, blank=True, validators=[validate_drawing_type])
     discipline = models.CharField(max_length=50, choices=DISCIPLINE_CHOICES, blank=True)
     scale_ratio = models.CharField(max_length=20, blank=True, validators=[validate_scale_ratio])
