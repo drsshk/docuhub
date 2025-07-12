@@ -17,7 +17,6 @@ class ProjectCreationTest(TestCase):
         response = self.client.post(self.create_url, {
             'project_name': 'Test Project 1',
             'project_description': 'This is a test description.',
-            'client_department': 'Test Department',
             'project_priority': 'High',
             'deadline_date': '2025-12-31'
         })
@@ -33,7 +32,6 @@ class ProjectCreationTest(TestCase):
         Project.objects.create(
             project_name='Existing Project',
             project_description='Desc',
-            client_department='Dept',
             project_priority='Normal', # Changed to 'Normal' as 'Medium' might not be a valid choice
             version=1, # Explicitly set version
             submitted_by=self.user,
@@ -44,7 +42,6 @@ class ProjectCreationTest(TestCase):
         response = self.client.post(self.create_url, {
             'project_name': 'existing project',  # Different case
             'project_description': 'This is a test description.',
-            'client_department': 'Test Department',
             'project_priority': 'High',
             'deadline_date': '2025-12-31'
         })
@@ -57,7 +54,6 @@ class ProjectCreationTest(TestCase):
         response = self.client.post(self.create_url, {
             'project_name': malicious_name,
             'project_description': 'Description',
-            'client_department': 'Department',
             'project_priority': 'Low',
             'deadline_date': '2025-12-31'
         })
@@ -72,7 +68,6 @@ class ProjectCreationTest(TestCase):
         response = self.client.post(self.create_url, {
             'project_name': 'Another Project',
             'project_description': malicious_description,
-            'client_department': 'Department',
             'project_priority': 'Low',
             'deadline_date': '2025-12-31'
         })

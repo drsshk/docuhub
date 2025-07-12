@@ -43,7 +43,7 @@ class Project(models.Model):
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_projects')
     review_comments = models.TextField(blank=True, validators=[validate_comments_length])
     revision_notes = models.TextField(blank=True, validators=[validate_comments_length])
-    client_department = models.CharField(max_length=100, blank=True)
+    
     project_priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Normal')
     deadline_date = models.DateField(null=True, blank=True)
     project_folder_link = models.URLField(max_length=500, blank=True, validators=[validate_url_format])

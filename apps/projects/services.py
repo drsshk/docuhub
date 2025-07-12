@@ -45,7 +45,7 @@ class ProjectVersionService:
                 submitted_by=user,
                 status='Draft',
                 revision_notes=revision_notes,
-                client_department=original_project.client_department,
+                
                 project_priority=original_project.project_priority,
                 deadline_date=original_project.deadline_date
             )

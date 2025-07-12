@@ -82,8 +82,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         search = self.request.GET.get('search')
         if search:
             base_queryset = base_queryset.filter(
-                Q(project_name__icontains=search) |
-                Q(client_department__icontains=search)
+                Q(project_name__icontains=search)
             )
 
         latest_versions_pks = base_queryset.values('project_group_id').annotate(

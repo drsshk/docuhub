@@ -30,7 +30,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'no_of_drawings', 'date_created', 'date_submitted'
     ]
     list_filter = ['status', 'project_priority', 'date_created', 'date_submitted']
-    search_fields = ['project_name', 'submitted_by__username', 'client_department', 'project_group_id']
+    search_fields = ['project_name', 'submitted_by__username', 'project_group_id']
     readonly_fields = [
         'id', 'project_group_id', 'version', 'date_created', 'date_submitted', 'date_reviewed', 
         'no_of_drawings', 'created_at', 'updated_at'
@@ -39,7 +39,7 @@ class ProjectAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Project Information', {
-            'fields': ('project_name', 'project_description', 'client_department', 
+            'fields': ('project_name', 'project_description', 
                       'project_priority', 'deadline_date')
         }),
         ('Status & Workflow', {

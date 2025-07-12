@@ -7,7 +7,7 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = [
-            'project_name', 'project_description', 'client_department', 
+            'project_name', 'project_description', 
             'project_priority', 'deadline_date', 'project_folder_link'
         ]
         widgets = {
@@ -20,10 +20,7 @@ class ProjectForm(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Enter project description (optional)'
             }),
-            'client_department': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': 'Enter client or department'
-            }),
+            
             'project_priority': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             }),

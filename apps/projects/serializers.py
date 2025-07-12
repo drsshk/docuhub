@@ -36,7 +36,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'id', 'project_name', 'project_description', 'version', 'version_display',
             'submitted_by', 'submitted_by_name', 'reviewed_by', 'reviewed_by_name',
             'date_created', 'date_submitted', 'date_reviewed', 'no_of_drawings',
-            'status', 'review_comments', 'revision_notes', 'client_department',
+            'status', 'review_comments', 'revision_notes',
             'project_priority', 'deadline_date', 'drawings', 'approval_history'
         ]
         read_only_fields = [
