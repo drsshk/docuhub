@@ -311,13 +311,13 @@ class ProjectSubmissionService:
         # Send confirmation to user
         self.email_service.notify_project_submitted(project, user)
         
-        # Send notification to admins and project managers
-        from .permissions import IsProjectManager
+        # Send notification to admins and approvers
+        from apps.accounts.models import Role
         
-        # Get staff users and project managers
+        # Get users with Approver or Admin roles, plus staff users
         admin_users = User.objects.filter(is_active=True).filter(
             models.Q(is_staff=True) | 
-            models.Q(groups__name='Project Managers') |
+            models.Q(profile__role__name__in=['Approver', 'Admin']) |
             models.Q(user_permissions__codename='can_review_projects')
         ).distinct()
         

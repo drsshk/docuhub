@@ -69,14 +69,24 @@ def project_status_changed(sender, instance, created, **kwargs):
         if instance.date_submitted:
             email_service.notify_project_submitted(instance, user)
             
-            # Notify all admin users
-            admin_users = User.objects.filter(is_staff=True, is_active=True)
-            email_service.notify_admin_new_submission(instance, admin_users)
+            # Notify all admin and approver users
+            from apps.accounts.models import Role
+            from django.db import models as db_models
+            admin_users = User.objects.filter(is_active=True).filter(
+                db_models.Q(is_staff=True) | 
+                db_models.Q(profile__role__name__in=['Approver', 'Admin'])
+            ).distinct()
+            if admin_users.exists():
+                email_service.notify_admin_new_submission(instance, admin_users)
     
     elif instance.status == 'Pending_Approval' and old_status in ['Rejected', 'Revise_and_Resubmit']:
         # Project resubmitted - notify admins
-        admin_users = User.objects.filter(is_staff=True, is_active=True)
-        email_service.notify_admin_new_submission(instance, admin_users)
+        admin_users = User.objects.filter(is_active=True).filter(
+            db_models.Q(is_staff=True) | 
+            db_models.Q(profile__role__name__in=['Approver', 'Admin'])
+        ).distinct()
+        if admin_users.exists():
+            email_service.notify_admin_new_submission(instance, admin_users)
     
     elif instance.status == 'Approved_Endorsed':
         # Project approved - notify user
