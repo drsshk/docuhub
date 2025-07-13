@@ -3,23 +3,277 @@
 {% block title %}Welcome to DocuHub{% endblock %}
 
 {% block content %}
-<div class="fade-in">
+<style>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes smoothSlideInView {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cascadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0deg);
+    }
+}
+
+@keyframes morphTransition {
+    0% {
+        opacity: 0;
+        transform: translateY(60px) scale(0.9);
+        filter: blur(3px);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateY(20px) scale(0.98);
+        filter: blur(1px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0px);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-fadeInLeft {
+    animation: fadeInLeft 0.8s ease-out forwards;
+}
+
+.animate-fadeInRight {
+    animation: fadeInRight 0.8s ease-out forwards;
+}
+
+.animate-slideInDown {
+    animation: slideInDown 0.6s ease-out forwards;
+}
+
+.animate-pulse-hover:hover {
+    animation: pulse 0.3s ease-in-out;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-smoothSlideInView {
+    animation: smoothSlideInView 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-cascadeIn {
+    animation: cascadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-morphTransition {
+    animation: morphTransition 1.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.section-transition {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center top;
+}
+
+.seamless-flow {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.stagger-1 { animation-delay: 0.2s; }
+.stagger-2 { animation-delay: 0.4s; }
+.stagger-3 { animation-delay: 0.6s; }
+.stagger-4 { animation-delay: 0.8s; }
+.stagger-5 { animation-delay: 1.0s; }
+.stagger-6 { animation-delay: 1.2s; }
+
+.hero-stagger { animation-delay: 0.1s; }
+.features-stagger { animation-delay: 0.8s; }
+.cta-stagger { animation-delay: 1.6s; }
+
+.glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.gradient-border {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2px;
+    border-radius: 12px;
+}
+
+.gradient-border-content {
+    background: white;
+    border-radius: 10px;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .animate-fadeInLeft,
+    .animate-fadeInRight {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .stagger-1,
+    .stagger-2,
+    .stagger-3,
+    .stagger-4,
+    .stagger-5,
+    .stagger-6 {
+        animation-delay: 0.1s;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-fadeInUp,
+    .animate-fadeInLeft,
+    .animate-fadeInRight,
+    .animate-slideInDown,
+    .animate-pulse-hover,
+    .animate-float,
+    .animate-smoothSlideInView,
+    .animate-cascadeIn,
+    .animate-morphTransition,
+    .card-hover,
+    .section-transition {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+.focus-visible:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+}
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+    transition: scroll 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+</style>
+
+<div class="fade-in seamless-flow">
     <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-xl overflow-hidden mb-12">
-        <div class="px-6 py-12 sm:px-12 sm:py-16 lg:px-16">
-            <div class="max-w-3xl">
-                <h1 class="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
-                    Welcome to DocuHub
-                </h1>
-                <p class="mt-6 text-xl text-blue-100 max-w-2xl">
+    <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-hidden mb-16 animate-smoothSlideInView hero-stagger section-transition">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div class="relative px-6 py-12 sm:px-12 sm:py-16 lg:px-16">
+            <div class="max-w-4xl">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm animate-float">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+                        Welcome to DocuHub
+                    </h1>
+                </div>
+                <p class="text-xl text-slate-200 max-w-3xl leading-relaxed mb-8">
                     Professional Drawing Version Management System for teams. Track, manage, and approve technical drawings with automated workflows and complete audit trails.
                 </p>
-                <div class="mt-8">
+                <div class="flex items-center text-sm text-slate-300 mb-8">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></div>
+                    System operational - All services running
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{% url 'accounts:login' %}" 
-                       class="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-50 transition duration-150 ease-in-out">
+                       class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-800 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus-visible">
                         Get Started
                         <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                    <a href="#features" 
+                       class="inline-flex items-center justify-center px-8 py-4 border-2 border-white/20 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-300 backdrop-blur-sm focus-visible smooth-scroll-link">
+                        Learn More
+                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
                         </svg>
                     </a>
                 </div>
@@ -28,102 +282,227 @@
     </div>
 
     <!-- Features Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+    <div id="features" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 animate-cascadeIn features-stagger section-transition">
         <!-- Version Control -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-1">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">Automatic Versioning</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Automated version control with incremental numbering. Track every change with complete revision history.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Automatic Versioning</h3>
-            <p class="text-gray-600">
-                Automated version control with incremental numbering. Track every change with complete revision history.
-            </p>
         </div>
 
         <!-- Approval Workflow -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-2">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">Approval Workflow</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Structured approval process with admin review, comments, and status tracking for quality control.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Approval Workflow</h3>
-            <p class="text-gray-600">
-                Structured approval process with admin review, comments, and status tracking for quality control.
-            </p>
         </div>
 
         <!-- Email Notifications -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-3">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">Email Notifications</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Automated email notifications keep teams informed of project status changes and review decisions.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Email Notifications</h3>
-            <p class="text-gray-600">
-                Automated email notifications keep teams informed of project status changes and review decisions.
-            </p>
         </div>
 
         <!-- External Links -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-4">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">External Link Management</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-violet-500 to-violet-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Link to external drawing storage systems. No file uploads required - just reference your existing files.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">External Link Management</h3>
-            <p class="text-gray-600">
-                Link to external drawing storage systems. No file uploads required - just reference your existing files.
-            </p>
         </div>
 
         <!-- User Tracking -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-5">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">User Activity Tracking</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-rose-500 to-rose-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Complete audit trail with user attribution, timestamps, and action logging for compliance.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">User Activity Tracking</h3>
-            <p class="text-gray-600">
-                Complete audit trail with user attribution, timestamps, and action logging for compliance.
-            </p>
         </div>
 
         <!-- Real-time Updates -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-150 ease-in-out">
-            <div class="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
-                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
+        <div class="gradient-border animate-fadeInUp stagger-6">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-3">Real-time Dashboard</h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full mb-3"></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    Live project statistics, drawing counts, and status updates with modern, responsive interface.
+                </p>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Real-time Dashboard</h3>
-            <p class="text-gray-600">
-                Live project statistics, drawing counts, and status updates with modern, responsive interface.
-            </p>
         </div>
     </div>
 
     <!-- Call to Action -->
-    <div class="bg-gray-50 rounded-lg p-8 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Ready to streamline your drawing management?</h2>
-        <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Join teams already using DocuHub to manage their technical drawings with confidence. 
-            Get started in minutes with our intuitive interface.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'accounts:login' %}" 
-               class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">
-                Sign In
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+    <div class="glass-effect rounded-xl shadow-xl border border-gray-200 p-8 lg:p-12 text-center animate-morphTransition cta-stagger section-transition">
+        <div class="max-w-4xl mx-auto">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-6 animate-float">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-            </a>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">Ready to streamline your drawing management?</h2>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Join teams already using DocuHub to manage their technical drawings with confidence. 
+                Get started in minutes with our intuitive interface and powerful automation.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'accounts:login' %}" 
+                   class="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus-visible">
+                    <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    Sign In Now
+                    <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+                <a href="#features" 
+                   class="group inline-flex items-center justify-center px-8 py-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-xl hover:border-slate-400 hover:bg-slate-50 transition-all duration-300 transform hover:scale-105 focus-visible smooth-scroll-link">
+                    <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Learn More
+                    <svg class="ml-2 w-4 h-4 group-hover:translate-y-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    </svg>
+                </a>
+            </div>
+            
+            <!-- Trust Indicators -->
+            <div class="mt-12 pt-8 border-t border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-center justify-center space-x-3 text-sm text-gray-600">
+                        <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <span class="font-medium">Secure & Compliant</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3 text-sm text-gray-600">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <span class="font-medium">Lightning Fast</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3 text-sm text-gray-600">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </div>
+                        <span class="font-medium">User Friendly</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced smooth scrolling for Learn More buttons
+    document.querySelectorAll('.smooth-scroll-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                // Calculate the offset position
+                const offsetTop = targetElement.offsetTop - 32; // 2rem padding
+                
+                // Smooth scroll with custom timing
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+                
+                // Add a subtle animation to the target section
+                targetElement.style.transform = 'scale(1.02)';
+                targetElement.style.transition = 'transform 0.3s ease-out';
+                
+                setTimeout(() => {
+                    targetElement.style.transform = 'scale(1)';
+                }, 300);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
