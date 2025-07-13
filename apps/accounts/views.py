@@ -71,7 +71,7 @@ def logout_view(request):
     """User logout view"""
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('accounts:login')
+    return redirect('core:dashboard')
 
 # --- Profile Management ---
 
