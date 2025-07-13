@@ -1,0 +1,35 @@
+Welcome to DocuHub - Account Setup
+
+Hello {{ user_name }},
+
+Welcome to DocuHub! An account has been created for you in our project management system. You're now ready to submit and manage your project documentation.
+
+Your Account Details:
+- Username: {{ user.username }}
+- Email: {{ user.email }}
+- Account Created: {{ user.date_joined|date:"F d, Y" }}
+
+To complete your account setup, please visit the following link to set your password:
+{{ setup_url }}
+
+Important Security Information:
+- This password setup link is valid for 24 hours only
+- After setting your password, you can log in and access the system
+- Make sure to choose a strong password for security
+
+Once your account is set up, you'll be able to:
+- Submit projects for review and approval
+- Track the status of your submissions
+- Manage your project documentation
+- Receive notifications about project updates
+
+If you have any questions or need assistance, please contact your system administrator.
+
+We look forward to working with you!
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

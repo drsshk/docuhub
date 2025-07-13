@@ -164,7 +164,6 @@ def get_department_statistics():
         user_count=Count('user')
     ).order_by('-user_count')
 
-import requests
 from django.conf import settings
 from django.urls import reverse
 
@@ -175,100 +174,53 @@ def send_account_setup_email(user, token, uid):
     import logging
     logger = logging.getLogger('accounts')
     
-    # --- FIX: Added 'accounts:' namespace to the reverse() call ---
-    password_setup_path = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
-    
-    # The rest of the function remains the same
-    full_setup_url = settings.FRONTEND_URL + password_setup_path
-
-    # Brevo API details from settings.py
-    api_key = settings.BREVO_API_KEY
-    api_url = settings.BREVO_API_URL
-    sender_email = settings.DEFAULT_FROM_EMAIL
-    sender_name = settings.BREVO_SENDER_NAME
-
-    if not api_key:
-        logger.warning(f"BREVO_API_KEY not set. Email not sent for user {user.username}")
-        logger.info(f"Password setup link for {user.username}: {full_setup_url}")
-        return False
-
-    headers = {
-        'accept': 'application/json',
-        'api-key': api_key,
-        'content-type': 'application/json',
-    }
-
-    data = {
-        "sender": {"email": sender_email, "name": sender_name},
-        "to": [{"email": user.email, "name": user.get_full_name()}],
-        "subject": "Welcome to DocuHub - Set Up Your Account",
-        "htmlContent": (
-            f"<html><body>"
-            f"<h2>Welcome to DocuHub, {user.first_name}!</h2>"
-            f"<p>An account has been created for you. Please set your password by clicking the link below:</p>"
-            f'<p><a href="{full_setup_url}" style="padding: 10px 20px; color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">Set Your Password</a></p>'
-            f"<p>This link is valid for 24 hours.</p>"
-            f"<p>If you did not expect this, please ignore this email.</p>"
-            f"</body></html>"
-        )
-    }
-
     try:
-        response = requests.post(api_url, headers=headers, json=data)
-        response.raise_for_status()
-        logger.info(f"Account setup email sent successfully via Brevo to {user.email}")
-        return True
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send account setup email to {user.email}: {e}")
-        if hasattr(e, 'response') and e.response is not None:
-            logger.error(f"Brevo API response: {e.response.text}")
+        from apps.notifications.services import BrevoEmailService
+        email_service = BrevoEmailService()
+        
+        # Generate the password setup URL
+        password_setup_path = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+        full_setup_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:8000') + password_setup_path
+        
+        # Send the email using our custom template system
+        success = email_service.send_account_setup_email(user, full_setup_url)
+        
+        if success:
+            logger.info(f"Account setup email sent successfully to {user.email}")
+        else:
+            logger.warning(f"Failed to send account setup email to {user.email}")
+            logger.info(f"Password setup link for {user.username}: {full_setup_url}")
+        
+        return success
+        
+    except Exception as e:
+        logger.error(f"Error sending account setup email to {user.email}: {e}")
         return False
 
 def send_password_reset_email(user, temp_password):
     """
-    Sends a temporary password to the user's email via Brevo API only.
+    Sends a temporary password to the user's email using custom templates.
     """
     import logging
     logger = logging.getLogger('accounts')
     
-    api_key = settings.BREVO_API_KEY
-    api_url = settings.BREVO_API_URL
-    sender_email = settings.DEFAULT_FROM_EMAIL
-    sender_name = settings.BREVO_SENDER_NAME
-
-    if not api_key:
-        logger.error(f"BREVO_API_KEY not set. Password reset email cannot be sent for user {user.username}")
-        return False
-
-    headers = {
-        'accept': 'application/json',
-        'api-key': api_key,
-        'content-type': 'application/json',
-    }
-
-    data = {
-        "sender": {"email": sender_email, "name": sender_name},
-        "to": [{"email": user.email, "name": user.get_full_name()}],
-        "subject": "DocuHub Password Reset",
-        "htmlContent": (
-            f"<html><body>"
-            f"<h2>Hello {user.first_name or user.username},</h2>"
-            f"<p>Your password for DocuHub has been reset.</p>"
-            f"<p>Your temporary password is: <strong>{temp_password}</strong></p>"
-            f"<p>Please log in with this temporary password and change it immediately for security reasons.</p>"
-            f'<p><a href="{settings.FRONTEND_URL}/accounts/login/" style="padding: 10px 20px; color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">Login to DocuHub</a></p>'
-            f"<p>If you did not request this password reset, please contact support immediately.</p>"
-            f"</body></html>"
-        )
-    }
-
     try:
-        response = requests.post(api_url, headers=headers, json=data)
-        response.raise_for_status()
-        logger.info(f"Password reset email sent successfully via Brevo to {user.email}")
-        return True
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send password reset email via Brevo to {user.email}: {e}")
-        if hasattr(e, 'response') and e.response is not None:
-            logger.error(f"Brevo API response: {e.response.text}")
+        from apps.notifications.services import BrevoEmailService
+        email_service = BrevoEmailService()
+        
+        # Generate the login URL
+        login_url = f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/accounts/login/"
+        
+        # Send the email using our custom template system
+        success = email_service.send_password_reset_email(user, temp_password, login_url)
+        
+        if success:
+            logger.info(f"Password reset email sent successfully to {user.email}")
+        else:
+            logger.warning(f"Failed to send password reset email to {user.email}")
+        
+        return success
+        
+    except Exception as e:
+        logger.error(f"Error sending password reset email to {user.email}: {e}")
         return False

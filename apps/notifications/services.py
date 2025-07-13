@@ -260,5 +260,42 @@ class BrevoEmailService:
             context,
             project
         )
+    
+    def send_account_setup_email(self, user, setup_url):
+        """Send account setup email to new user"""
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'user': user,
+            'setup_url': setup_url
+        }
+        
+        subject = f"Welcome to DocuHub - Set Up Your Account"
+        
+        return self.send_custom_email(
+            'account_setup',
+            user.email,
+            user.get_full_name() or user.username,
+            subject,
+            context
+        )
+    
+    def send_password_reset_email(self, user, temp_password, login_url):
+        """Send password reset email with temporary password"""
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'user': user,
+            'temp_password': temp_password,
+            'login_url': login_url
+        }
+        
+        subject = f"DocuHub Password Reset"
+        
+        return self.send_custom_email(
+            'password_reset',
+            user.email,
+            user.get_full_name() or user.username,
+            subject,
+            context
+        )
 
     

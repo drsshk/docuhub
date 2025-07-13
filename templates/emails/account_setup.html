@@ -1,0 +1,47 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Welcome to DocuHub - Account Setup{% endblock %}
+
+{% block header_title %}Welcome to DocuHub{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Set up your account to get started</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>Welcome to DocuHub! An account has been created for you in our project management system. You're now ready to submit and manage your project documentation.</p>
+
+<div class="project-info">
+    <h3>Your Account Details</h3>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Account Created:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+</div>
+
+<p>To complete your account setup, please click the button below to set your password:</p>
+
+<a href="{{ setup_url }}" class="button">Set Your Password</a>
+
+<p><strong>Important Security Information:</strong></p>
+<ul>
+    <li>This password setup link is valid for 24 hours only</li>
+    <li>After setting your password, you can log in and access the system</li>
+    <li>Make sure to choose a strong password for security</li>
+</ul>
+
+<p>Once your account is set up, you'll be able to:</p>
+<ul>
+    <li>Submit projects for review and approval</li>
+    <li>Track the status of your submissions</li>
+    <li>Manage your project documentation</li>
+    <li>Receive notifications about project updates</li>
+</ul>
+
+<p>If you have any questions or need assistance, please contact your system administrator.</p>
+
+<p>We look forward to working with you!</p>
+
+<p>Best regards,<br>
+The DocuHub Team</p>
+{% endblock %}
