@@ -34,9 +34,11 @@
                         <option value="">All Status</option>
                         <option value="Draft" {% if request.GET.status == 'Draft' %}selected{% endif %}>Draft</option>
                         <option value="Pending_Approval" {% if request.GET.status == 'Pending_Approval' %}selected{% endif %}>Pending Approval</option>
-                        <option value="Approved" {% if request.GET.status == 'Approved' %}selected{% endif %}>Approved</option>
+                        <option value="Approved_and_Endorsed" {% if request.GET.status == 'Approved_and_Endorsed' %}selected{% endif %}>Approved & Endorsed</option>
+                        <option value="Conditional_Approval" {% if request.GET.status == 'Conditional_Approval' %}selected{% endif %}>Conditional Approval</option>
+                        <option value="Request_for_Revision" {% if request.GET.status == 'Request_for_Revision' %}selected{% endif %}>Request for Revision</option>
                         <option value="Rejected" {% if request.GET.status == 'Rejected' %}selected{% endif %}>Rejected</option>
-                        <option value="Revise_and_Resubmit" {% if request.GET.status == 'Revise_and_Resubmit' %}selected{% endif %}>Revise & Resubmit</option>
+                        <option value="Rescinded_and_Revoked" {% if request.GET.status == 'Rescinded_and_Revoked' %}selected{% endif %}>Rescinded & Revoked</option>
                         <option value="Obsolete" {% if request.GET.status == 'Obsolete' %}selected{% endif %}>Obsolete</option>
                     </select>
                 </div>
@@ -89,9 +91,11 @@
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                                 {% if project.status == 'Draft' %}bg-gray-100 text-gray-800
                                 {% elif project.status == 'Pending_Approval' %}bg-yellow-100 text-yellow-800
-                                {% elif project.status == 'Approved' %}bg-green-100 text-green-800
+                                {% elif project.status == 'Approved_and_Endorsed' %}bg-green-100 text-green-800
+                                {% elif project.status == 'Conditional_Approval' %}bg-blue-100 text-blue-800
+                                {% elif project.status == 'Request_for_Revision' %}bg-purple-100 text-purple-800
                                 {% elif project.status == 'Rejected' %}bg-red-100 text-red-800
-                                {% elif project.status == 'Revise_and_Resubmit' %}bg-orange-100 text-orange-800
+                                {% elif project.status == 'Rescinded_and_Revoked' %}bg-red-200 text-red-900
                                 {% elif project.status == 'Obsolete' %}bg-gray-100 text-gray-600
                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ project.get_status_display }}
@@ -108,7 +112,7 @@
                         class="text-blue-600 hover:text-blue-900 mr-3">View</a>
 
                         {% if project.submitted_by == user %}
-                            {% if project.status == 'Draft' or project.status == 'Rejected' or project.status == 'Revise_and_Resubmit' %}
+                            {% if project.status == 'Draft' or project.status == 'Rejected' or project.status == 'Conditional_Approval' %}
                                 <a href="{% url 'projects:update' project.pk %}" class="text-green-600 hover:text-green-900">Edit</a>
                             {% endif %}
                         {% endif %}

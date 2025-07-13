@@ -88,10 +88,10 @@ class ProjectVersionService:
                 version=new_project.version,
                 submitted_by=user,
                 date_submitted=timezone.now(),
-                submission_link="",  # Placeholder
+                submission_link=new_project.get_absolute_url(),
                 drawing_qty=new_project.no_of_drawings,
                 drawing_numbers=new_drawing_numbers,
-                receipt_id="",  # Placeholder
+                receipt_id="",  # Will be generated when submitted
                 approval_status='Draft'
             )
 
@@ -150,7 +150,7 @@ class ProjectSubmissionService:
                     version=project.version,
                     submitted_by=user,
                     date_submitted=project.date_submitted,
-                    submission_link="",  # Placeholder, update if a specific link is generated
+                    submission_link=project.get_absolute_url(),
                     drawing_qty=project.no_of_drawings,
                     drawing_numbers=drawing_numbers,
                     receipt_id=str(uuid.uuid4()),  # Generate a unique receipt ID

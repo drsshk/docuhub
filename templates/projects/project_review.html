@@ -1,180 +1,380 @@
 {% extends 'base.html' %}
 
-{% block title %}Review Project: {{ project.project_name }}{% endblock %}
+{% block title %}Review: {{ project.project_name }} v{{ project.version_display }}{% endblock %}
 
 {% block content %}
-<div class="fade-in">
-    <div class="mb-8">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="flex items-center space-x-4">
-                <li>
+<div class="min-h-screen bg-gray-50">
+    <!-- Compact Header -->
+    <div class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex py-2 text-xs" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2">
+                    <li><a href="{% url 'projects:list' %}" class="text-gray-500 hover:text-gray-700">Projects</a></li>
+                    <li><span class="text-gray-400">›</span></li>
+                    <li><a href="{% url 'projects:detail' project.pk %}" class="text-gray-500 hover:text-gray-700">{{ project.project_name|truncatechars:30 }}</a></li>
+                    <li><span class="text-gray-400">›</span></li>
+                    <li><span class="text-gray-900 font-medium">Review</span></li>
+                </ol>
+            </nav>
+            
+            <!-- Main Header -->
+            <div class="py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
                     <div>
-                        <a href="{% url 'projects:list' %}" class="text-gray-400 hover:text-gray-500">
-                            Projects
-                        </a>
-                    </div>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <a href="{% url 'projects:detail' project.pk %}" class="ml-4 text-gray-400 hover:text-gray-500">
-                            {{ project.project_name }}
-                        </a>
-                    </div>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="ml-4 text-gray-500">Review</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-        
-        <h1 class="mt-4 text-3xl font-bold text-gray-900">Review Project</h1>
-        <p class="mt-2 text-gray-600">Reviewing "{{ project.project_name }}" (Version {{ project.version_display }})</p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 space-y-8">
-            <div class="bg-white shadow rounded-lg">
-                <form method="post" class="space-y-6 p-6">
-                    {% csrf_token %}
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Decision <span class="text-red-500">*</span></label>
-                        <div class="flex items-center space-x-6">
-                            {% for radio in form.action %}
-                            <div class="flex items-center">
-                                {{ radio.tag }}
-                                <label for="{{ radio.id_for_label }}" class="ml-2 block text-sm text-gray-900">{{ radio.choice_label }}</label>
-                            </div>
-                            {% endfor %}
+                        <h1 class="text-xl font-bold text-gray-900">{{ project.project_name }}</h1>
+                        <div class="flex items-center space-x-3 mt-1">
+                            <span class="text-sm text-gray-600">Version {{ project.version_display }}</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                {{ project.get_status_display }}
+                            </span>
+                            <span class="text-xs text-gray-500">{{ drawings.count }} drawing{{ drawings.count|pluralize }}</span>
                         </div>
-                        {% if form.action.errors %}
-                            <div class="mt-1 text-sm text-red-600">{{ form.action.errors.0 }}</div>
-                        {% endif %}
                     </div>
-
-                    <div>
-                        <label for="{{ form.comments.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Review Comments</label>
-                        {{ form.comments }}
-                        {% if form.comments.errors %}
-                            <div class="mt-1 text-sm text-red-600">{{ form.comments.errors.0 }}</div>
-                        {% endif %}
-                        <p class="mt-1 text-sm text-gray-500">Comments are required when rejecting a project.</p>
-                    </div>
-
-                    {% if form.non_field_errors %}
-                        <div class="bg-red-50 border border-red-200 text-red-800 p-3 rounded-md">{{ form.non_field_errors.0 }}</div>
-                    {% endif %}
-                    
-                    <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                        <a href="{% url 'projects:detail' project.pk %}" class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400">Cancel</a>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">Submit Review</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Drawings ({{ drawings.count }})</h3>
                 </div>
-                {% if drawings %}
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawing No.</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discipline</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for drawing in drawings %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ drawing.drawing_no }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">
-                                    {{ drawing.drawing_title|default:"No title" }}
-                                    {% if drawing.drawing_description %}<div class="text-xs text-gray-500 mt-1">{{ drawing.drawing_description|truncatewords:10 }}</div>{% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ drawing.get_discipline_display|default:"—" }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {% if drawing.drawing_list_link %}
-                                    <a href="{{ drawing.drawing_list_link }}" target="_blank" class="text-blue-600 hover:text-blue-900 flex items-center">
-                                        View
-                                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                    </a>
-                                    {% else %}—{% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ drawing.date_added|date:"M d, Y" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'projects:detail' project.pk %}" 
+                       class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                        Cancel
+                    </a>
                 </div>
-                {% else %}
-                <div class="px-6 py-8 text-center text-gray-500">No drawings have been added to this project.</div>
-                {% endif %}
             </div>
         </div>
+    </div>
 
-        <div class="space-y-6">
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-lg font-medium text-gray-900">Project Details</h3></div>
-                <div class="p-6 space-y-4">
-                    {% if project.project_description %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Description</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ project.project_description }}</dd>
-                    </div>
-                    {% endif %}
-                    {% if project.client_department %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Client/Department</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ project.client_department }}</dd>
-                    </div>
-                    {% endif %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Priority</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ project.project_priority }}</dd>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Review Form - 3/4 width -->
+            <div class="lg:col-span-3 space-y-6">
+                
+                <!-- Decision Panel -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="border-b border-gray-200 px-6 py-3">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-900">Review Decision</h2>
+                            <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                <span>Submitted: {{ project.date_submitted|date:"M d, Y" }}</span>
+                                <span>By: {{ project.submitted_by.get_full_name|default:project.submitted_by.username }}</span>
+                            </div>
                         </div>
-                        {% if project.deadline_date %}
+                    </div>
+                    
+                    <form method="post" class="p-6">
+                        {% csrf_token %}
+                        
+                        <!-- Approval Options Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+                            <div class="text-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="text-green-600 font-medium text-sm">✓ Approved & Endorsed</div>
+                                <div class="text-xs text-green-600 mt-1">Final approval</div>
+                            </div>
+                            <div class="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="text-blue-600 font-medium text-sm">◐ Conditional Approval</div>
+                                <div class="text-xs text-blue-600 mt-1">Minor changes needed</div>
+                            </div>
+                            <div class="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                <div class="text-purple-600 font-medium text-sm">↻ Request Revision</div>
+                                <div class="text-xs text-purple-600 mt-1">New version required</div>
+                            </div>
+                            <div class="text-center p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <div class="text-red-600 font-medium text-sm">✗ Rejected</div>
+                                <div class="text-xs text-red-600 mt-1">Cannot approve</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Decision Dropdown -->
+                            <div>
+                                <label for="id_action" class="block text-sm font-medium text-gray-700 mb-1">Decision *</label>
+                                <select name="action" id="id_action" required
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select decision</option>
+                                    <option value="approve">Approved & Endorsed</option>
+                                    <option value="conditional">Conditional Approval</option>
+                                    <option value="revise">Request for Revision</option>
+                                    <option value="reject">Rejected</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Comments -->
+                            <div class="md:col-span-2">
+                                <label for="id_comments" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Review Comments <span class="text-xs text-gray-500">(Required for rejection/revision)</span>
+                                </label>
+                                <textarea name="comments" id="id_comments" rows="3" 
+                                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                          placeholder="Provide specific feedback and reasoning for your decision...">{{ form.comments.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Dynamic Guidance -->
+                        <div id="actionGuidance" class="mt-4 hidden">
+                            <div id="approveGuidance" class="p-3 bg-green-50 border-l-4 border-green-400 hidden">
+                                <p class="text-sm text-green-800"><strong>Final Approval:</strong> Project will be locked from further edits. Use when no changes are needed.</p>
+                            </div>
+                            <div id="conditionalGuidance" class="p-3 bg-blue-50 border-l-4 border-blue-400 hidden">
+                                <p class="text-sm text-blue-800"><strong>Conditional Approval:</strong> Submitter can make minor edits and resubmit. Use for small adjustments.</p>
+                            </div>
+                            <div id="reviseGuidance" class="p-3 bg-purple-50 border-l-4 border-purple-400 hidden">
+                                <p class="text-sm text-purple-800"><strong>Request Revision:</strong> Creates new version automatically. Use for significant changes.</p>
+                            </div>
+                            <div id="rejectGuidance" class="p-3 bg-red-50 border-l-4 border-red-400 hidden">
+                                <p class="text-sm text-red-800"><strong>Rejection:</strong> Project cannot be approved. Explain reasoning clearly.</p>
+                            </div>
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-sm text-red-800">{{ form.non_field_errors.0 }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Submit Button -->
+                        <div class="mt-6 flex justify-end">
+                            <button type="submit" 
+                                    class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Drawings Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="border-b border-gray-200 px-6 py-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Drawings ({{ drawings.count }})</h3>
+                    </div>
+                    {% if drawings %}
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Drawing No.</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title & Description</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Added By</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for drawing in drawings %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ drawing.drawing_no }}</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <div class="font-medium text-gray-900">{{ drawing.drawing_title|default:"No title" }}</div>
+                                        {% if drawing.drawing_description %}
+                                        <div class="text-xs text-gray-500 mt-1">{{ drawing.drawing_description|truncatewords:12 }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-500">{{ drawing.added_by.get_full_name|default:drawing.added_by.username|default:"—" }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-500">{{ drawing.date_added|date:"M d" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 0a9 9 0 110 18 9 9 0 010-18z"/>
+                        </svg>
+                        <p class="text-sm">No drawings attached to this project</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar - 1/4 width -->
+            <div class="space-y-4">
+                
+                <!-- Project Summary -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-4 py-3 border-b border-gray-200">
+                        <h3 class="font-semibold text-gray-900">Project Details</h3>
+                    </div>
+                    <div class="p-4 space-y-3 text-sm">
+                        {% if project.project_description %}
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Deadline</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ project.deadline_date|date:"M d, Y" }}</dd>
+                            <div class="font-medium text-gray-700">Description</div>
+                            <div class="text-gray-600 mt-1">{{ project.project_description|truncatewords:20 }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <div class="font-medium text-gray-700">Priority</div>
+                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded 
+                                {% if project.project_priority == 'Urgent' %}bg-red-100 text-red-700
+                                {% elif project.project_priority == 'High' %}bg-orange-100 text-orange-700
+                                {% elif project.project_priority == 'Normal' %}bg-green-100 text-green-700
+                                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                    {{ project.project_priority }}
+                                </span>
+                            </div>
+                            
+                            {% if project.deadline_date %}
+                            <div>
+                                <div class="font-medium text-gray-700">Deadline</div>
+                                <div class="text-gray-600">{{ project.deadline_date|date:"M d, Y" }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if project.client_department %}
+                            <div>
+                                <div class="font-medium text-gray-700">Department</div>
+                                <div class="text-gray-600">{{ project.client_department }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if project.project_folder_link %}
+                        <div class="pt-3 border-t border-gray-200">
+                            <a href="{{ project.project_folder_link }}" target="_blank" 
+                               class="inline-flex items-center text-sm text-blue-600 hover:text-blue-700">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                                </svg>
+                                Project Folder
+                                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
                         </div>
                         {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="bg-white shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-lg font-medium text-gray-900">Project Info</h3></div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Submitted By</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ project.submitted_by.get_full_name|default:project.submitted_by.username }}</dd>
+
+                <!-- Review Workflow -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-4 py-3 border-b border-gray-200">
+                        <h3 class="font-semibold text-gray-900">Review Process</h3>
                     </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Created</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ project.date_created|date:"M d, Y, g:i A" }}</dd>
+                    <div class="p-4 space-y-3 text-xs">
+                        <div class="flex items-start space-x-2">
+                            <span class="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                            <div>
+                                <div class="font-medium text-gray-900">Review Materials</div>
+                                <div class="text-gray-600">Check drawings and project details</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                            <div>
+                                <div class="font-medium text-gray-900">Make Decision</div>
+                                <div class="text-gray-600">Select appropriate approval type</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                            <div>
+                                <div class="font-medium text-gray-900">Provide Feedback</div>
+                                <div class="text-gray-600">Add detailed comments</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <span class="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                            <div>
+                                <div class="font-medium text-gray-900">Submit Review</div>
+                                <div class="text-gray-600">User will be notified automatically</div>
+                            </div>
+                        </div>
                     </div>
-                    {% if project.date_submitted %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Submitted</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ project.date_submitted|date:"M d, Y, g:i A" }}</dd>
+                </div>
+
+                <!-- Timeline -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-4 py-3 border-b border-gray-200">
+                        <h3 class="font-semibold text-gray-900">Timeline</h3>
                     </div>
-                    {% endif %}
+                    <div class="p-4 space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Created</span>
+                            <span class="font-medium">{{ project.date_created|date:"M d, Y" }}</span>
+                        </div>
+                        {% if project.date_submitted %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Submitted</span>
+                            <span class="font-medium">{{ project.date_submitted|date:"M d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Drawings</span>
+                            <span class="font-medium">{{ drawings.count }} total</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const actionSelect = document.querySelector('select[name="action"]');
+    const actionGuidance = document.getElementById('actionGuidance');
+    const guidanceElements = {
+        'approve': document.getElementById('approveGuidance'),
+        'conditional': document.getElementById('conditionalGuidance'), 
+        'revise': document.getElementById('reviseGuidance'),
+        'reject': document.getElementById('rejectGuidance')
+    };
+    
+    function showGuidance(action) {
+        Object.values(guidanceElements).forEach(el => {
+            if (el) el.classList.add('hidden');
+        });
+        
+        if (action && guidanceElements[action]) {
+            actionGuidance.classList.remove('hidden');
+            guidanceElements[action].classList.remove('hidden');
+        } else {
+            actionGuidance.classList.add('hidden');
+        }
+    }
+    
+    if (actionSelect) {
+        actionSelect.addEventListener('change', function() {
+            showGuidance(this.value);
+        });
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    const projectName = '{{ project.project_name|escapejs }}';
+    const projectVersion = '{{ project.version_display|escapejs }}';
+    
+    form.addEventListener('submit', function(e) {
+        const selectedAction = actionSelect.value;
+        const comments = document.querySelector('textarea[name="comments"]').value.trim();
+        
+        if (!selectedAction) {
+            e.preventDefault();
+            alert('Please select a decision before submitting.');
+            actionSelect.focus();
+            return;
+        }
+        
+        if ((selectedAction === 'reject' || selectedAction === 'revise') && !comments) {
+            e.preventDefault();
+            alert('Comments are required when rejecting a project or requesting revision.');
+            document.querySelector('textarea[name="comments"]').focus();
+            return;
+        }
+        
+        const actionNames = {
+            'approve': 'approve and endorse',
+            'conditional': 'conditionally approve', 
+            'revise': 'request revision for',
+            'reject': 'reject'
+        };
+        
+        const actionName = actionNames[selectedAction] || selectedAction;
+        if (!confirm(`Confirm: ${actionName} "${projectName}" v${projectVersion}?`)) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+
 {% endblock %}

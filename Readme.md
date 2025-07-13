@@ -197,8 +197,18 @@ docuhub/
 
 ### Project Status Flow
 ```
-Draft → Pending Approval → Approved/Rejected/Revise & Resubmit → Obsolete
+Draft → Pending Approval → Approved & Endorsed/Conditional Approval/Request for Revision/Rejected/Rescinded & Revoked → Obsolete
 ```
+
+#### Status Definitions
+- **Draft**: Initial project creation state - submitter can edit
+- **Pending Approval**: Project submitted and awaiting review
+- **Approved & Endorsed**: Fully approved project - no further edits allowed
+- **Conditional Approval**: Approved with conditions - submitter can edit and resubmit
+- **Request for Revision**: Reviewer requests changes - creates new version
+- **Rejected**: Project rejected - no edits allowed
+- **Rescinded & Revoked**: Previously approved project revoked - no edits allowed
+- **Obsolete**: Project marked as obsolete - archived state
 
 ## 👥 User Roles & Permissions
 
@@ -217,24 +227,32 @@ This is the highest-level role with complete control over the system. Admins are
 ### 2. Approver (Project Manager)
 This role is responsible for the project review and approval process, ensuring quality and adherence to standards.
 
-
 **Permissions:**
-- **Review Projects**: Can review and approve, reject, or request revisions for submitted projects.
+- **Review Projects**: Can review submitted projects and set status to:
+  - **Approved & Endorsed**: Full approval without conditions
+  - **Conditional Approval**: Approval with conditions requiring resubmission
+  - **Request for Revision**: Request changes that create a new version
+  - **Rejected**: Reject the project completely
+  - **Rescinded & Revoked**: Revoke previously approved projects
 - **View All Projects**: Can view all projects in the system, *except* for those in "Draft" status.
 - **Bulk Operations**: Can perform bulk actions on pending projects from the admin dashboard.
 - **Cannot Edit**: To maintain a separation of duties, Approvers cannot edit project details.
-- **History Log**: Access to 
+- **History Log**: Access to complete project approval history 
 
 ### 3. Submitter (Project User)
 This is the standard user role for creating and managing projects.
 
 **Permissions:**
-- **Create and Manage Own Projects**: Can create new projects and edit their own projects when they are in "Draft," "Rejected," or "Revise and Resubmit" status.
+- **Create and Manage Own Projects**: Can create new projects and edit their own projects when they are in "Draft" or "Conditional Approval" status only.
 - **Submit for Approval**: Can submit their projects for review once they are ready.
-- **Create New Versions**: Can create new versions of their own approved, rejected, or obsolete projects.
+- **Create New Versions**: Can create new versions when their projects have "Request for Revision" status.
 - **View Permissions**:
     - Can view all of their own projects, regardless of status.
-    - Can view all "Approved" projects from *any* user in the system.
+    - Can view all "Approved & Endorsed" projects from *any* user in the system.
+
+**Edit Restrictions:**
+- **No Editing**: Cannot edit projects in "Pending Approval," "Approved & Endorsed," "Rejected," "Rescinded & Revoked," or "Obsolete" status.
+- **Version Creation**: "Request for Revision" status automatically creates a new version instead of allowing edits.
 
 ### 4. Viewer
 This role is defined in the system for future use but is not fully implemented in the current business logic. The intended purpose is to grant read-only access to projects without any creation or editing rights.
@@ -1268,3 +1286,135 @@ SECURE_HSTS_SECONDS=31536000
 **Scalability**: ✅ **Enterprise-Ready** - Configurable limits and role-based access
 
 The security system now meets enterprise standards with comprehensive protection against common web application vulnerabilities, proper role-based access control, and extensive monitoring capabilities.
+
+---
+
+## 📋 Project Status System (Latest Update)
+
+### **Enhanced Approval Workflow**
+
+DocuHub now features a comprehensive project status system designed to provide granular control over the approval process, enabling more nuanced project management and better workflow flexibility.
+
+### **New Status Options for Approvers**
+
+**✅ Approved & Endorsed**
+- **Purpose**: Full approval without any conditions
+- **Effect**: Project is completely approved and locked from further edits
+- **User Impact**: Submitters cannot edit; project is publicly visible
+- **Next Steps**: Project enters final approved state
+
+**✅ Conditional Approval**
+- **Purpose**: Approval with conditions that require resubmission
+- **Effect**: Submitters can edit the project and resubmit for final approval
+- **User Impact**: Allows continued editing while maintaining approved status
+- **Next Steps**: Submitter can modify and resubmit or escalate to full approval
+
+**✅ Request for Revision**
+- **Purpose**: Request significant changes that warrant a new version
+- **Effect**: Automatically creates a new project version for major revisions
+- **User Impact**: Creates clean separation between versions
+- **Next Steps**: New version created for submitter to work on
+
+**✅ Rejected**
+- **Purpose**: Complete rejection of the project
+- **Effect**: Project cannot be edited; submitter needs to start over
+- **User Impact**: Clear indication that project does not meet requirements
+- **Next Steps**: Project remains in rejected state; no further action possible
+
+**✅ Rescinded & Revoked**
+- **Purpose**: Revoke previously approved projects
+- **Effect**: Removes approval status from projects that were previously approved
+- **User Impact**: Previously approved projects become unavailable
+- **Next Steps**: Project moves to revoked state; admin intervention required
+
+### **Edit Permission Rules**
+
+**Submitters Can Edit When:**
+- ✅ **Draft**: Initial creation and preparation phase
+- ✅ **Conditional Approval**: Approved with conditions requiring changes
+
+**Submitters Cannot Edit When:**
+- ❌ **Pending Approval**: Under review by approvers
+- ❌ **Approved & Endorsed**: Fully approved and locked
+- ❌ **Request for Revision**: Creates new version instead
+- ❌ **Rejected**: Cannot be modified after rejection
+- ❌ **Rescinded & Revoked**: Revoked projects are locked
+- ❌ **Obsolete**: Archived projects cannot be edited
+
+### **Version Management Workflow**
+
+**Automatic Version Creation:**
+- **Trigger**: When approver selects "Request for Revision"
+- **Effect**: Creates new version of the project with incremented version number
+- **Purpose**: Maintains history while allowing major changes
+- **User Experience**: Submitter receives new version to work on
+
+**Manual Version Creation:**
+- **Available For**: Project owners on their own projects
+- **Conditions**: From certain statuses (varies by workflow requirements)
+- **Purpose**: Allow submitters to create new versions when needed
+
+### **Status Transition Matrix**
+
+```
+Current Status          → Possible Next Status
+─────────────────────────────────────────────────────────────
+Draft                   → Pending Approval, Obsolete
+Pending Approval        → Approved & Endorsed, Conditional Approval, 
+                          Request for Revision, Rejected, Rescinded & Revoked
+Approved & Endorsed     → Rescinded & Revoked, Obsolete
+Conditional Approval    → Approved & Endorsed, Request for Revision, 
+                          Rejected, Rescinded & Revoked, Obsolete
+Request for Revision    → Pending Approval, Draft, Obsolete (via new version)
+Rejected                → Draft, Obsolete
+Rescinded & Revoked     → Draft, Obsolete
+Obsolete                → (No transitions allowed)
+```
+
+### **Implementation Details**
+
+**Database Changes:**
+- **Updated Status Choices**: All models now use new status values
+- **Migration Support**: Automated database migration to new status structure
+- **Backward Compatibility**: Proper migration path from old status values
+
+**Permission System Updates:**
+- **Enhanced Permission Classes**: Updated to support new status-based editing rules
+- **View Restrictions**: Proper enforcement of edit permissions based on status
+- **API Consistency**: REST API endpoints respect new permission rules
+
+**User Interface Improvements:**
+- **Status Indicators**: Clear visual representation of project status
+- **Action Availability**: Buttons and links shown based on current status and permissions
+- **Workflow Guidance**: Clear indication of available actions for each status
+
+### **Benefits of New System**
+
+**For Approvers:**
+- **More Control**: Granular approval options for different scenarios
+- **Workflow Flexibility**: Can choose appropriate response based on project needs
+- **Better Communication**: Clear status indicates exact approval state
+
+**For Submitters:**
+- **Clear Guidance**: Obvious next steps based on current status
+- **Continued Editing**: Conditional approval allows refinement without full rejection
+- **Version Control**: Automatic version creation for major revisions
+
+**For Organizations:**
+- **Audit Trail**: Complete history of status changes and decisions
+- **Process Standardization**: Consistent workflow across all projects
+- **Quality Control**: Multiple approval levels ensure thorough review
+
+### **Migration Notes**
+
+**Existing Projects:**
+- **Automatic Migration**: Existing projects migrated to new status values
+- **Status Mapping**: Old statuses mapped to equivalent new statuses
+- **No Data Loss**: All existing data preserved during migration
+
+**Deployment:**
+- **Database Migration**: Run `python manage.py migrate` to apply changes
+- **No Downtime**: Migration designed for zero-downtime deployment
+- **Rollback Support**: Migration can be reversed if needed
+
+This enhanced status system provides the flexibility and control needed for sophisticated project approval workflows while maintaining simplicity for everyday use.

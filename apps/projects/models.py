@@ -89,6 +89,13 @@ class Project(models.Model):
         return Project.objects.filter(
             project_group_id=self.project_group_id
         ).order_by('-version').first()
+    
+    def update_drawing_count(self):
+        """
+        Update the drawing count for this project
+        """
+        self.no_of_drawings = self.drawings.filter(status='Active').count()
+        self.save(update_fields=['no_of_drawings', 'updated_at'])
 
     def clean(self):
         """Validate the project instance"""
@@ -207,7 +214,8 @@ class Drawing(models.Model):
         super().save(*args, **kwargs)
         # Update project drawing count
         if self.project:
-            self.project.save()
+            self.project.no_of_drawings = self.project.drawings.filter(status='Active').count()
+            self.project.save(update_fields=['no_of_drawings', 'updated_at'])
 
 class ApprovalHistory(models.Model):
     ACTION_CHOICES = [
