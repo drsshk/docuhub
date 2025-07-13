@@ -71,53 +71,100 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full table-compact">
                 <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <tr class="border-b border-gray-200">
+                        <th class="px-4 py-2 text-left">
                             <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted By</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Submitted</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawings</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitter</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dwgs</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quick Review</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white">
                     {% for project in projects %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr class="border-b border-gray-100 hover:bg-gray-50" style="height: 40px;">
+                        <td class="px-4 py-1">
                             <input type="checkbox" class="project-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" 
                                    value="{{ project.pk }}" data-project-name="{{ project.project_name }}">
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">
-                                        <a href="{% url 'projects:detail' project.pk %}" class="text-blue-600 hover:text-blue-900">
-                                            {{ project.project_name }}
-                                        </a>
-                                    </div>
-                                    <div class="text-sm text-gray-500">{{ project.client_department|default:"No department" }}</div>
-                                </div>
+                        <td class="px-4 py-1">
+                            <div class="flex flex-col">
+                                <a href="{% url 'projects:detail' project.pk %}" class="text-sm font-medium text-blue-600 hover:text-blue-900 truncate" style="max-width: 180px;">
+                                    {{ project.project_name }}
+                                </a>
+                                <span class="text-xs text-gray-500">{{ project.client_department|default:"—" }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ project.submitted_by.get_full_name|default:project.submitted_by.username }}
+                        <td class="px-4 py-1 text-sm text-gray-700">
+                            {{ project.submitted_by.get_full_name|default:project.submitted_by.username|truncatechars:15 }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ project.date_submitted|date:"M d, Y" }}
+                        <td class="px-4 py-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                {% if project.priority == 'High' %}bg-red-100 text-red-800
+                                {% elif project.priority == 'Medium' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ project.priority|default:"Normal" }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td class="px-4 py-1 text-xs text-gray-500">
+                            {{ project.date_submitted|timesince|truncatechars:10 }}
+                        </td>
+                        <td class="px-4 py-1 text-sm text-center text-gray-600">
                             {{ project.no_of_drawings }}
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{% url 'projects:review' project.pk %}" 
-                               class="inline-flex items-center px-3 py-1 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Review
-                            </a>
+                        <td class="px-4 py-1">
+                            <div class="flex items-center space-x-1 text-xs">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="review-checkbox mr-1" data-check="drawings">
+                                    <span class="text-gray-600">Drawings</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="review-checkbox mr-1" data-check="specs">
+                                    <span class="text-gray-600">Specs</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="px-4 py-1">
+                            <div class="flex items-center space-x-1">
+                                <!-- Quick Approve -->
+                                <button title="Quick Approve" 
+                                        onclick="quickAction('{{ project.pk }}', 'approve')"
+                                        class="icon-btn text-gray-400 hover:text-green-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </button>
+                                <!-- Quick Reject -->
+                                <button title="Quick Reject" 
+                                        onclick="quickAction('{{ project.pk }}', 'reject')"
+                                        class="icon-btn text-gray-400 hover:text-red-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                                <!-- Request Revision -->
+                                <button title="Request Revision" 
+                                        onclick="quickAction('{{ project.pk }}', 'revise')"
+                                        class="icon-btn text-gray-400 hover:text-orange-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <!-- Full Review -->
+                                <a href="{% url 'projects:review' project.pk %}" title="Full Review"
+                                   class="icon-btn text-gray-400 hover:text-blue-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -163,6 +210,40 @@
 </div>
 
 <script>
+// Quick action function
+function quickAction(projectId, action) {
+    const actionText = {
+        'approve': 'approve',
+        'reject': 'reject', 
+        'revise': 'request revision for'
+    }[action] || action;
+    
+    if (confirm(`Are you sure you want to ${actionText} this project?`)) {
+        // Create a form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/projects/${projectId}/quick-action/`; // You'll need to create this URL
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Add action
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = action;
+        form.appendChild(actionInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggleBulkActions');
     const bulkPanel = document.getElementById('bulkActionsPanel');
@@ -172,19 +253,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = document.getElementById('submitBulkAction');
     const projectIdsInput = document.getElementById('id_project_ids');
     
-    // Toggle bulk actions panel
-    toggleButton.addEventListener('click', function() {
-        bulkPanel.classList.toggle('hidden');
-        toggleButton.textContent = bulkPanel.classList.contains('hidden') ? 'Show Bulk Actions' : 'Hide Bulk Actions';
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey) {
+            switch(e.key.toLowerCase()) {
+                case 'a':
+                    e.preventDefault();
+                    selectAllCheckbox.click();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    if (document.querySelector('.project-checkbox:checked')) {
+                        document.querySelector('[href*="review"]').click();
+                    }
+                    break;
+            }
+        }
     });
     
-    // Select all functionality
-    selectAllCheckbox.addEventListener('change', function() {
-        projectCheckboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
+    // Toggle bulk actions panel
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+            bulkPanel.classList.toggle('hidden');
+            toggleButton.textContent = bulkPanel.classList.contains('hidden') ? 'Show Bulk Actions' : 'Hide Bulk Actions';
         });
-        updateSelection();
-    });
+    }
+    
+    // Select all functionality
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            projectCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateSelection();
+        });
+    }
     
     // Individual checkbox change
     projectCheckboxes.forEach(checkbox => {
@@ -193,8 +296,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update select all checkbox state
             const checkedCount = document.querySelectorAll('.project-checkbox:checked').length;
-            selectAllCheckbox.checked = checkedCount === projectCheckboxes.length;
-            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < projectCheckboxes.length;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === projectCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < projectCheckboxes.length;
+            }
         });
     });
     
@@ -202,38 +307,47 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
         const count = checkedBoxes.length;
         
-        selectedCountSpan.textContent = `${count} project${count !== 1 ? 's' : ''} selected`;
-        submitButton.disabled = count === 0;
+        if (selectedCountSpan) {
+            selectedCountSpan.textContent = `${count} project${count !== 1 ? 's' : ''} selected`;
+        }
+        if (submitButton) {
+            submitButton.disabled = count === 0;
+        }
         
         // Update hidden input with selected project IDs
-        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-        projectIdsInput.value = selectedIds.join(',');
+        if (projectIdsInput) {
+            const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+            projectIdsInput.value = selectedIds.join(',');
+        }
     }
     
     // Form submission confirmation
-    document.getElementById('bulkActionForm').addEventListener('submit', function(e) {
-        const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
-        const count = checkedBoxes.length;
-        const action = document.querySelector('select[name="action"]').value;
-        
-        if (count === 0) {
-            e.preventDefault();
-            alert('Please select at least one project.');
-            return;
-        }
-        
-        const actionText = {
-            'approve': 'approve',
-            'reject': 'reject',
-            'revise': 'request revision for'
-        }[action] || action;
-        
-        const projectNames = Array.from(checkedBoxes).map(cb => cb.dataset.projectName).join(', ');
-        
-        if (!confirm(`Are you sure you want to ${actionText} ${count} project${count !== 1 ? 's' : ''}?\n\nProjects: ${projectNames}`)) {
-            e.preventDefault();
-        }
-    });
+    const bulkForm = document.getElementById('bulkActionForm');
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.project-checkbox:checked');
+            const count = checkedBoxes.length;
+            const action = document.querySelector('select[name="action"]').value;
+            
+            if (count === 0) {
+                e.preventDefault();
+                alert('Please select at least one project.');
+                return;
+            }
+            
+            const actionText = {
+                'approve': 'approve',
+                'reject': 'reject',
+                'revise': 'request revision for'
+            }[action] || action;
+            
+            const projectNames = Array.from(checkedBoxes).map(cb => cb.dataset.projectName).join(', ');
+            
+            if (!confirm(`Are you sure you want to ${actionText} ${count} project${count !== 1 ? 's' : ''}?\n\nProjects: ${projectNames}`)) {
+                e.preventDefault();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

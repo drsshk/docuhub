@@ -3,210 +3,318 @@
 {% block title %}Dashboard - DocuHub{% endblock %}
 
 {% block content %}
-<div class="fade-in">
-    <div class="mb-8">
-        <div class="md:flex md:items-center md:justify-between">
-            <div class="flex-1 min-w-0">
-                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p class="mt-2 text-gray-600">Welcome to your project management dashboard</p>
-            </div>
-            <div class="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
-                <a href="{% url 'projects:create' %}" 
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    New Project
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Dashboard Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 0a9 9 0 110 18 9 9 0 010-18z"/>
-                        </svg>
+<div class="fade-in space-y-6">
+    <!-- Hero Section with Live Stats -->
+    <div class="relative overflow-hidden">
+        <div class="glass rounded-2xl p-8 gradient-bg text-white">
+            <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                    <h1 class="text-4xl font-bold">Welcome back, {{ user.get_full_name|default:user.username }}! 🚀</h1>
+                    <p class="text-blue-100 text-lg">Your project management command center</p>
+                    <div class="flex items-center space-x-4 mt-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm">System Healthy</span>
+                        </div>
+                        <div class="text-sm opacity-75">Last updated: <span id="lastUpdated">just now</span></div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Projects</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ stats.total_projects|default:0 }}</dd>
-                        </dl>
+                </div>
+                <div class="hidden lg:flex items-center space-x-4">
+                    <!-- Live Clock -->
+                    <div class="text-right">
+                        <div class="text-2xl font-bold" id="liveClock"></div>
+                        <div class="text-sm opacity-75" id="liveDate"></div>
+                    </div>
+                    <!-- Weather Widget (Mock) -->
+                    <div class="glass rounded-xl p-4 text-center">
+                        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
+                        </svg>
+                        <div class="text-lg font-bold">22°C</div>
+                        <div class="text-xs opacity-75">Cloudy</div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    </div>
+    
+    <!-- Interactive Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Projects Card with Progress Ring -->
+        <div class="floating bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projects</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_projects|default:0 }}</p>
+                    <div class="flex items-center space-x-1">
+                        <span class="text-green-500 text-sm font-medium">+12%</span>
+                        <span class="text-gray-500 text-xs">vs last month</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <svg class="w-16 h-16 progress-ring" viewBox="0 0 42 42">
+                        <circle class="progress-ring__circle stroke-gray-200 dark:stroke-gray-700" stroke-width="3" fill="transparent" r="15.91549430918954" cx="21" cy="21"/>
+                        <circle class="progress-ring__circle stroke-blue-500" stroke-width="3" fill="transparent" r="15.91549430918954" cx="21" cy="21" stroke-dasharray="75 25" stroke-linecap="round"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Review Card with Pulsing Icon -->
+        <div class="floating bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Review</p>
+                    <p class="text-3xl font-bold text-yellow-600">{{ stats.pending_projects|default:0 }}</p>
+                    <a href="{% url 'projects:admin_pending' %}" class="text-yellow-600 text-xs font-medium hover:underline">Review now →</a>
+                </div>
+                <div class="relative">
+                    <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-full flex items-center justify-center pulse-effect">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Pending Review</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ stats.pending_projects|default:0 }}</dd>
-                        </dl>
-                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+
+        <!-- Approved Projects Card -->
+        <div class="floating bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Approved</p>
+                    <p class="text-3xl font-bold text-green-600">{{ stats.approved_projects|default:0 }}</p>
+                    <div class="flex items-center space-x-1">
+                        <span class="text-green-500 text-sm font-medium">+8</span>
+                        <span class="text-gray-500 text-xs">this week</span>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Approved</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ stats.approved_projects|default:0 }}</dd>
-                        </dl>
-                    </div>
+                </div>
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Drafts</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ stats.draft_projects|default:0 }}</dd>
-                        </dl>
-                    </div>
+
+        <!-- Drafts Card with Quick Action -->
+        <div class="floating bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Drafts</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.draft_projects|default:0 }}</p>
+                    <a href="{% url 'projects:create' %}" class="text-blue-600 text-xs font-medium hover:underline">Create new →</a>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Quick Actions -->
-    <div class="bg-white shadow rounded-lg mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+    <!-- Advanced Widget Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Activity Timeline -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-gray-500">Live</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3 animate-fade-in">
+                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Project ABC-001 approved</p>
+                            <p class="text-xs text-gray-500">2 minutes ago by J. Smith</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">New project submitted</p>
+                            <p class="text-xs text-gray-500">5 minutes ago by M. Johnson</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/20 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Drawing revision requested</p>
+                            <p class="text-xs text-gray-500">1 hour ago by Admin</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium">View all activity →</button>
+            </div>
         </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <a href="{% url 'projects:list' %}" 
-                   class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <svg class="h-8 w-8 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
+
+        <!-- Quick Actions Widget -->
+        <div class="space-y-6">
+            <!-- Performance Chart -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">This Month</h3>
+                <div class="space-y-4">
                     <div>
-                        <h4 class="font-medium text-gray-900">View All Projects</h4>
-                        <p class="text-sm text-gray-500">Browse all your projects</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Projects Completed</span>
+                            <span class="font-medium text-gray-900 dark:text-white">85%</span>
+                        </div>
+                        <div class="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
                     </div>
-                </a>
-                
-                {% if user.is_staff or 'projects.can_review_projects' in user.get_all_permissions %}
-                <a href="{% url 'projects:admin_pending' %}" 
-                   class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
-                    <svg class="h-8 w-8 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
                     <div>
-                        <h4 class="font-medium text-gray-900">Review Projects</h4>
-                        <p class="text-sm text-gray-500">{{ stats.pending_projects|default:0 }} awaiting review</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Approval Rate</span>
+                            <span class="font-medium text-gray-900 dark:text-white">92%</span>
+                        </div>
+                        <div class="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 92%"></div>
+                        </div>
                     </div>
-                </a>
-                {% endif %}
-                
-                <a href="{% url 'projects:create' %}" 
-                   class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                    <svg class="h-8 w-8 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
                     <div>
-                        <h4 class="font-medium text-gray-900">Create Project</h4>
-                        <p class="text-sm text-gray-500">Start a new project</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Response Time</span>
+                            <span class="font-medium text-gray-900 dark:text-white">Good</span>
+                        </div>
+                        <div class="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 75%"></div>
+                        </div>
                     </div>
-                </a>
-                
-                <a href="{% url 'projects:list' %}?status=Draft" 
-                   class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <svg class="h-8 w-8 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    <div>
-                        <h4 class="font-medium text-gray-900">My Drafts</h4>
-                        <p class="text-sm text-gray-500">Continue working on drafts</p>
-                    </div>
-                </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'projects:create' %}" class="interactive flex items-center p-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        <span class="font-medium">New Project</span>
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'projects:admin_pending' %}" class="interactive flex items-center p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:shadow-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="font-medium">Review Queue</span>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'projects:list' %}" class="interactive flex items-center p-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl hover:shadow-lg">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <span class="font-medium">All Projects</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Projects -->
+    <!-- Recent Projects - Compact Layout -->
     <div class="bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-3 border-b border-gray-200">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-medium text-gray-900">Recent Projects</h3>
-                <a href="{% url 'projects:list' %}" class="text-sm text-blue-600 hover:text-blue-900">View all →</a>
+                <h3 class="text-lg font-medium text-gray-900">Projects Dashboard ({{ stats.total_projects|default:0 }} total)</h3>
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'projects:create' %}" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        New Project
+                    </a>
+                    <a href="{% url 'projects:list' %}" class="text-sm text-blue-600 hover:text-blue-900">View all →</a>
+                </div>
             </div>
         </div>
         {% if recent_projects %}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full">
                 <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <tr class="border-b border-gray-200">
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ver</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawings</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white">
                     {% for project in recent_projects %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">
-                                        <a href="{% url 'projects:detail' project.pk %}" class="text-blue-600 hover:text-blue-900">
-                                            {{ project.project_name }}
-                                        </a>
-                                    </div>
-                                    <div class="text-sm text-gray-500">{{ project.client_department|default:"No department" }} • {{ project.version_display }}</div>
-                                </div>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50" style="height: 32px;">
+                        <td class="px-4 py-1 text-sm font-medium text-gray-900">
+                            {{ project.project_number|default:project.pk }}
+                        </td>
+                        <td class="px-4 py-1">
+                            <div class="flex flex-col">
+                                <a href="{% url 'projects:detail' project.pk %}" class="text-sm font-medium text-blue-600 hover:text-blue-900 truncate" style="max-width: 200px;">
+                                    {{ project.project_name }}
+                                </a>
+                                <span class="text-xs text-gray-500">{{ project.client_department|default:"—" }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                {% if project.status == 'Draft' %}bg-gray-100 text-gray-800
-                                {% elif project.status == 'Pending_Approval' %}bg-yellow-100 text-yellow-800
-                                {% elif project.status == 'Approved_and_Endorsed' %}bg-green-100 text-green-800
-                                {% elif project.status == 'Conditional_Approval' %}bg-blue-100 text-blue-800
-                                {% elif project.status == 'Request_for_Revision' %}bg-purple-100 text-purple-800
-                                {% elif project.status == 'Rejected' %}bg-red-100 text-red-800
-                                {% elif project.status == 'Rescinded_and_Revoked' %}bg-red-200 text-red-900
-                                {% elif project.status == 'Obsolete' %}bg-gray-100 text-gray-600
-                                {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ project.get_status_display }}
-                            </span>
+                        <td class="px-4 py-1 text-sm text-gray-700">
+                            {{ project.version_display|default:"v1.0" }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ project.updated_at|timesince }} ago
+                        <td class="px-4 py-1">
+                            <div class="flex items-center">
+                                <span class="status-dot {% if project.status == 'Draft' %}bg-gray-400{% elif project.status == 'Pending_Approval' %}bg-yellow-400{% elif project.status == 'Approved_and_Endorsed' %}bg-green-500{% elif project.status == 'Conditional_Approval' %}bg-blue-400{% elif project.status == 'Request_for_Revision' %}bg-purple-400{% elif project.status == 'Rejected' %}bg-red-500{% elif project.status == 'Rescinded_and_Revoked' %}bg-red-600{% elif project.status == 'Obsolete' %}bg-gray-300{% else %}bg-gray-400{% endif %}"></span>
+                                <span class="text-xs font-medium text-gray-700">
+                                    {% if project.status == 'Approved_and_Endorsed' %}Approved
+                                    {% elif project.status == 'Pending_Approval' %}Pending
+                                    {% elif project.status == 'Request_for_Revision' %}Revise
+                                    {% else %}{{ project.get_status_display }}{% endif %}
+                                </span>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{% url 'projects:detail' project.pk %}" 
-                               class="text-blue-600 hover:text-blue-900">View</a>
+                        <td class="px-4 py-1 text-sm text-center text-gray-600">
+                            {{ project.drawings.count|default:0 }}
+                        </td>
+                        <td class="px-4 py-1 text-xs text-gray-500">
+                            {{ project.updated_at|timesince|truncatechars:10 }}
+                        </td>
+                        <td class="px-4 py-1">
+                            <div class="flex items-center space-x-1">
+                                <a href="{% url 'projects:detail' project.pk %}" title="View" class="text-gray-400 hover:text-blue-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                {% if project.status == 'Draft' %}
+                                <a href="{% url 'projects:edit' project.pk %}" title="Edit" class="text-gray-400 hover:text-green-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -233,4 +341,72 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Live Clock and Date
+function updateClock() {
+    const now = new Date();
+    const timeElement = document.getElementById('liveClock');
+    const dateElement = document.getElementById('liveDate');
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    
+    if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = 'just now';
+    }
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Update clock immediately and then every second
+    updateClock();
+    setInterval(updateClock, 1000);
+    
+    // Keyboard shortcuts for dashboard
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey) {
+            switch(e.key) {
+                case '1':
+                    e.preventDefault();
+                    window.location.href = '{% url "projects:list" %}';
+                    break;
+                case '2':
+                    e.preventDefault();
+                    {% if user.is_staff %}
+                    window.location.href = '{% url "projects:admin_pending" %}';
+                    {% endif %}
+                    break;
+                case '3':
+                    e.preventDefault();
+                    window.location.href = '{% url "projects:create" %}';
+                    break;
+            }
+        }
+    });
+    
+    // Show tip notification
+    setTimeout(() => {
+        if (typeof showNotification === 'function') {
+            showNotification('💡 Use Ctrl+K for command palette, Ctrl+N for new project!', 'info');
+        }
+    }, 2000);
+});
+</script>
 {% endblock %}

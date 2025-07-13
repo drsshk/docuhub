@@ -17,48 +17,102 @@
 
 {% if drawings %}
 <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
+    <table class="min-w-full table-compact">
         <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawing No.</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added</th>
-                {% if can_edit %}
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                {% endif %}
+            <tr class="border-b border-gray-200">
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawing No</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disc</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ver</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white">
             {% for drawing in drawings %}
-            <tr class="hover:bg-gray-50" id="drawing-{{ drawing.pk }}">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <tr class="border-b border-gray-100 hover:bg-gray-50" id="drawing-{{ drawing.pk }}" style="height: 32px;">
+                <td class="px-4 py-1 text-sm font-medium text-gray-900">
                     {{ drawing.drawing_no }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900">
-                    {{ drawing.drawing_title|default:"No title" }}
-                    {% if drawing.drawing_description %}
-                    <div class="text-xs text-gray-500 mt-1">{{ drawing.drawing_description|truncatewords:10 }}</div>
-                    {% endif %}
+                <td class="px-4 py-1">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium text-gray-900 truncate" style="max-width: 200px;" title="{{ drawing.drawing_title|default:'No title' }}">
+                            {{ drawing.drawing_title|default:"No title" }}
+                        </span>
+                        {% if drawing.drawing_description %}
+                        <span class="text-xs text-gray-500 truncate" style="max-width: 200px;" title="{{ drawing.drawing_description }}">
+                            {{ drawing.drawing_description|truncatewords:6 }}
+                        </span>
+                        {% endif %}
+                    </div>
                 </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ drawing.date_added|date:"M d, Y" }}
+                <td class="px-4 py-1 text-xs text-gray-600">
+                    {% if drawing.discipline %}
+                        {% if drawing.discipline == 'Architecture' %}ARCH
+                        {% elif drawing.discipline == 'Mechanical' %}MECH
+                        {% elif drawing.discipline == 'Electrical' %}ELEC
+                        {% elif drawing.discipline == 'Structural' %}STRU
+                        {% elif drawing.discipline == 'Civil' %}CIVL
+                        {% else %}{{ drawing.discipline|truncatechars:4|upper }}{% endif %}
+                    {% else %}—{% endif %}
                 </td>
-                {% if can_edit %}
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button hx-get="{% url 'projects:edit_drawing' drawing.pk %}"
-                            hx-target="#modal-content"
-                            hx-trigger="click"
-                            onclick="document.getElementById('modal').style.display='block'"
-                            class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                    <button hx-post="{% url 'projects:delete_drawing' drawing.pk %}"
-                            hx-confirm="Are you sure you want to delete this drawing?"
-                            hx-target="#drawing-{{ drawing.pk }}"
-                            hx-swap="outerHTML swap:1s"
-                            class="text-red-600 hover:text-red-900">Delete</button>
+                <td class="px-4 py-1 text-xs text-gray-600">
+                    v{{ drawing.version|default:"1.0" }}
                 </td>
-                {% endif %}
+                <td class="px-4 py-1">
+                    <div class="flex items-center">
+                        <span class="status-dot {% if drawing.status == 'approved' %}bg-green-500{% elif drawing.status == 'pending' %}bg-yellow-400{% elif drawing.status == 'draft' %}bg-gray-400{% else %}bg-gray-400{% endif %}"></span>
+                        <span class="text-xs font-medium text-gray-700">
+                            {% if drawing.status == 'approved' %}•
+                            {% elif drawing.status == 'pending' %}◐
+                            {% elif drawing.status == 'draft' %}○
+                            {% else %}○{% endif %}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-4 py-1">
+                    <div class="flex items-center space-x-1">
+                        <!-- View Action -->
+                        <a href="#" title="View Drawing" class="icon-btn text-gray-400 hover:text-blue-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </a>
+                        <!-- Download Action -->
+                        {% if drawing.drawing_file %}
+                        <a href="{{ drawing.drawing_file.url }}" title="Download" class="icon-btn text-gray-400 hover:text-green-600" download>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </a>
+                        {% endif %}
+                        <!-- Edit Action -->
+                        {% if can_edit %}
+                        <button hx-get="{% url 'projects:edit_drawing' drawing.pk %}"
+                                hx-target="#modal-content"
+                                hx-trigger="click"
+                                onclick="document.getElementById('modal').style.display='block'"
+                                title="Edit Drawing"
+                                class="icon-btn text-gray-400 hover:text-orange-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                        <!-- Delete Action -->
+                        <button hx-post="{% url 'projects:delete_drawing' drawing.pk %}"
+                                hx-confirm="Are you sure you want to delete this drawing?"
+                                hx-target="#drawing-{{ drawing.pk }}"
+                                hx-swap="outerHTML swap:1s"
+                                title="Delete Drawing"
+                                class="icon-btn text-gray-400 hover:text-red-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
