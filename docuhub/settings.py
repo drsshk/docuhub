@@ -115,7 +115,7 @@ if DEBUG:
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-        "http://152.42.210.234/"
+        "http://152.42.210.234"
     ]
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
