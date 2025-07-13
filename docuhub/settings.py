@@ -109,12 +109,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     # --- Development Settings ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','152.42.210.234']
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
+        "http://152.42.210.234/"
     ]
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
