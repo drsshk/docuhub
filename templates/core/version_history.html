@@ -5,10 +5,10 @@
 
 {% block content %}
 <div class="fade-in">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
+    <div class="bg-white shadow rounded-lg dark:bg-gray-800">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-medium text-gray-900">Version History</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Version History</h3>
                 <div class="flex items-center space-x-3">
                     {% if current_version %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -30,7 +30,7 @@
             {% if versions %}
                 <div class="space-y-4">
                     {% for version in versions %}
-                        <div class="border border-gray-200 rounded-lg p-4 {% if version.is_current %}bg-blue-50 border-blue-200{% else %}bg-white{% endif %}">
+                        <div class="border border-gray-200 rounded-lg p-4 {% if version.is_current %}bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800{% else %}bg-white dark:bg-gray-800 dark:border-gray-700{% endif %}">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2 mb-2">

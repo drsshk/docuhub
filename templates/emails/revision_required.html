@@ -12,7 +12,7 @@
 
 <p>Your project has been reviewed and requires revisions before it can be approved. A new version needs to be created to address the feedback provided.</p>
 
-<div class="project-info">
+<div class="project-info" style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px;" class="dark:bg-gray-700">
     <h3>{{ project_name }} {{ project_version }}</h3>
     <p><strong>Reviewed By:</strong> {{ reviewed_by }}</p>
     <p><strong>Status:</strong> <span class="status-badge status-revision">Request for Revision</span></p>
@@ -22,9 +22,9 @@
 </div>
 
 {% if review_comments %}
-<div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 20px; margin: 20px 0; border-radius: 0 6px 6px 0;">
-    <h4 style="margin: 0 0 10px 0; color: #1d4ed8;">Revision Comments:</h4>
-    <p style="margin: 0; color: #374151;">{{ review_comments|linebreaksbr }}</p>
+<div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 20px; margin: 20px 0; border-radius: 0 6px 6px 0;" class="dark:bg-blue-950 dark:border-blue-800">
+    <h4 style="margin: 0 0 10px 0; color: #1d4ed8;" class="dark:text-blue-300">Revision Comments:</h4>
+    <p style="margin: 0; color: #374151;" class="dark:text-gray-200">{{ review_comments|linebreaksbr }}</p>
 </div>
 {% endif %}
 

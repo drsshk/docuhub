@@ -16,7 +16,7 @@
 <div class="fade-in max-w-4xl mx-auto">
     <!-- Page header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
             {% if object %}
                 {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
                     Edit Project
@@ -27,7 +27,7 @@
                 Create New Project
             {% endif %}
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-gray-600 dark:text-gray-400">
             {% if object %}
                 {% if object.status == 'Draft' or object.status == 'Revise_and_Resubmit' %}
                     Update the project details below.
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Form -->
-    <div class="bg-white shadow rounded-lg">
+    <div class="bg-white shadow rounded-lg dark:bg-gray-800">
         <form method="post" class="space-y-6 p-6">
             {% csrf_token %}
             

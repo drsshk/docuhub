@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en" class="h-full bg-gray-50 dark:bg-gray-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,6 +26,17 @@
             --dark-border: #334155;
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
+            
+            /* Enhanced dark mode colors for better readability */
+            --dark-bg-soft: #1a202c;
+            --dark-surface-soft: #2d3748;
+            --dark-surface-elevated: #4a5568;
+            --dark-text-primary: #f7fafc;
+            --dark-text-secondary: #e2e8f0;
+            --dark-text-muted: #a0aec0;
+            --dark-border-soft: #4a5568;
+            --dark-blue-soft: #63b3ed;
+            --dark-blue-hover: #90cdf4;
         }
 
         .fade-in {
@@ -67,30 +78,82 @@
             border: 1px solid rgba(51, 65, 85, 0.3);
         }
 
-        /* Dark mode */
+        /* Enhanced Dark mode for better readability */
         .dark {
             color-scheme: dark;
         }
 
         .dark body {
-            background: var(--dark-bg);
-            color: #f1f5f9;
+            background: var(--dark-bg-soft);
+            color: var(--dark-text-primary);
         }
 
         .dark .bg-white {
-            background: var(--dark-surface) !important;
+            background: var(--dark-surface-soft) !important;
         }
 
         .dark .text-gray-900 {
-            color: #f1f5f9 !important;
+            color: var(--dark-text-primary) !important;
         }
 
         .dark .text-gray-600 {
-            color: #94a3b8 !important;
+            color: var(--dark-text-secondary) !important;
+        }
+
+        .dark .text-gray-500 {
+            color: var(--dark-text-muted) !important;
+        }
+
+        .dark .text-gray-400 {
+            color: var(--dark-text-muted) !important;
         }
 
         .dark .border-gray-200 {
-            border-color: var(--dark-border) !important;
+            border-color: var(--dark-border-soft) !important;
+        }
+
+        .dark .border-gray-300 {
+            border-color: var(--dark-border-soft) !important;
+        }
+
+        /* Enhanced navigation in dark mode */
+        .dark nav {
+            background: linear-gradient(to right, #1e3a8a, #1e40af, #3730a3) !important;
+            border-bottom-color: rgba(59, 130, 246, 0.5) !important;
+        }
+
+        /* Enhanced footer to match navigation in dark mode */
+        .dark footer {
+            background: linear-gradient(to bottom right, #1e3a8a, #1e40af, #3730a3) !important;
+            border-top-color: rgba(59, 130, 246, 0.5) !important;
+        }
+
+        /* Better dropdown visibility in dark mode */
+        .dark .dropdown-menu {
+            background: var(--dark-surface-elevated) !important;
+            border-color: var(--dark-border-soft) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Enhanced links in dark mode */
+        .dark a:not(.btn):not(.button) {
+            color: var(--dark-blue-soft) !important;
+        }
+
+        .dark a:not(.btn):not(.button):hover {
+            color: var(--dark-blue-hover) !important;
+        }
+
+        /* Better form inputs in dark mode */
+        .dark input, .dark textarea, .dark select {
+            background: var(--dark-surface-soft) !important;
+            border-color: var(--dark-border-soft) !important;
+            color: var(--dark-text-primary) !important;
+        }
+
+        .dark input:focus, .dark textarea:focus, .dark select:focus {
+            border-color: var(--dark-blue-soft) !important;
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.1) !important;
         }
 
         /* Gradient backgrounds */
@@ -276,8 +339,46 @@
         }
 
         .dark .skeleton {
-            background: linear-gradient(90deg, #374151 25%, transparent 37%, #374151 63%);
+            background: linear-gradient(90deg, var(--dark-surface-soft) 25%, transparent 37%, var(--dark-surface-soft) 63%);
             background-size: 400% 100%;
+        }
+
+        /* Enhanced dark mode for various components */
+        .dark .glass {
+            background: rgba(45, 55, 72, 0.8) !important;
+            border: 1px solid rgba(74, 85, 104, 0.3) !important;
+        }
+
+        /* Better message styling in dark mode */
+        .dark .bg-green-50 {
+            background: rgba(72, 187, 120, 0.1) !important;
+            color: #9ae6b4 !important;
+        }
+
+        .dark .bg-red-50 {
+            background: rgba(252, 129, 129, 0.1) !important;
+            color: #feb2b2 !important;
+        }
+
+        .dark .bg-yellow-50 {
+            background: rgba(236, 201, 75, 0.1) !important;
+            color: #faf089 !important;
+        }
+
+        .dark .bg-blue-50 {
+            background: rgba(99, 179, 237, 0.1) !important;
+            color: #90cdf4 !important;
+        }
+
+        /* Enhanced buttons in dark mode */
+        .dark .btn-primary, .dark .bg-blue-600 {
+            background: var(--dark-blue-soft) !important;
+            border-color: var(--dark-blue-soft) !important;
+        }
+
+        .dark .btn-primary:hover, .dark .bg-blue-600:hover {
+            background: var(--dark-blue-hover) !important;
+            border-color: var(--dark-blue-hover) !important;
         }
 
         @keyframes skeleton {
@@ -339,9 +440,41 @@
             }
             
             .dark .glass {
-                background: rgba(0, 0, 0, 0.95);
-                border: 2px solid #fff;
+                background: rgba(26, 32, 44, 0.95);
+                border: 2px solid var(--dark-text-primary);
             }
+            
+            .dark {
+                --dark-text-primary: #ffffff;
+                --dark-text-secondary: #f1f5f9;
+                --dark-text-muted: #d1d5db;
+            }
+        }
+
+        /* Enhanced dark mode for better eye comfort */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --scrollbar-bg: var(--dark-surface-soft);
+                --scrollbar-thumb: var(--dark-surface-elevated);
+            }
+        }
+
+        /* Custom scrollbar for dark mode */
+        .dark::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .dark::-webkit-scrollbar-track {
+            background: var(--dark-surface-soft);
+        }
+
+        .dark::-webkit-scrollbar-thumb {
+            background: var(--dark-surface-elevated);
+            border-radius: 6px;
+        }
+
+        .dark::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-border-soft);
         }
 
         /* Reduced motion preferences */
@@ -384,8 +517,8 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full">
-    <div class="min-h-full">
+<body class="min-h-screen flex flex-col">
+    <div class="min-h-full flex-grow">
         <nav class="bg-gradient-to-r from-blue-800 via-blue-900 to-indigo-900 shadow-2xl backdrop-blur-lg border-b border-blue-700/50 relative z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
@@ -562,60 +695,50 @@
         </main>
     </div>
 
-    <footer class="bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 border-t border-gray-200/50 dark:border-gray-700/50 mt-16">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer class="bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 dark:from-blue-900 dark:via-blue-800 dark:to-indigo-900 border-t border-gray-200/50 dark:border-blue-700/50 mt-8">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <!-- Main Footer Content -->
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <!-- Brand Section -->
-                <div class="text-center md:text-left">
-                    <div class="flex items-center justify-center md:justify-start space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DocuHub</span>
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
                     </div>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                        Professional drawing version management system for modern project workflows.
-                    </p>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">
-                        Version 
-                        <a href="#" id="version-link" class="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer transition-colors duration-200">
-                            <span>{{ APP_VERSION }}</span>
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                            </svg>
-                        </a>
-                    </p>
+                    <div>
+                        <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">DocuHub</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Streamlined Document Workflow</p>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
                 {% if user.is_authenticated %}
-                <div class="text-center">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-4">Quick Access</h3>
-                    <div class="space-y-2">
-                        <a href="{% url 'core:dashboard' %}" class="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors duration-200">Dashboard</a>
-                        <a href="{% url 'projects:list' %}" class="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors duration-200">Projects</a>
-                        <a href="{% url 'projects:history_log' %}" class="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors duration-200">History</a>
-                    </div>
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'core:dashboard' %}" class="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Dashboard</a>
+                    <a href="{% url 'projects:list' %}" class="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Projects</a>
+                    <a href="{% url 'projects:history_log' %}" class="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">History</a>
                 </div>
                 {% endif %}
 
-                
+                <!-- Version & Contact -->
+                <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                    <span>v<a href="#" id="version-link" class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer transition-colors duration-200">{{ APP_VERSION }}</a></span>
+                    <span>•</span>
+                    <a href="mailto:darus.ishak@gmail.com" class="hover:text-blue-600 dark:hover:text-blue-400">Contact</a>
+                </div>
             </div>
 
             <!-- Copyright Bar -->
-            <div class="mt-8 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <div class="mt-4 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-1 sm:space-y-0">
                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                        &copy; 2025 DocuHub. All rights reserved. Streamlined Document Workflow.
+                        &copy; 2025 DocuHub. All rights reserved.
                     </p>
-                    <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                        <span>Built with Django</span>
+                    <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span>Django</span>
                         <span>•</span>
-                        <span>Powered by TailwindCSS</span>
-                        <span>•</span>
-                        <a href="mailto:darus.ishak@gmail.com" class="hover:text-blue-600 dark:hover:text-blue-400">Contact Us</a>
+                        <span>TailwindCSS</span>
                     </div>
                 </div>
             </div>

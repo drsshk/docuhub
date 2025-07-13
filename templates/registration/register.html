@@ -4,17 +4,17 @@
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 border">
         <div>
             <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
                 <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                 </svg>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
                 Create your account
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
                 Or
                 <a href="{% url 'accounts:login' %}" class="font-medium text-blue-600 hover:text-blue-500">
                     sign in to your existing account
@@ -28,7 +28,7 @@
             <div class="space-y-4">
                 <!-- Username -->
                 <div>
-                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Username <span class="text-red-500">*</span>
                     </label>
                     {{ form.username }}
@@ -39,7 +39,7 @@
 
                 <!-- First Name -->
                 <div>
-                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         First Name <span class="text-red-500">*</span>
                     </label>
                     {{ form.first_name }}
@@ -50,7 +50,7 @@
 
                 <!-- Last Name -->
                 <div>
-                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Last Name <span class="text-red-500">*</span>
                     </label>
                     {{ form.last_name }}
@@ -61,7 +61,7 @@
 
                 <!-- Email -->
                 <div>
-                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Email <span class="text-red-500">*</span>
                     </label>
                     {{ form.email }}
@@ -72,7 +72,7 @@
 
                 <!-- Password -->
                 <div>
-                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Password <span class="text-red-500">*</span>
                     </label>
                     {{ form.password1 }}
@@ -83,7 +83,7 @@
 
                 <!-- Confirm Password -->
                 <div>
-                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Confirm Password <span class="text-red-500">*</span>
                     </label>
                     {{ form.password2 }}

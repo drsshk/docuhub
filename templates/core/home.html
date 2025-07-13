@@ -168,6 +168,11 @@
     background: rgba(255, 255, 255, 0.95);
 }
 
+.dark .glass-effect {
+    background: rgba(31, 41, 55, 0.95); /* dark:bg-gray-800/95 */
+    border-color: #4b5563; /* dark:border-gray-700 */
+}
+
 .card-hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -263,7 +268,7 @@ html {
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{% url 'accounts:login' %}" 
-                       class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-800 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus-visible">
+                       class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-800 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl focus-visible dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                         Get Started
                         <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -285,7 +290,7 @@ html {
     <div id="features" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 animate-cascadeIn features-stagger section-transition">
         <!-- Version Control -->
         <div class="gradient-border animate-fadeInUp stagger-1">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
@@ -305,7 +310,7 @@ html {
 
         <!-- Approval Workflow -->
         <div class="gradient-border animate-fadeInUp stagger-2">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
@@ -325,7 +330,7 @@ html {
 
         <!-- Email Notifications -->
         <div class="gradient-border animate-fadeInUp stagger-3">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
@@ -345,7 +350,7 @@ html {
 
         <!-- External Links -->
         <div class="gradient-border animate-fadeInUp stagger-4">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
@@ -365,7 +370,7 @@ html {
 
         <!-- User Tracking -->
         <div class="gradient-border animate-fadeInUp stagger-5">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
@@ -385,7 +390,7 @@ html {
 
         <!-- Real-time Updates -->
         <div class="gradient-border animate-fadeInUp stagger-6">
-            <div class="gradient-border-content p-6 card-hover animate-pulse-hover">
+            <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
                         <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mb-4">

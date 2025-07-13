@@ -12,7 +12,7 @@
 
 <p>After careful review, your project submission does not meet our current approval criteria and has been rejected.</p>
 
-<div class="project-info">
+<div class="project-info" style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px;" class="dark:bg-gray-700">
     <h3>{{ project_name }} {{ project_version }}</h3>
     <p><strong>Review Date:</strong> {{ review_date }}</p>
     <p><strong>Reviewed By:</strong> {{ reviewed_by }}</p>
@@ -23,9 +23,9 @@
 </div>
 
 {% if review_comments %}
-<div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 0 6px 6px 0;">
-    <h4 style="margin: 0 0 10px 0; color: #dc2626;">Reviewer Comments:</h4>
-    <p style="margin: 0; color: #374151;">{{ review_comments|linebreaksbr }}</p>
+<div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 0 6px 6px 0;" class="dark:bg-red-950 dark:border-red-800">
+    <h4 style="margin: 0 0 10px 0; color: #dc2626;" class="dark:text-red-300">Reviewer Comments:</h4>
+    <p style="margin: 0; color: #374151;" class="dark:text-gray-200">{{ review_comments|linebreaksbr }}</p>
 </div>
 {% endif %}
 
