@@ -1,0 +1,39 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}New Project Submission - DocuHub{% endblock %}
+
+{% block header_title %}New Project Submission{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">A new project is waiting for your review</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>A new project has been submitted and is waiting for review. Please log in to the system to review and process this submission.</p>
+
+<div class="project-info">
+    <h3>{{ project_name }} {{ project_version }}</h3>
+    <p><strong>Submitted By:</strong> {{ submitted_by }}</p>
+    <p><strong>Submission Date:</strong> {{ submission_date }}</p>
+    <p><strong>Status:</strong> <span class="status-badge status-pending">Pending Approval</span></p>
+    {% if project.no_of_drawings %}
+    <p><strong>Drawings:</strong> {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}</p>
+    {% endif %}
+</div>
+
+<p>As a project reviewer, you can:</p>
+<ul>
+    <li>Review the project details and drawings</li>
+    <li>Approve the project for implementation</li>
+    <li>Reject the project with feedback</li>
+    <li>Request revisions with specific comments</li>
+</ul>
+
+<a href="{{ project_url }}" class="button">Review Project Now</a>
+
+<p>Please review this project promptly to maintain efficient workflow.</p>
+
+<p>Best regards,<br>
+The DocuHub System</p>
+{% endblock %}

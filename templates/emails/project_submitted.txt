@@ -1,0 +1,26 @@
+Project Submitted - DocuHub
+
+Hello {{ user_name }},
+
+Thank you for submitting your project for review. We have received your submission and it is now pending approval from our review team.
+
+Project Details:
+- Name: {{ project_name }} {{ project_version }}
+- Submission Date: {{ submission_date }}
+- Status: Pending Approval
+{% if project.no_of_drawings %}- Drawings: {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}{% endif %}
+
+Your project is now in the review queue. You will receive an email notification once the review process is complete.
+
+You can view your project status and details at: {{ project_url }}
+
+If you need to make any changes to your project while it's under review, please contact your project administrator.
+
+Thank you for using DocuHub!
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

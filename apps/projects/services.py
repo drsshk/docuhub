@@ -4,7 +4,7 @@ Business logic services for project management
 import logging
 import uuid
 from typing import Optional, Dict, Any
-from django.db import transaction
+from django.db import transaction, models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -311,8 +311,16 @@ class ProjectSubmissionService:
         # Send confirmation to user
         self.email_service.notify_project_submitted(project, user)
         
-        # Send notification to admins
-        admin_users = User.objects.filter(is_staff=True, is_active=True).select_related('profile')
+        # Send notification to admins and project managers
+        from .permissions import IsProjectManager
+        
+        # Get staff users and project managers
+        admin_users = User.objects.filter(is_active=True).filter(
+            models.Q(is_staff=True) | 
+            models.Q(groups__name='Project Managers') |
+            models.Q(user_permissions__codename='can_review_projects')
+        ).distinct()
+        
         if admin_users.exists():
             self.email_service.notify_admin_new_submission(project, admin_users)
 

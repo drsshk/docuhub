@@ -1,0 +1,22 @@
+Project Obsolete - DocuHub
+
+Hello {{ user_name }},
+
+This is to inform you that your project has been marked as obsolete, typically due to a newer version being available or changes in project requirements.
+
+Project Details:
+- Name: {{ project_name }}
+- Status: Obsolete
+
+This action was taken automatically by the system when a newer version of your project was created or approved.
+
+View project details at: {{ project_url }}
+
+If you believe this was done in error, please contact your project administrator.
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

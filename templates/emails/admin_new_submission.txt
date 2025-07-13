@@ -1,0 +1,28 @@
+New Project Submission - DocuHub
+
+Hello {{ user_name }},
+
+A new project has been submitted and is waiting for review. Please log in to the system to review and process this submission.
+
+Project Details:
+- Name: {{ project_name }} {{ project_version }}
+- Submitted By: {{ submitted_by }}
+- Submission Date: {{ submission_date }}
+- Status: Pending Approval
+{% if project.no_of_drawings %}- Drawings: {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}{% endif %}
+
+As a project reviewer, you can:
+- Review the project details and drawings
+- Approve the project for implementation
+- Reject the project with feedback
+- Request revisions with specific comments
+
+Review the project at: {{ project_url }}
+
+Please review this project promptly to maintain efficient workflow.
+
+Best regards,
+The DocuHub System
+
+---
+This is an automated message from DocuHub Project Management System.

@@ -1,0 +1,32 @@
+Revision Required - DocuHub
+
+Hello {{ user_name }},
+
+Your project has been reviewed and requires revisions before it can be approved. A new version needs to be created to address the feedback provided.
+
+Project Details:
+- Name: {{ project_name }} {{ project_version }}
+- Reviewed By: {{ reviewed_by }}
+- Status: Request for Revision
+{% if project.no_of_drawings %}- Drawings: {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}{% endif %}
+
+{% if review_comments %}
+Revision Comments:
+{{ review_comments }}
+{% endif %}
+
+To proceed:
+1. Review the comments and feedback provided above
+2. Create a new version of your project with the necessary changes
+3. Submit the new version for review
+
+Create a new version at: {{ project_url }}
+
+If you need clarification on any of the revision requests, please contact your project administrator.
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

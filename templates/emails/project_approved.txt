@@ -1,0 +1,25 @@
+Project Approved - DocuHub
+
+Hello {{ user_name }},
+
+Great news! Your project has been approved and endorsed by our review team.
+
+Project Details:
+- Name: {{ project_name }} {{ project_version }}
+- Review Date: {{ review_date }}
+- Reviewed By: {{ reviewed_by }}
+- Status: Approved & Endorsed
+{% if project.no_of_drawings %}- Drawings: {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}{% endif %}
+
+Your project has successfully passed our review process and is now officially approved. You can proceed with the next steps in your project workflow.
+
+View your approved project at: {{ project_url }}
+
+Thank you for following our submission guidelines and providing quality documentation.
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

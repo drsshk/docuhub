@@ -18,17 +18,17 @@ class BrevoEmailService:
             'content-type': 'application/json'
         }
     
-    def send_template_email(self, template_id: int, to_email: str, 
-                          to_name: str, variables: Dict, project=None) -> bool:
-        """Send email using Brevo template"""
+    def send_custom_email(self, template_name: str, to_email: str, 
+                         to_name: str, subject: str, context: Dict, project=None) -> bool:
+        """Send email using custom HTML template"""
         
         # Create email log entry
         email_log = EmailLog.objects.create(
             project=project,
             recipient_email=to_email,
             recipient_name=to_name,
-            template_type=self._get_template_type(template_id),
-            template_id=template_id,
+            template_type=template_name,
+            template_id=0,  # Not using Brevo template IDs
             status='PENDING'
         )
         
@@ -39,7 +39,20 @@ class BrevoEmailService:
             email_log.save()
             import logging
             logger = logging.getLogger('notifications')
-            logger.warning(f"Email notification: {self._get_template_type(template_id)} to {to_email} (API not configured)")
+            logger.warning(f"Email notification: {template_name} to {to_email} (API not configured)")
+            return False
+        
+        try:
+            # Render custom HTML template
+            html_content = render_to_string(f'emails/{template_name}.html', context)
+            text_content = render_to_string(f'emails/{template_name}.txt', context)
+        except Exception as e:
+            email_log.status = 'FAILED'
+            email_log.error_message = f'Template rendering failed: {str(e)}'
+            email_log.save()
+            import logging
+            logger = logging.getLogger('notifications')
+            logger.error(f"Template rendering failed: {e}")
             return False
         
         payload = {
@@ -48,8 +61,9 @@ class BrevoEmailService:
                 'name': getattr(settings, 'BREVO_SENDER_NAME', 'DocuHub System')
             },
             'to': [{'email': to_email, 'name': to_name}],
-            'templateId': template_id,
-            'params': variables
+            'subject': subject,
+            'htmlContent': html_content,
+            'textContent': text_content
         }
         
         try:
@@ -98,84 +112,103 @@ class BrevoEmailService:
     
     def notify_project_submitted(self, project, user):
         """Send submission confirmation to user"""
-        variables = {
-            'USER_NAME': user.get_full_name() or user.username,
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_VERSION': project.version_display,
-            'SUBMISSION_DATE': project.date_submitted.strftime('%Y-%m-%d') if project.date_submitted else '',
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'project_name': project.project_name,
+            'project_version': project.version_display,
+            'submission_date': project.date_submitted.strftime('%B %d, %Y') if project.date_submitted else '',
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project,
+            'user': user
         }
         
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
-        return self.send_template_email(
-            email_templates.get('PROJECT_SUBMITTED', 1),
+        subject = f"Project Submitted: {project.project_name} {project.version_display}"
+        
+        return self.send_custom_email(
+            'project_submitted',
             user.email,
             user.get_full_name() or user.username,
-            variables,
+            subject,
+            context,
             project
         )
     
     def notify_project_approved(self, project, user, admin):
         """Send approval notification to user"""
-        variables = {
-            'USER_NAME': user.get_full_name() or user.username,
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_VERSION': project.version_display,
-            'REVIEW_DATE': project.date_reviewed.strftime('%Y-%m-%d') if project.date_reviewed else '',
-            'REVIEWED_BY': admin.get_full_name() or admin.username,
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'project_name': project.project_name,
+            'project_version': project.version_display,
+            'review_date': project.date_reviewed.strftime('%B %d, %Y') if project.date_reviewed else '',
+            'reviewed_by': admin.get_full_name() or admin.username,
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project,
+            'user': user,
+            'admin': admin
         }
         
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
-        return self.send_template_email(
-            email_templates.get('PROJECT_APPROVED', 2),
+        subject = f"Project Approved: {project.project_name} {project.version_display}"
+        
+        return self.send_custom_email(
+            'project_approved',
             user.email,
             user.get_full_name() or user.username,
-            variables,
+            subject,
+            context,
             project
         )
     
     def notify_project_rejected(self, project, user, admin):
         """Send rejection notification to user"""
-        variables = {
-            'USER_NAME': user.get_full_name() or user.username,
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_VERSION': project.version_display,
-            'REVIEW_COMMENTS': project.review_comments or '',
-            'REVIEW_DATE': project.date_reviewed.strftime('%Y-%m-%d') if project.date_reviewed else '',
-            'REVIEWED_BY': admin.get_full_name() or admin.username,
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'project_name': project.project_name,
+            'project_version': project.version_display,
+            'review_comments': project.review_comments or '',
+            'review_date': project.date_reviewed.strftime('%B %d, %Y') if project.date_reviewed else '',
+            'reviewed_by': admin.get_full_name() or admin.username,
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project,
+            'user': user,
+            'admin': admin
         }
         
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
-        return self.send_template_email(
-            email_templates.get('PROJECT_REJECTED', 3),
+        subject = f"Project Rejected: {project.project_name} {project.version_display}"
+        
+        return self.send_custom_email(
+            'project_rejected',
             user.email,
             user.get_full_name() or user.username,
-            variables,
+            subject,
+            context,
             project
         )
     
     def notify_admin_new_submission(self, project, admin_users):
         """Send new submission alert to admins"""
-        variables = {
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_VERSION': project.version_display,
-            'SUBMITTED_BY': project.submitted_by.get_full_name() or project.submitted_by.username,
-            'SUBMISSION_DATE': project.date_submitted.strftime('%Y-%m-%d') if project.date_submitted else '',
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'project_name': project.project_name,
+            'project_version': project.version_display,
+            'submitted_by': project.submitted_by.get_full_name() or project.submitted_by.username,
+            'submission_date': project.date_submitted.strftime('%B %d, %Y') if project.date_submitted else '',
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project
         }
         
+        subject = f"New Project Submission: {project.project_name} {project.version_display}"
         success_count = 0
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
         
         for admin in admin_users:
-            variables['USER_NAME'] = admin.get_full_name() or admin.username
-            if self.send_template_email(
-                email_templates.get('ADMIN_NEW_SUBMISSION', 6),
+            admin_context = context.copy()
+            admin_context['user_name'] = admin.get_full_name() or admin.username
+            admin_context['admin'] = admin
+            
+            if self.send_custom_email(
+                'admin_new_submission',
                 admin.email,
                 admin.get_full_name() or admin.username,
-                variables,
+                subject,
+                admin_context,
                 project
             ):
                 success_count += 1
@@ -184,38 +217,47 @@ class BrevoEmailService:
     
     def notify_revision_required(self, project, user, admin):
         """Send revision required notification to user"""
-        variables = {
-            'USER_NAME': user.get_full_name() or user.username,
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_VERSION': project.version_display,
-            'REVIEW_COMMENTS': project.review_comments or '',
-            'REVIEWED_BY': admin.get_full_name() or admin.username,
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'project_name': project.project_name,
+            'project_version': project.version_display,
+            'review_comments': project.review_comments or '',
+            'reviewed_by': admin.get_full_name() or admin.username,
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project,
+            'user': user,
+            'admin': admin
         }
         
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
-        return self.send_template_email(
-            email_templates.get('PROJECT_REVISE_RESUBMIT', 4),
+        subject = f"Revision Required: {project.project_name} {project.version_display}"
+        
+        return self.send_custom_email(
+            'revision_required',
             user.email,
             user.get_full_name() or user.username,
-            variables,
+            subject,
+            context,
             project
         )
     
     def notify_project_obsolete(self, project, user):
         """Send project obsolete notification to user"""
-        variables = {
-            'USER_NAME': user.get_full_name() or user.username,
-            'PROJECT_NAME': project.project_name,
-            'PROJECT_URL': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/"
+        context = {
+            'user_name': user.get_full_name() or user.username,
+            'project_name': project.project_name,
+            'project_url': f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/projects/{project.id}/",
+            'project': project,
+            'user': user
         }
         
-        email_templates = getattr(settings, 'EMAIL_TEMPLATES', {})
-        return self.send_template_email(
-            email_templates.get('PROJECT_OBSOLETE', 5),
+        subject = f"Project Obsolete: {project.project_name}"
+        
+        return self.send_custom_email(
+            'project_obsolete',
             user.email,
             user.get_full_name() or user.username,
-            variables,
+            subject,
+            context,
             project
         )
 

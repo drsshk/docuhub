@@ -1,0 +1,36 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Project Submitted - DocuHub{% endblock %}
+
+{% block header_title %}Project Submitted{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Your project has been successfully submitted for review</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>Thank you for submitting your project for review. We have received your submission and it is now pending approval from our review team.</p>
+
+<div class="project-info">
+    <h3>{{ project_name }} {{ project_version }}</h3>
+    <p><strong>Submission Date:</strong> {{ submission_date }}</p>
+    <p><strong>Status:</strong> <span class="status-badge status-pending">Pending Approval</span></p>
+    {% if project.no_of_drawings %}
+    <p><strong>Drawings:</strong> {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}</p>
+    {% endif %}
+</div>
+
+<p>Your project is now in the review queue. You will receive an email notification once the review process is complete.</p>
+
+<p>You can view your project status and details at any time by clicking the button below:</p>
+
+<a href="{{ project_url }}" class="button">View Project Details</a>
+
+<p>If you need to make any changes to your project while it's under review, please contact your project administrator.</p>
+
+<p>Thank you for using DocuHub!</p>
+
+<p>Best regards,<br>
+The DocuHub Team</p>
+{% endblock %}

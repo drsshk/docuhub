@@ -1,0 +1,30 @@
+Project Rejected - DocuHub
+
+Hello {{ user_name }},
+
+After careful review, your project submission does not meet our current approval criteria and has been rejected.
+
+Project Details:
+- Name: {{ project_name }} {{ project_version }}
+- Review Date: {{ review_date }}
+- Reviewed By: {{ reviewed_by }}
+- Status: Rejected
+{% if project.no_of_drawings %}- Drawings: {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}{% endif %}
+
+{% if review_comments %}
+Reviewer Comments:
+{{ review_comments }}
+{% endif %}
+
+Don't worry! You can make the necessary changes and resubmit your project. Please review the comments above and address all the issues mentioned.
+
+View your project and make changes at: {{ project_url }}
+
+If you have any questions about the review comments or need clarification, please contact your project administrator.
+
+Best regards,
+The DocuHub Team
+
+---
+This is an automated message from DocuHub Project Management System.
+If you have any questions, please contact your system administrator.

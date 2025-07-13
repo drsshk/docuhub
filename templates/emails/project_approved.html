@@ -1,0 +1,33 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Project Approved - DocuHub{% endblock %}
+
+{% block header_title %}Project Approved{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Congratulations! Your project has been approved</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>Great news! Your project has been approved and endorsed by our review team.</p>
+
+<div class="project-info">
+    <h3>{{ project_name }} {{ project_version }}</h3>
+    <p><strong>Review Date:</strong> {{ review_date }}</p>
+    <p><strong>Reviewed By:</strong> {{ reviewed_by }}</p>
+    <p><strong>Status:</strong> <span class="status-badge status-approved">Approved & Endorsed</span></p>
+    {% if project.no_of_drawings %}
+    <p><strong>Drawings:</strong> {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}</p>
+    {% endif %}
+</div>
+
+<p>Your project has successfully passed our review process and is now officially approved. You can proceed with the next steps in your project workflow.</p>
+
+<a href="{{ project_url }}" class="button">View Approved Project</a>
+
+<p>Thank you for following our submission guidelines and providing quality documentation.</p>
+
+<p>Best regards,<br>
+The DocuHub Team</p>
+{% endblock %}

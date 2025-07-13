@@ -1,0 +1,44 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Revision Required - DocuHub{% endblock %}
+
+{% block header_title %}Revision Required{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Please create a new version with the requested changes</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>Your project has been reviewed and requires revisions before it can be approved. A new version needs to be created to address the feedback provided.</p>
+
+<div class="project-info">
+    <h3>{{ project_name }} {{ project_version }}</h3>
+    <p><strong>Reviewed By:</strong> {{ reviewed_by }}</p>
+    <p><strong>Status:</strong> <span class="status-badge status-revision">Request for Revision</span></p>
+    {% if project.no_of_drawings %}
+    <p><strong>Drawings:</strong> {{ project.no_of_drawings }} drawing{{ project.no_of_drawings|pluralize }}</p>
+    {% endif %}
+</div>
+
+{% if review_comments %}
+<div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 20px; margin: 20px 0; border-radius: 0 6px 6px 0;">
+    <h4 style="margin: 0 0 10px 0; color: #1d4ed8;">Revision Comments:</h4>
+    <p style="margin: 0; color: #374151;">{{ review_comments|linebreaksbr }}</p>
+</div>
+{% endif %}
+
+<p>To proceed:</p>
+<ol>
+    <li>Review the comments and feedback provided above</li>
+    <li>Create a new version of your project with the necessary changes</li>
+    <li>Submit the new version for review</li>
+</ol>
+
+<a href="{{ project_url }}" class="button">Create New Version</a>
+
+<p>If you need clarification on any of the revision requests, please contact your project administrator.</p>
+
+<p>Best regards,<br>
+The DocuHub Team</p>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Project Obsolete - DocuHub{% endblock %}
+
+{% block header_title %}Project Obsolete{% endblock %}
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Your project has been marked as obsolete</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ user_name }},</p>
+
+<p>This is to inform you that your project has been marked as obsolete, typically due to a newer version being available or changes in project requirements.</p>
+
+<div class="project-info">
+    <h3>{{ project_name }}</h3>
+    <p><strong>Status:</strong> <span class="status-badge" style="background: #f3f4f6; color: #374151;">Obsolete</span></p>
+</div>
+
+<p>This action was taken automatically by the system when a newer version of your project was created or approved.</p>
+
+<a href="{{ project_url }}" class="button">View Project Details</a>
+
+<p>If you believe this was done in error, please contact your project administrator.</p>
+
+<p>Best regards,<br>
+The DocuHub Team</p>
+{% endblock %}
