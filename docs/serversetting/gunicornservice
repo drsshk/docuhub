@@ -1,0 +1,18 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=drsshk
+Group=www-data
+WorkingDirectory=/home/drsshk/docuhub
+Environment="DJANGO_SETTINGS_MODULE=docuhub.settings"
+ExecStart=/home/drsshk/docuhub/venv/bin/gunicorn \
+                  --access-logfile - \
+                  --workers 3 \
+                  --bind unix:/run/gunicorn.sock \
+                  docuhub.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

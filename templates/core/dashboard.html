@@ -191,7 +191,8 @@
         </div>
     </div>
 
-    <!-- System Status -->
+    <!-- System Status (Admin/Approver Only) -->
+    {% if is_admin %}
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <h3 class="text-lg font-semibold text-slate-900 mb-3">System Status</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -226,5 +227,6 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

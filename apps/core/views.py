@@ -15,6 +15,10 @@ def dashboard(request):
 
     # --- Logic for authenticated users ---
     
+    # Check if user is admin/approver for role-based features
+    from apps.projects.permissions import IsProjectManager
+    is_admin = IsProjectManager.has_permission(request.user)
+    
     # Fetch stats for the current user
     user_projects = Project.objects.filter(submitted_by=request.user)
     user_drawings = Drawing.objects.filter(project__submitted_by=request.user)
@@ -29,9 +33,9 @@ def dashboard(request):
     # Fetch recent projects for the user
     recent_projects = user_projects.order_by('-updated_at')[:5]
     
-    # Fetch admin stats if the user is a staff member
+    # Fetch admin stats if the user is a staff member or has approver role
     admin_stats = {}
-    if request.user.is_staff:
+    if is_admin:
         admin_stats = {
             'pending_approvals': Project.objects.filter(status='Pending_Approval').count(),
             'total_projects': Project.objects.count(),
@@ -42,7 +46,7 @@ def dashboard(request):
         'stats': stats,
         'recent_projects': recent_projects,
         'admin_stats': admin_stats,
-        'is_admin': request.user.is_staff,
+        'is_admin': is_admin,
     }
     
     return render(request, 'core/dashboard.html', context)
