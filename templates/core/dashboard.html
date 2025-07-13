@@ -129,6 +129,110 @@
     .stagger-4 {
         animation-delay: 0.1s;
     }
+    
+    /* Mobile compact layout */
+    .mobile-compact {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mobile-compact h1 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mobile-compact p {
+        font-size: 0.875rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mobile-stats {
+        gap: 0.75rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .mobile-stats .gradient-border-content {
+        padding: 0.75rem !important;
+    }
+    
+    .mobile-stats h3 {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .mobile-stats p {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .mobile-sections {
+        gap: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .mobile-sections .glass-effect {
+        padding: 0.75rem !important;
+    }
+    
+    .mobile-sections h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .mobile-action-item {
+        padding: 0.5rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .mobile-action-item p {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.125rem !important;
+    }
+    
+    .mobile-action-item .text-xs {
+        font-size: 0.6875rem !important;
+    }
+    
+    /* Additional mobile optimizations */
+    .mobile-compact .w-12 {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+    
+    .mobile-compact .w-6 {
+        width: 1rem !important;
+        height: 1rem !important;
+    }
+    
+    /* System status section mobile compact */
+    .mobile-system-status {
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mobile-system-status .grid {
+        gap: 0.5rem !important;
+    }
+    
+    .mobile-system-status .bg-white {
+        padding: 0.5rem !important;
+    }
+    
+    .mobile-system-status h3,
+    .mobile-system-status p {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    /* Hide some elements on mobile for more compact view */
+    .mobile-hide {
+        display: none !important;
+    }
+    
+    /* Reduce vertical spacing between sections */
+    .mobile-sections > div {
+        margin-bottom: 0.5rem !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -176,9 +280,9 @@
 
 <div class="fade-in">
     <!-- Dashboard Header -->
-    <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-hidden mb-8 animate-slideInDown">
+    <div class="bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-xl shadow-2xl overflow-hidden mb-8 md:mb-8 animate-slideInDown">
         <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div class="relative px-6 py-8 sm:px-8 sm:py-12">
+        <div class="relative px-4 py-4 sm:px-8 sm:py-12 mobile-compact">
             <div class="max-w-4xl">
                 <div class="flex items-center space-x-4 mb-4">
                     <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -202,7 +306,7 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mobile-stats">
         <!-- Total Projects -->
         <div class="gradient-border animate-fadeInUp stagger-1">
             <div class="gradient-border-content p-6 card-hover animate-pulse-hover dark:bg-gray-800">
@@ -281,7 +385,7 @@
     </div>
 
     <!-- Recent Activity & Quick Actions -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8 mobile-sections">
         <!-- Recent Projects -->
         <div class="glass-effect rounded-xl shadow-xl border border-gray-200 p-6 animate-fadeInLeft">
             <div class="flex items-center justify-between mb-6">
@@ -371,7 +475,7 @@
             </div>
             <div class="space-y-3">
                 <a href="{% url 'projects:create' %}" 
-                   class="group flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 border border-blue-200 hover:border-blue-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700"
+                   class="group flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 border border-blue-200 hover:border-blue-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 mobile-action-item"
                    aria-label="Create a new project">
                     <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +492,7 @@
                 </a>
 
                 <a href="{% url 'projects:list' %}" 
-                   class="group flex items-center p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl hover:from-slate-100 hover:to-slate-200 transition-all duration-300 border border-slate-200 hover:border-slate-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700"
+                   class="group flex items-center p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl hover:from-slate-100 hover:to-slate-200 transition-all duration-300 border border-slate-200 hover:border-slate-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 mobile-action-item"
                    aria-label="View all projects">
                     <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,7 +510,7 @@
 
                 {% if is_admin %}
                 <a href="{% url 'projects:admin_pending' %}" 
-                   class="group flex items-center p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:from-amber-100 hover:to-amber-200 transition-all duration-300 border border-amber-200 hover:border-amber-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700"
+                   class="group flex items-center p-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl hover:from-amber-100 hover:to-amber-200 transition-all duration-300 border border-amber-200 hover:border-amber-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 mobile-action-item"
                    aria-label="Review pending projects for approval">
                     <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,7 +528,7 @@
                 {% endif %}
 
                 <a href="{% url 'projects:history_log' %}" 
-                   class="group flex items-center p-4 bg-gradient-to-r from-violet-50 to-violet-100 rounded-xl hover:from-violet-100 hover:to-violet-200 transition-all duration-300 border border-violet-200 hover:border-violet-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700"
+                   class="group flex items-center p-4 bg-gradient-to-r from-violet-50 to-violet-100 rounded-xl hover:from-violet-100 hover:to-violet-200 transition-all duration-300 border border-violet-200 hover:border-violet-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 mobile-action-item"
                    aria-label="View project submission history">
                     <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -441,7 +545,7 @@
                 </a>
 
                 <a href="{% url 'accounts:profile' %}" 
-                   class="group flex items-center p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl hover:from-indigo-100 hover:to-indigo-200 transition-all duration-300 border border-indigo-200 hover:border-indigo-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700"
+                   class="group flex items-center p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl hover:from-indigo-100 hover:to-indigo-200 transition-all duration-300 border border-indigo-200 hover:border-indigo-300 transform hover:scale-[1.02] focus-visible dark:from-gray-700 dark:to-gray-800 dark:border-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 mobile-action-item"
                    aria-label="Update profile and account settings">
                     <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl mr-4 group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,8 +566,8 @@
 
     <!-- System Status (Admin/Approver Only) -->
     {% if is_admin %}
-    <div class="glass-effect rounded-xl shadow-xl border border-gray-200 p-6 animate-fadeInUp">
-        <div class="flex items-center justify-between mb-6">
+    <div class="glass-effect rounded-xl shadow-xl border border-gray-200 p-6 animate-fadeInUp mobile-system-status">
+        <div class="flex items-center justify-between mb-6 mobile-hide">
             <h3 class="text-xl font-bold text-slate-900">System Status</h3>
             <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

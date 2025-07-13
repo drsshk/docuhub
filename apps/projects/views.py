@@ -82,20 +82,60 @@ class ProjectListView(LoginRequiredMixin, ListView):
         search = self.request.GET.get('search')
         if search:
             base_queryset = base_queryset.filter(
-                Q(project_name__icontains=search)
+                Q(project_name__icontains=search) |
+                Q(project_description__icontains=search) |
+                Q(submitted_by__first_name__icontains=search) |
+                Q(submitted_by__last_name__icontains=search)
             )
 
         latest_versions_pks = base_queryset.values('project_group_id').annotate(
             latest_pk=Max('pk')
         ).values_list('latest_pk', flat=True)
 
-        return Project.objects.filter(pk__in=latest_versions_pks).select_related(
+        queryset = Project.objects.filter(pk__in=latest_versions_pks).select_related(
             'submitted_by', 'reviewed_by'
-        ).prefetch_related('drawings').order_by('-updated_at')
+        ).prefetch_related('drawings')
+
+        # Apply sorting
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort in ['-created_at', 'created_at', 'project_name', '-project_name', '-updated_at']:
+                queryset = queryset.order_by(sort)
+            else:
+                queryset = queryset.order_by('-updated_at')
+        else:
+            queryset = queryset.order_by('-updated_at')
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_admin'] = IsProjectManager.has_permission(self.request.user)
+        
+        # Get base queryset for statistics (before pagination)
+        user = self.request.user
+        if IsProjectManager.has_permission(user):
+            stats_queryset = Project.objects.exclude(status='Draft')
+        else:
+            stats_queryset = Project.objects.filter(
+                Q(submitted_by=user) | Q(status='Approved_Endorsed')
+            ).distinct()
+        
+        # Get latest versions for statistics
+        latest_versions_pks = stats_queryset.values('project_group_id').annotate(
+            latest_pk=Max('pk')
+        ).values_list('latest_pk', flat=True)
+        
+        stats_projects = Project.objects.filter(pk__in=latest_versions_pks)
+        
+        # Calculate statistics
+        stats = {
+            'draft_projects': stats_projects.filter(status='Draft').count(),
+            'pending_projects': stats_projects.filter(status='Pending_Approval').count(),
+            'approved_projects': stats_projects.filter(status='Approved_Endorsed').count(),
+        }
+        context['stats'] = stats
+        
         return context
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
