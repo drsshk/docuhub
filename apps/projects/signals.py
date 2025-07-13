@@ -78,7 +78,7 @@ def project_status_changed(sender, instance, created, **kwargs):
         admin_users = User.objects.filter(is_staff=True, is_active=True)
         email_service.notify_admin_new_submission(instance, admin_users)
     
-    elif instance.status == 'Approved':
+    elif instance.status == 'Approved_Endorsed':
         # Project approved - notify user
         if instance.reviewed_by:
             email_service.notify_project_approved(instance, user, instance.reviewed_by)

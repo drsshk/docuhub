@@ -72,7 +72,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
             # 1. Their own projects (any status)
             # 2. All approved projects from anyone
             base_queryset = Project.objects.filter(
-                Q(submitted_by=user) | Q(status='Approved')
+                Q(submitted_by=user) | Q(status='Approved_Endorsed')
             ).distinct()
         
         status = self.request.GET.get('status')
@@ -169,7 +169,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = Project
     form_class = ProjectForm
     template_name = 'projects/project_form.html'
-    
+
     @transaction.atomic
     def form_valid(self, form):
         project_name = form.cleaned_data.get('project_name')
@@ -239,8 +239,8 @@ def submit_project(request, pk):
     if project.submitted_by != request.user:
         return HttpResponseForbidden("You don't have permission to submit this project.")
     
-    if project.status not in ['Draft', 'Revise_and_Resubmit']:
-        messages.error(request, 'Only drafts or projects needing revision can be submitted.')
+    if project.status not in ['Draft', 'Conditional_Approval']:
+        messages.error(request, 'Only drafts or conditionally approved projects can be submitted.')
         return redirect('projects:detail', pk=pk)
     
     if not project.drawings.filter(status='Active').exists():
@@ -315,13 +315,15 @@ def review_project(request, pk):
     context = {'project': project, 'form': form, 'drawings': drawings}
     return render(request, 'projects/project_review.html', context)
 
+
+
 @login_required
 def add_drawing(request, project_pk):
     """Add drawing to project"""
     project = get_object_or_404(Project, pk=project_pk)
     
     if not CanEditProject.has_permission(request.user, project):
-        messages.error(request, "Drawings can only be added to 'Draft' or 'Revise and Resubmit' projects.")
+        messages.error(request, "Drawings can only be added to 'Draft' or 'Conditional Approval' projects.")
         return HttpResponseForbidden("You don't have permission to add drawings to this project at its current state.")
     
     if request.method == 'POST':
@@ -376,6 +378,128 @@ def add_drawing(request, project_pk):
         form = DrawingForm()
     
     return render(request, 'projects/drawing_form.html', {'form': form, 'project': project})
+
+
+
+@login_required
+def add_drawing(request, project_pk):
+    """Add drawing to project"""
+    project = get_object_or_404(Project, pk=project_pk)
+    
+    if not CanEditProject.has_permission(request.user, project):
+        messages.error(request, "Drawings can only be added to 'Draft' or 'Conditional Approval' projects.")
+        return HttpResponseForbidden("You don't have permission to add drawings to this project at its current state.")
+    
+    if request.method == 'POST':
+        form = DrawingForm(request.POST)
+        if form.is_valid():
+            drawing = form.save(commit=False)
+            drawing.project = project
+            drawing.added_by = request.user
+            
+            if Drawing.objects.filter(project=project, drawing_no=drawing.drawing_no).exists():
+                messages.error(request, f'Drawing number {drawing.drawing_no} already exists in this project version.')
+                return render(request, 'projects/drawing_form.html', {'form': form, 'project': project})
+            
+            drawing.save()
+            
+            if request.headers.get('HX-Request'):
+                # For an HTMX request, we return a response that uses an "Out of Band" (OOB)
+                # swap to update the drawing list on the main page, and also includes
+                # a script to close the modal and provide user feedback.
+
+                # 1. Prepare the updated drawing list HTML.
+                drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+                can_edit = CanEditProject.has_permission(request.user, project)
+                list_html = render_to_string(
+                    'projects/partials/drawing_list.html',
+                    {'drawings': drawings, 'project': project, 'can_edit': can_edit},
+                    request=request
+                )
+                
+                # 2. Wrap the list HTML for the OOB swap. This targets the #drawing-list div.
+                oob_list_html = f'<div id="drawing-list" hx-swap-oob="true">{list_html}</div>'
+
+                # 3. Create a script to close the modal and show a confirmation message.
+                # This becomes the main part of the response, which replaces the form in the modal.
+                feedback_script = (
+                    '<script>'
+                    f" alert('Drawing {drawing.drawing_no} added successfully!');"
+                    " const modal = document.getElementById('modal');"
+                    " if (modal) { modal.style.display = 'none'; }"
+                    " const modalContent = document.getElementById('modal-content');"
+                    " if (modalContent) { modalContent.innerHTML = ''; }"
+                    '</script>'
+                )
+
+                # 4. Combine and return the full response.
+                return HttpResponse(oob_list_html + feedback_script)
+            
+            # Fallback for non-HTMX submissions
+            messages.success(request, f'Drawing {drawing.drawing_no} added successfully!')
+            return redirect('projects:detail', pk=project_pk)
+    else:
+        form = DrawingForm()
+    
+    return render(request, 'projects/drawing_form.html', {'form': form, 'project': project})
+
+@login_required
+def edit_drawing(request, pk):
+    drawing = get_object_or_404(Drawing, pk=pk)
+    project = drawing.project
+
+    if not CanEditProject.has_permission(request.user, project):
+        return HttpResponseForbidden("You don't have permission to edit this drawing.")
+
+    if request.method == 'POST':
+        form = DrawingForm(request.POST, instance=drawing)
+        if form.is_valid():
+            form.save()
+            if request.headers.get('HX-Request'):
+                drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+                can_edit = CanEditProject.has_permission(request.user, project)
+                list_html = render_to_string(
+                    'projects/partials/drawing_list.html',
+                    {'drawings': drawings, 'project': project, 'can_edit': can_edit},
+                    request=request
+                )
+                oob_list_html = f'<div id="drawing-list" hx-swap-oob="true">{list_html}</div>'
+                feedback_script = (
+                    '<script>'
+                    f" alert('Drawing {drawing.drawing_no} updated successfully!');"
+                    " const modal = document.getElementById('modal');"
+                    " if (modal) { modal.style.display = 'none'; }"
+                    " const modalContent = document.getElementById('modal-content');"
+                    " if (modalContent) { modalContent.innerHTML = ''; }"
+                    '</script>'
+                )
+                return HttpResponse(oob_list_html + feedback_script)
+            messages.success(request, f'Drawing {drawing.drawing_no} updated successfully!')
+            return redirect('projects:detail', pk=project.pk)
+    else:
+        form = DrawingForm(instance=drawing)
+    return render(request, 'projects/drawing_form.html', {'form': form, 'project': project, 'drawing': drawing})
+
+@login_required
+@csrf_protect
+def delete_drawing(request, pk):
+    drawing = get_object_or_404(Drawing, pk=pk)
+    project = drawing.project
+
+    if not CanEditProject.has_permission(request.user, project):
+        return HttpResponseForbidden("You don't have permission to delete this drawing.")
+
+    if request.method == 'POST':
+        drawing_no = drawing.drawing_no
+        drawing.delete()
+        project.no_of_drawings = project.drawings.filter(status='Active').count()
+        project.save()
+        if request.headers.get('HX-Request'):
+            return HttpResponse(status=200) # HTMX will remove the element
+        messages.success(request, f'Drawing {drawing_no} deleted successfully.')
+        return redirect('projects:detail', pk=project.pk)
+    return HttpResponseForbidden("Invalid request method.")
+
 
 @user_passes_test(is_admin_check)
 @never_cache

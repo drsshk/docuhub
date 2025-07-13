@@ -228,3 +228,4 @@ email_templates/
 db_backup_*.sqlite3
 
 Gemini.md
+Claude.md

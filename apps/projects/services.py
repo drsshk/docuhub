@@ -63,8 +63,6 @@ class ProjectVersionService:
                     drawing_title=drawing.drawing_title,
                     drawing_description=drawing.drawing_description,
                     drawing_list_link=drawing.drawing_list_link,
-                    drawing_type=drawing.drawing_type,
-                    discipline=drawing.discipline,
                     scale_ratio=drawing.scale_ratio,
                     sheet_size=drawing.sheet_size,
                     revision_number=drawing.revision_number + 1,
@@ -178,7 +176,7 @@ class ProjectSubmissionService:
         """Approve a project"""
         try:
             with transaction.atomic():
-                project.status = 'Approved'
+                project.status = 'Approved_Endorsed'
                 project.date_reviewed = timezone.now()
                 project.reviewed_by = admin
                 project.review_comments = comments
@@ -188,18 +186,18 @@ class ProjectSubmissionService:
                 ApprovalHistory.objects.create(
                     project=project,
                     version=project.version,
-                    action='Approved',
+                    action='Approved_Endorsed',
                     performed_by=admin,
                     comments=comments,
                     previous_status='Pending_Approval',
-                    new_status='Approved',
+                    new_status='Approved_Endorsed',
                     ip_address=request_meta.get('ip_address') if request_meta else None,
                     user_agent=request_meta.get('user_agent') if request_meta else None
                 )
 
                 # Update ProjectHistory entry
                 ProjectHistory.objects.filter(project=project, version=project.version).update(
-                    approval_status='Approved'
+                    approval_status='Approved_Endorsed'
                 )
                 
                 # Send notification email
@@ -268,7 +266,7 @@ class ProjectSubmissionService:
         """Request revision for a project"""
         try:
             with transaction.atomic():
-                project.status = 'Revise_and_Resubmit'
+                project.status = 'Request_for_Revision'
                 project.date_reviewed = timezone.now()
                 project.reviewed_by = admin
                 project.review_comments = comments
@@ -282,14 +280,14 @@ class ProjectSubmissionService:
                     performed_by=admin,
                     comments=comments,
                     previous_status='Pending_Approval',
-                    new_status='Revise_and_Resubmit',
+                    new_status='Request_for_Revision',
                     ip_address=request_meta.get('ip_address') if request_meta else None,
                     user_agent=request_meta.get('user_agent') if request_meta else None
                 )
 
                 # Update ProjectHistory entry
                 ProjectHistory.objects.filter(project=project, version=project.version).update(
-                    approval_status='Revise_and_Resubmit'
+                    approval_status='Request_for_Revision'
                 )
                 
                 # Send notification email
@@ -338,7 +336,7 @@ class ProjectBulkOperationsService:
         
         for project in projects:
             try:
-                project.status = 'Approved'
+                project.status = 'Approved_Endorsed'
                 project.date_reviewed = timezone.now()
                 project.reviewed_by = admin
                 project.review_comments = comments
@@ -348,11 +346,11 @@ class ProjectBulkOperationsService:
                 ApprovalHistory.objects.create(
                     project=project,
                     version=project.version,
-                    action='Approved',
+                    action='Approved_Endorsed',
                     performed_by=admin,
                     comments=f"Bulk approval: {comments}" if comments else "Bulk approval",
                     previous_status='Pending_Approval',
-                    new_status='Approved',
+                    new_status='Approved_Endorsed',
                     ip_address=request_meta.get('ip_address') if request_meta else None,
                     user_agent=request_meta.get('user_agent') if request_meta else None
                 )
@@ -424,7 +422,7 @@ class ProjectBulkOperationsService:
         
         for project in projects:
             try:
-                project.status = 'Revise_and_Resubmit'
+                project.status = 'Request_for_Revision'
                 project.date_reviewed = timezone.now()
                 project.reviewed_by = admin
                 project.review_comments = comments
@@ -438,7 +436,7 @@ class ProjectBulkOperationsService:
                     performed_by=admin,
                     comments=f"Bulk revision request: {comments}" if comments else "Bulk revision request",
                     previous_status='Pending_Approval',
-                    new_status='Revise_and_Resubmit',
+                    new_status='Request_for_Revision',
                     ip_address=request_meta.get('ip_address') if request_meta else None,
                     user_agent=request_meta.get('user_agent') if request_meta else None
                 )
@@ -513,9 +511,9 @@ class ProjectStatsService:
             'total_projects': user_projects.count(),
             'draft_projects': user_projects.filter(status='Draft').count(),
             'pending_projects': user_projects.filter(status='Pending_Approval').count(),
-            'approved_projects': user_projects.filter(status='Approved').count(),
+            'approved_projects': user_projects.filter(status='Approved_Endorsed').count(),
             'rejected_projects': user_projects.filter(status='Rejected').count(),
-            'revision_projects': user_projects.filter(status='Revise_and_Resubmit').count(),
+            'revision_projects': user_projects.filter(status='Request_for_Revision').count(),
             'recent_projects': user_projects.order_by('-updated_at')[:5]
         }
     
@@ -529,7 +527,7 @@ class ProjectStatsService:
             'pending_approvals': all_projects.filter(status='Pending_Approval').count(),
             'total_projects': all_projects.count(),
             'approved_today': all_projects.filter(
-                status='Approved', 
+                status='Approved_Endorsed', 
                 date_reviewed__date=today
             ).count(),
             'rejected_today': all_projects.filter(
@@ -549,7 +547,7 @@ class ProjectStatsService:
         return {
             'total_versions': projects.count(),
             'latest_version': projects.order_by('-version').first(),
-            'approved_versions': projects.filter(status='Approved').count(),
+            'approved_versions': projects.filter(status='Approved_Endorsed').count(),
             'version_history': projects.order_by('-version')
         }
 

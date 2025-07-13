@@ -18,7 +18,16 @@ class ProjectCreationTest(TestCase):
             'project_name': 'Test Project 1',
             'project_description': 'This is a test description.',
             'project_priority': 'High',
-            'deadline_date': '2025-12-31'
+            'deadline_date': '2025-12-31',
+            'drawing_set-TOTAL_FORMS': 1,
+            'drawing_set-INITIAL_FORMS': 0,
+            'drawing_set-MIN_NUM_FORMS': 0,
+            'drawing_set-MAX_NUM_FORMS': 1000,
+            'drawing_set-0-drawing_no': 'D001',
+            'drawing_set-0-drawing_title': 'Test Drawing',
+            'drawing_set-0-drawing_description': 'Description',
+            'drawing_set-0-scale_ratio': '1:100',
+            'drawing_set-0-sheet_size': 'A1',
         })
         self.assertEqual(response.status_code, 302)  # Should redirect on success
         self.assertTrue(Project.objects.filter(project_name='Test Project 1', submitted_by=self.user).exists())
@@ -43,7 +52,11 @@ class ProjectCreationTest(TestCase):
             'project_name': 'existing project',  # Different case
             'project_description': 'This is a test description.',
             'project_priority': 'High',
-            'deadline_date': '2025-12-31'
+            'deadline_date': '2025-12-31',
+            'drawing_set-TOTAL_FORMS': 0,
+            'drawing_set-INITIAL_FORMS': 0,
+            'drawing_set-MIN_NUM_FORMS': 0,
+            'drawing_set-MAX_NUM_FORMS': 1000,
         })
         self.assertEqual(response.status_code, 200)  # Should render form with error
         self.assertContains(response, 'You already have an active project with this name. Please choose a different name.')

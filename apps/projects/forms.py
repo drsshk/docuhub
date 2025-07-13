@@ -43,12 +43,13 @@ class ProjectForm(forms.ModelForm):
         return bleach.clean(project_description, tags=[], attributes={}, strip=True)
 
 
+
+
 class DrawingForm(forms.ModelForm):
     class Meta:
         model = Drawing
         fields = [
-            'drawing_no', 'drawing_title', 'drawing_description', 
-            'discipline', 'drawing_type'
+            'drawing_no', 'drawing_title', 'drawing_description'
         ]
         widgets = {
             'drawing_no': forms.TextInput(attrs={
@@ -65,13 +66,7 @@ class DrawingForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Enter drawing description (optional)'
             }),
-            'discipline': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            }),
-            'drawing_type': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': 'e.g., Floor Plan, Section, Detail'
-            })
+            
         }
 
 class ReviewForm(forms.Form):
@@ -143,7 +138,7 @@ class ProjectRestoreForm(forms.Form):
     restore_to_status = forms.ChoiceField(
         choices=[
             ('Draft', 'Draft'),
-            ('Approved', 'Approved'),
+            ('Approved_Endorsed', 'Approved & Endorsed'),
         ],
         widget=forms.Select(attrs={
             'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'

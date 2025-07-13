@@ -79,7 +79,7 @@ class CanEditProject:
             return True
             
         # Define which statuses are editable for non-admins
-        editable_statuses = ['Draft', 'Revise_and_Resubmit', 'Rejected']
+        editable_statuses = ['Draft', 'Conditional_Approval']
         
         is_owner = (project.submitted_by == user)
         is_editable_status = (project.status in editable_statuses)
@@ -99,7 +99,7 @@ class CanCreateNewVersion:
             return False
             
         # Define which statuses allow creating new versions
-        versionable_statuses = ['Approved', 'Rejected', 'Obsolete']
+        versionable_statuses = ['Request_for_Revision']
         
         is_owner = (project.submitted_by == user)
         is_versionable_status = (project.status in versionable_statuses)
@@ -170,7 +170,7 @@ class CanViewProject:
             return True
         
         # Submitters can view ALL approved projects (not just their own)
-        if project.status == 'Approved':
+        if project.status == 'Approved_Endorsed':
             return True
             
         return False

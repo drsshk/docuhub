@@ -15,9 +15,11 @@ class Project(models.Model):
     STATUS_CHOICES = [
         ('Draft', 'Draft'),
         ('Pending_Approval', 'Pending Approval'),
-        ('Approved', 'Approved'),
+        ('Approved_Endorsed', 'Approved & Endorsed'),
+        ('Conditional_Approval', 'Conditional Approval'),
+        ('Request_for_Revision', 'Request for Revision'),
         ('Rejected', 'Rejected'),
-        ('Revise_and_Resubmit', 'Revise and Resubmit'),
+        ('Rescinded_Revoked', 'Rescinded & Revoked'),
         ('Obsolete', 'Obsolete'),
     ]
     
@@ -114,10 +116,12 @@ class Project(models.Model):
         """Check if status transition is valid"""
         valid_transitions = {
             'Draft': ['Pending_Approval', 'Obsolete'],
-            'Pending_Approval': ['Approved', 'Rejected', 'Revise_and_Resubmit'],
-            'Approved': ['Obsolete'],
+            'Pending_Approval': ['Approved_Endorsed', 'Conditional_Approval', 'Request_for_Revision', 'Rejected', 'Rescinded_Revoked'],
+            'Approved_Endorsed': ['Rescinded_Revoked', 'Obsolete'],
+            'Conditional_Approval': ['Approved_Endorsed', 'Request_for_Revision', 'Rejected', 'Rescinded_Revoked', 'Obsolete'],
+            'Request_for_Revision': ['Pending_Approval', 'Draft', 'Obsolete'],
             'Rejected': ['Draft', 'Obsolete'],
-            'Revise_and_Resubmit': ['Pending_Approval', 'Draft', 'Obsolete'],
+            'Rescinded_Revoked': ['Draft', 'Obsolete'],
             'Obsolete': []  # No transitions from obsolete
         }
         
@@ -139,15 +143,7 @@ class Drawing(models.Model):
         ('Obsolete', 'Obsolete'),
     ]
     
-    DISCIPLINE_CHOICES = [
-        ('Architectural', 'Architectural'),
-        ('Structural', 'Structural'),
-        ('Mechanical', 'Mechanical'),
-        ('Electrical', 'Electrical'),
-        ('Plumbing', 'Plumbing'),
-        ('Civil', 'Civil'),
-        ('Other', 'Other'),
-    ]
+    
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='drawings')
@@ -157,8 +153,7 @@ class Drawing(models.Model):
     )
     drawing_title = models.CharField(max_length=255, blank=True, validators=[validate_drawing_title])
     drawing_description = models.TextField(blank=True)
-    drawing_type = models.CharField(max_length=50, blank=True, validators=[validate_drawing_type])
-    discipline = models.CharField(max_length=50, choices=DISCIPLINE_CHOICES, blank=True)
+    
     scale_ratio = models.CharField(max_length=20, blank=True, validators=[validate_scale_ratio])
     sheet_size = models.CharField(max_length=10, blank=True, validators=[validate_sheet_size])
     revision_number = models.IntegerField(default=0, validators=[validate_revision_number])
@@ -218,8 +213,11 @@ class ApprovalHistory(models.Model):
     ACTION_CHOICES = [
         ('Created', 'Created'),
         ('Submitted', 'Submitted'),
-        ('Approved', 'Approved'),
+        ('Approved_Endorsed', 'Approved & Endorsed'),
+        ('Conditional_Approval', 'Conditional Approval'),
+        ('Request_for_Revision', 'Request for Revision'),
         ('Rejected', 'Rejected'),
+        ('Rescinded_Revoked', 'Rescinded & Revoked'),
         ('Resubmitted', 'Resubmitted'),
         ('Status_Changed', 'Status Changed'),
         ('Obsoleted', 'Obsoleted'),

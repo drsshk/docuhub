@@ -8,7 +8,7 @@ class DrawingSerializer(serializers.ModelSerializer):
         model = Drawing
         fields = [
             'id', 'drawing_no', 'drawing_title', 'drawing_description',
-            'drawing_list_link', 'discipline', 'drawing_type', 'status',
+            'drawing_list_link', 'status',
             'date_added', 'added_by', 'added_by_name'
         ]
         read_only_fields = ['id', 'date_added', 'added_by', 'added_by_name']

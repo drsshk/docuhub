@@ -6,7 +6,7 @@ class DrawingInline(admin.TabularInline):
     model = Drawing
     extra = 0
     readonly_fields = ['date_added', 'added_by']
-    fields = ['drawing_no', 'drawing_title', 'discipline', 'drawing_list_link', 'status']
+    fields = ['drawing_no', 'drawing_title', 'drawing_list_link', 'status']
 
 class ApprovalHistoryInline(admin.TabularInline):
     model = ApprovalHistory
@@ -56,7 +56,7 @@ class ProjectAdmin(admin.ModelAdmin):
         colors = {
             'Draft': '#6c757d',
             'Pending_Approval': '#ffc107',
-            'Approved': '#28a745',
+            'Approved_Endorsed': '#28a745',
             'Rejected': '#dc3545',
             'Revise_and_Resubmit': '#007bff',
             'Obsolete': '#343a40'
@@ -76,10 +76,10 @@ class ProjectAdmin(admin.ModelAdmin):
 @admin.register(Drawing)
 class DrawingAdmin(admin.ModelAdmin):
     list_display = [
-        'drawing_no', 'drawing_title', 'project', 'discipline', 
+        'drawing_no', 'drawing_title', 'project', 
         'status', 'added_by', 'date_added'
     ]
-    list_filter = ['discipline', 'status', 'date_added']
+    list_filter = ['status', 'date_added']
     search_fields = ['drawing_no', 'drawing_title', 'project__project_name']
     readonly_fields = ['date_added', 'added_by']
     
@@ -88,7 +88,7 @@ class DrawingAdmin(admin.ModelAdmin):
             'fields': ('project', 'drawing_no', 'drawing_title', 'drawing_description')
         }),
         ('Technical Details', {
-            'fields': ('discipline', 'drawing_type', 'scale_ratio', 'sheet_size')
+            'fields': ('scale_ratio', 'sheet_size')
         }),
         ('Links & Status', {
             'fields': ('drawing_list_link', 'status', 'sort_order')

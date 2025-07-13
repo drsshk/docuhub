@@ -172,6 +172,9 @@ def send_account_setup_email(user, token, uid):
     """
     Sends an email to the new user with a link to set their password.
     """
+    import logging
+    logger = logging.getLogger('accounts')
+    
     # --- FIX: Added 'accounts:' namespace to the reverse() call ---
     password_setup_path = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
     
@@ -185,11 +188,9 @@ def send_account_setup_email(user, token, uid):
     sender_name = settings.BREVO_SENDER_NAME
 
     if not api_key:
-        import logging
-        logger = logging.getLogger('accounts')
         logger.warning(f"BREVO_API_KEY not set. Email not sent for user {user.username}")
         logger.info(f"Password setup link for {user.username}: {full_setup_url}")
-        return
+        return False
 
     headers = {
         'accept': 'application/json',
@@ -214,26 +215,30 @@ def send_account_setup_email(user, token, uid):
 
     try:
         response = requests.post(api_url, headers=headers, json=data)
-        response.raise_for_status() # Raise an exception for bad status codes
+        response.raise_for_status()
+        logger.info(f"Account setup email sent successfully via Brevo to {user.email}")
+        return True
     except requests.exceptions.RequestException as e:
-        import logging
-        logger = logging.getLogger('accounts')
-        logger.error(f"Failed to send email to {user.email}: {e}")
+        logger.error(f"Failed to send account setup email to {user.email}: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            logger.error(f"Brevo API response: {e.response.text}")
+        return False
 
 def send_password_reset_email(user, temp_password):
     """
-    Sends a temporary password to the user's email via Brevo API.
+    Sends a temporary password to the user's email via Brevo API only.
     """
+    import logging
+    logger = logging.getLogger('accounts')
+    
     api_key = settings.BREVO_API_KEY
     api_url = settings.BREVO_API_URL
     sender_email = settings.DEFAULT_FROM_EMAIL
     sender_name = settings.BREVO_SENDER_NAME
 
     if not api_key:
-        import logging
-        logger = logging.getLogger('accounts')
-        logger.warning(f"BREVO_API_KEY not set. Password reset email not sent for user {user.username}")
-        return
+        logger.error(f"BREVO_API_KEY not set. Password reset email cannot be sent for user {user.username}")
+        return False
 
     headers = {
         'accept': 'application/json',
@@ -259,8 +264,11 @@ def send_password_reset_email(user, temp_password):
 
     try:
         response = requests.post(api_url, headers=headers, json=data)
-        response.raise_for_status() # Raise an exception for bad status codes
+        response.raise_for_status()
+        logger.info(f"Password reset email sent successfully via Brevo to {user.email}")
+        return True
     except requests.exceptions.RequestException as e:
-        import logging
-        logger = logging.getLogger('accounts')
-        logger.error(f"Failed to send password reset email to {user.email}: {e}")
+        logger.error(f"Failed to send password reset email via Brevo to {user.email}: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            logger.error(f"Brevo API response: {e.response.text}")
+        return False
