@@ -768,31 +768,7 @@
     </footer>
 
 
-    <!-- Floating Action Button -->
-    <div class="fixed bottom-6 right-6 z-30" x-data="{ open: false }">
-        <div x-show="open" x-transition class="absolute bottom-16 right-0 flex flex-col space-y-2">
-            <a href="{% url 'projects:create' %}" class="floating bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-            </a>
-            {% if user.is_staff %}
-            <a href="{% url 'projects:admin_pending' %}" class="floating bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full shadow-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </a>
-            {% endif %}
-        </div>
-        <button @click="open = !open" class="floating bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transition-all duration-300">
-            <svg x-show="!open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            <svg x-show="open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-    </div>
+    
 
     <!-- Version Details Modal -->
     <div id="version-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
