@@ -2,14 +2,18 @@
 
 ## Executive Summary
 
-DocuHub is an enterprise-grade Django web application designed to manage technical drawing versions with automated approval workflows, comprehensive audit trails, and integrated email notification systems. The platform provides structured project lifecycle management with role-based access control and enterprise security features.
+DocuHub is an enterprise-grade Django web application designed to provide a **Streamlined Document Workflow** for managing technical drawing versions with automated approval workflows, comprehensive audit trails, and integrated email notification systems. The platform provides structured project lifecycle management with role-based access control and enterprise security features.
+
+## User Registration
+
+User registration in DocuHub is handled by administrators. When an admin creates a new user, a password is automatically generated and sent to the user's email. For security, passwords are encrypted and cannot be viewed by anyone, including administrators, in the database.
 
 ## System Architecture
 
 ### Technology Stack
 - **Backend Framework**: Django 4.2.7 with Python 3.8+
 - **Database**: MySQL with SQLite development support
-- **Caching Layer**: Redis for production environments
+
 - **Email Service**: Brevo API integration
 - **API Framework**: Django REST Framework
 - **Authentication**: Token-based and session authentication
@@ -77,7 +81,7 @@ DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 BREVO_SENDER_NAME=DocuHub System
 
 # Cache and Session Configuration
-REDIS_URL=redis://localhost:6379/0
+
 
 # Email Template Configuration
 EMAIL_TEMPLATE_PROJECT_SUBMITTED=1
@@ -391,7 +395,7 @@ python manage.py cleanup_sessions
 ### Health Monitoring
 Monitor the following system metrics:
 - Database connection status
-- Redis cache availability
+
 - Email service connectivity
 - Disk space utilization
 - Memory and CPU usage
@@ -406,7 +410,7 @@ Monitor the following system metrics:
 - Connection pooling for production environments
 
 ### Caching Strategy
-- Redis-based session storage
+
 - Template fragment caching
 - Database query result caching
 - Static file caching with appropriate headers
@@ -468,7 +472,7 @@ systemctl status mysql
 #### Performance Issues
 ```bash
 # Monitor database query performance
-# Check Redis cache connectivity
+
 # Review application logs for errors
 # Monitor system resource utilization
 ```
