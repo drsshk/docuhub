@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
+from django.db import models
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.conf import settings
@@ -23,7 +24,7 @@ def dashboard(request):
     user_projects = Project.objects.filter(submitted_by=request.user)
     user_drawings = Drawing.objects.filter(project__submitted_by=request.user)
     stats = {
-        'total_projects': user_projects.count(),
+        'total_projects': user_projects.values('project_group_id').distinct().count(),
         'draft_projects': user_projects.filter(status='Draft').count(),
         'pending_projects': user_projects.filter(status='Pending_Approval').count(),
         'approved_projects': user_projects.filter(status='Approved').count(),
@@ -31,7 +32,20 @@ def dashboard(request):
     }
 
     # Fetch recent projects for the user
-    recent_projects = user_projects.order_by('-updated_at')[:5]
+    # Fetch all projects for the user, ordered by project_group_id and then by version (descending)
+    # This allows easy grouping and selection of the latest version in Python
+    all_user_projects = user_projects.order_by('project_group_id', '-version')
+
+    # Manually filter to get only the latest version for each project_group_id
+    seen_project_groups = set()
+    recent_projects = []
+    for project in all_user_projects:
+        if project.project_group_id not in seen_project_groups:
+            recent_projects.append(project)
+            seen_project_groups.add(project.project_group_id)
+    
+    # Limit to the 5 most recently updated unique projects
+    recent_projects = sorted(recent_projects, key=lambda p: p.updated_at, reverse=True)[:5]
     
     # Fetch admin stats if the user is a staff member or has approver role
     admin_stats = {}
