@@ -84,8 +84,11 @@ class CanEditProject:
         is_owner = (project.submitted_by == user)
         is_editable_status = (project.status in editable_statuses)
         
-        # Only the project owner can edit their own projects
-        return is_owner and is_editable_status
+        # Check if this is the latest version
+        is_latest_version = project.is_latest_version()
+        
+        # Only the project owner can edit their own projects (latest version only)
+        return is_owner and is_editable_status and is_latest_version
 
 
 class CanCreateNewVersion:
@@ -99,7 +102,7 @@ class CanCreateNewVersion:
             return False
             
         # Define which statuses allow creating new versions
-        versionable_statuses = ['Request_for_Revision']
+        versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed']
         
         is_owner = (project.submitted_by == user)
         is_versionable_status = (project.status in versionable_statuses)
