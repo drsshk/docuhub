@@ -60,15 +60,15 @@ SECRET_KEY=your-cryptographically-secure-secret-key
 DEBUG=False
 
 # Network Configuration
-ALLOWED_HOSTS=152.42.210.234,localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://152.42.210.234,http://localhost:8000,http://127.0.0.1:8000
-FRONTEND_URL=http://152.42.210.234
+ALLOWED_HOSTS=your-server-ip,localhost,127.0.0.1
+CORS_ALLOWED_ORIGINS=http://your-server-ip,http://localhost:8000,http://127.0.0.1:8000
+FRONTEND_URL=http://your-server-ip
 
 # Database Configuration
 DB_NAME=docuhub_production
 DB_USER=docuhub_user
 DB_PASSWORD=secure_database_password
-DB_HOST=152.42.210.234
+DB_HOST=your-database-host
 DB_PORT=3306
 
 # Email Service Configuration (Brevo)
@@ -118,7 +118,7 @@ gunicorn docuhub.wsgi:application --bind 0.0.0.0:8000 --workers 4
 ```nginx
 server {
     listen 80;
-    server_name 152.42.210.234;
+    server_name your-server-ip;
     client_max_body_size 100M;
     
     location /static/ {
