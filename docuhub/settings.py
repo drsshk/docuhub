@@ -117,7 +117,13 @@ if DEBUG:
         "http://127.0.0.1:8000",
         "http://152.42.210.234"
     ]
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # Use Brevo email service even in development mode
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp-relay.brevo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = config('DEFAULT_FROM_EMAIL', default='contact.cenergi@gmail.com')
+    EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY', default='')
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
     AUTH_PASSWORD_VALIDATORS = [{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 4}}]
     RATELIMIT_ENABLE = False

@@ -11,6 +11,7 @@ urlpatterns = [
     path('<uuid:pk>/update/', views.ProjectUpdateView.as_view(), name='update'),
     path('<uuid:pk>/submit/', views.submit_project, name='submit'),
     path('<uuid:pk>/review/', views.review_project, name='review'),
+    path('<uuid:pk>/quick-action/', views.quick_action, name='quick_action'),
     path('<uuid:project_pk>/add_drawing/', views.add_drawing, name='add_drawing'),
     path('drawing/<uuid:pk>/edit/', views.edit_drawing, name='edit_drawing'),
     path('drawing/<uuid:pk>/delete/', views.delete_drawing, name='delete_drawing'),

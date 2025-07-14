@@ -717,7 +717,14 @@ def create_new_version(request, pk):
                 messages.error(request, 'Failed to create a new version.')
                 return redirect('projects:detail', pk=pk)
     else:
-        form = ProjectForm()
+        # Pre-populate form with original project data
+        form = ProjectForm(initial={
+            'project_name': original_project.project_name,
+            'project_description': original_project.project_description,
+            'project_priority': original_project.project_priority,
+            'deadline_date': original_project.deadline_date,
+            'project_folder_link': original_project.project_folder_link,
+        })
 
     context = {
         'form': form,
@@ -734,3 +741,46 @@ def history_log(request):
         history = ProjectHistory.objects.filter(submitted_by=request.user).order_by('-date_submitted')
     
     return render(request, 'projects/history_log.html', {'history': history})
+
+@login_required
+@user_passes_test(lambda u: IsProjectManager.has_permission(u))
+def quick_action(request, pk):
+    """Quick action endpoint for approve/reject/revise from admin pending page"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+    
+    project = get_object_or_404(Project, pk=pk)
+    
+    if project.status != 'Pending_Approval':
+        return JsonResponse({'error': 'Only pending projects can be reviewed'}, status=400)
+    
+    action = request.POST.get('action')
+    if action not in ['approve', 'reject', 'revise']:
+        return JsonResponse({'error': 'Invalid action'}, status=400)
+    
+    # Use the same service as the regular review function
+    submission_service = ProjectSubmissionService()
+    request_meta = {
+        'ip_address': get_client_ip(request),
+        'user_agent': request.META.get('HTTP_USER_AGENT', '')
+    }
+    
+    success = False
+    message = ''
+    
+    if action == 'approve':
+        success = submission_service.approve_project(project, request.user, 'Quick approval', request_meta)
+        message = 'Project approved successfully!'
+    elif action == 'reject':
+        success = submission_service.reject_project(project, request.user, 'Quick rejection', request_meta)
+        message = 'Project rejected.'
+    elif action == 'revise':
+        success = submission_service.request_revision(project, request.user, 'Quick revision request', request_meta)
+        message = 'Project sent back for revision.'
+    
+    if success:
+        messages.success(request, message)
+        return redirect('projects:admin_pending')
+    else:
+        messages.error(request, 'Failed to process review. Please try again.')
+        return redirect('projects:admin_pending')

@@ -62,7 +62,6 @@ class ProjectVersionService:
                     drawing_no=drawing.drawing_no,
                     drawing_title=drawing.drawing_title,
                     drawing_description=drawing.drawing_description,
-                    drawing_list_link=drawing.drawing_list_link,
                     scale_ratio=drawing.scale_ratio,
                     sheet_size=drawing.sheet_size,
                     revision_number=drawing.revision_number + 1,
@@ -312,13 +311,14 @@ class ProjectSubmissionService:
         self.email_service.notify_project_submitted(project, user)
         
         # Send notification to admins and approvers
-        from apps.accounts.models import Role
-        
-        # Get users with Approver or Admin roles, plus staff users
-        admin_users = User.objects.filter(is_active=True).filter(
-            models.Q(is_staff=True) | 
-            models.Q(profile__role__name__in=['Approver', 'Admin']) |
-            models.Q(user_permissions__codename='can_review_projects')
+        # Get active users with admin or approver roles
+        admin_users = User.objects.filter(
+            is_active=True,
+            profile__role__name__in=['Admin', 'Approver']
+        ).exclude(
+            email__isnull=True
+        ).exclude(
+            email__exact=''
         ).distinct()
         
         if admin_users.exists():
