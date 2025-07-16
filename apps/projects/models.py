@@ -128,7 +128,7 @@ class Project(models.Model):
             'Conditional_Approval': ['Approved_Endorsed', 'Request_for_Revision', 'Rejected', 'Rescinded_Revoked', 'Obsolete'],
             'Request_for_Revision': ['Pending_Approval', 'Draft', 'Obsolete'],
             'Rejected': ['Draft', 'Obsolete'],
-            'Rescinded_Revoked': ['Draft', 'Obsolete'],
+            'Rescinded_Revoked': ['Pending_Approval', 'Draft', 'Obsolete'],
             'Obsolete': []  # No transitions from obsolete
         }
         

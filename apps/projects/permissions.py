@@ -102,7 +102,7 @@ class CanCreateNewVersion:
             return False
             
         # Define which statuses allow creating new versions
-        versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed']
+        versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed', 'Rescinded_Revoked']
         
         is_owner = (project.submitted_by == user)
         is_versionable_status = (project.status in versionable_statuses)

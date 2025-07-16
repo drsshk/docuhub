@@ -21,4 +21,5 @@ urlpatterns = [
     path('<uuid:pk>/recover/', views.recover_draft, name='recover_draft'),
     path('<uuid:pk>/new_version/', views.create_new_version, name='create_new_version'),
     path('history/', views.history_log, name='history_log'),
+    path('<uuid:pk>/rescind-revoke/', views.rescind_revoke_project, name='rescind_revoke'),
 ]

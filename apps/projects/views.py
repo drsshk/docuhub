@@ -28,6 +28,59 @@ from .services import (
 )
 from apps.accounts.views import is_admin_role_user
 from apps.accounts.utils import get_client_ip
+from apps.accounts.models import UserProfile # Import UserProfile
+
+def is_admin_or_approver(user):
+    """Helper function to check if a user is an Admin or Approver."""
+    if not user.is_authenticated:
+        return False
+    try:
+        return user.profile.role.name in ['Admin', 'Approver']
+    except AttributeError:
+        return False
+
+@login_required
+@user_passes_test(is_admin_or_approver)
+@csrf_protect
+@never_cache
+def rescind_revoke_project(request, pk):
+    """Rescind or revoke an approved project."""
+    project = get_object_or_404(Project, pk=pk)
+
+    if project.status != 'Approved_Endorsed':
+        messages.error(request, 'Only approved projects can be rescinded or revoked.')
+        return redirect('projects:detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                old_status = project.status
+                project.status = 'Rescinded_Revoked'
+                project.reviewed_by = None
+                project.date_reviewed = None
+                project.review_comments = ""
+                project.save()
+
+                ApprovalHistory.objects.create(
+                    project=project,
+                    version=project.version,
+                    action='Rescinded_Revoked',
+                    performed_by=request.user,
+                    comments="Project status changed to Rescinded & Revoked.",
+                    previous_status=old_status,
+                    new_status='Rescinded_Revoked',
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+                messages.success(request, f'Project "{project.project_name}" has been Rescinded & Revoked.')
+        except Exception as e:
+            messages.error(request, f'Failed to rescind/revoke project: {str(e)}')
+
+        return redirect('projects:detail', pk=pk)
+    
+    # If not POST, render a confirmation page or redirect
+    messages.error(request, 'Invalid request method for this action.')
+    return redirect('projects:detail', pk=pk)
 
 @login_required
 def dashboard(request):
