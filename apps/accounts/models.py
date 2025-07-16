@@ -7,8 +7,15 @@ from django.dispatch import receiver
 
 
 class Role(models.Model):
+    ROLE_CHOICES = [
+        ('Admin', 'Admin'),
+        ('Approver', 'Approver'),
+        ('Submitter', 'Submitter'),
+        ('Viewer', 'Viewer'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, choices=ROLE_CHOICES, unique=True)
     description = models.TextField(blank=True)
 
     def __str__(self):

@@ -212,6 +212,27 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         # Use proper permission checking
         if not CanViewProject.has_permission(self.request.user, self.object):
             return HttpResponseForbidden("You do not have permission to view this project.")
+        
+        # If user is viewing their own project, always redirect to the latest version
+        if self.object.submitted_by == request.user:
+            latest_version = Project.objects.filter(
+                project_group_id=self.object.project_group_id,
+                project_name=self.object.project_name,
+                submitted_by=self.object.submitted_by
+            ).order_by('-version').first()
+            
+            if latest_version and latest_version.pk != self.object.pk:
+                return redirect('projects:detail', pk=latest_version.pk)
+             
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Use proper permission checking
+        if not CanViewProject.has_permission(self.request.user, self.object):
+            return HttpResponseForbidden("You do not have permission to view this project.")
              
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -405,7 +426,21 @@ def review_project(request, pk):
     else:
         form = ReviewForm()
     
-    context = {'project': project, 'form': form, 'drawings': drawings}
+    context = {
+        'project': project,
+        'form': form,
+        'drawings': drawings,
+        'project_versions': Project.objects.filter(
+            project_group_id=project.project_group_id,
+            project_name=project.project_name,
+            submitted_by=project.submitted_by
+        ).select_related('submitted_by', 'reviewed_by').order_by('-version'),
+        'full_activity_log': ApprovalHistory.objects.filter(
+            project__project_group_id=project.project_group_id,
+            project__project_name=project.project_name,
+            project__submitted_by=project.submitted_by
+        ).select_related('performed_by', 'project').order_by('-performed_at'),
+    }
     return render(request, 'projects/project_review.html', context)
 
 

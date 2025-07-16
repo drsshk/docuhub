@@ -8,7 +8,7 @@ class DrawingSerializer(serializers.ModelSerializer):
         model = Drawing
         fields = [
             'id', 'drawing_no', 'drawing_title', 'drawing_description',
-            'drawing_list_link', 'status',
+             'status',
             'date_added', 'added_by', 'added_by_name'
         ]
         read_only_fields = ['id', 'date_added', 'added_by', 'added_by_name']
@@ -37,7 +37,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'submitted_by', 'submitted_by_name', 'reviewed_by', 'reviewed_by_name',
             'date_created', 'date_submitted', 'date_reviewed', 'no_of_drawings',
             'status', 'review_comments', 'revision_notes',
-            'project_priority', 'deadline_date', 'drawings', 'approval_history'
+            'project_priority', 'deadline_date', 'drawings', 'approval_history', 'project_folder_link'
         ]
         read_only_fields = [
             'id', 'version', 'version_display', 'submitted_by', 'submitted_by_name',
