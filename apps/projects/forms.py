@@ -72,12 +72,14 @@ class DrawingForm(forms.ModelForm):
 class ReviewForm(forms.Form):
     action = forms.ChoiceField(
         choices=[
-            ('approve', 'Approve'),
-            ('reject', 'Reject'),
-            ('revise', 'Request Revision')
+            ('approve', 'Approved & Endorsed'),
+            ('conditional', 'Conditional Approval'),
+            ('revise', 'Request for Revision'),
+            ('reject', 'Rejected')
         ],
-        widget=forms.RadioSelect(attrs={
-            'class': 'mr-2'
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all duration-200 appearance-none cursor-pointer',
+            'required': True
         })
     )
     comments = forms.CharField(

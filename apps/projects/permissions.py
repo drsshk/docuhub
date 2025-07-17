@@ -1,5 +1,4 @@
-from django.contrib.auth.models import User, Permission, Group
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from .models import Project, Drawing
@@ -29,11 +28,12 @@ class ProjectManagerPermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
-        # Check if user has project manager permission
+        # Check if user has approver or admin role
+        user_role = getattr(request.user.profile, 'role', None) if hasattr(request.user, 'profile') else None
         return (
-            request.user.has_perm('projects.can_review_projects') or
-            request.user.groups.filter(name='Project Managers').exists() or
-            request.user.is_staff
+            request.user.is_staff or
+            request.user.is_superuser or
+            (user_role and user_role.name in ['Admin', 'Approver'])
         )
 
 
@@ -46,18 +46,23 @@ class ProjectOwnerPermission(BasePermission):
             return False
             
         # Check if user is the project owner or has admin permissions
+        user_role = getattr(request.user.profile, 'role', None) if hasattr(request.user, 'profile') else None
+        is_admin_or_approver = user_role and user_role.name in ['Admin', 'Approver']
+        
         if hasattr(obj, 'submitted_by'):
             return (
                 obj.submitted_by == request.user or
-                request.user.has_perm('projects.can_manage_all_projects') or
-                request.user.groups.filter(name='Project Managers').exists()
+                request.user.is_staff or
+                request.user.is_superuser or
+                is_admin_or_approver
             )
         elif hasattr(obj, 'project'):
             # For drawings, check the parent project
             return (
                 obj.project.submitted_by == request.user or
-                request.user.has_perm('projects.can_manage_all_projects') or
-                request.user.groups.filter(name='Project Managers').exists()
+                request.user.is_staff or
+                request.user.is_superuser or
+                is_admin_or_approver
             )
         
         return False
@@ -79,7 +84,8 @@ class CanEditProject:
             return True
             
         # Define which statuses are editable for non-admins
-        editable_statuses = ['Draft', 'Conditional_Approval']
+        # Conditional_Approval should not be directly editable - users must create new version
+        editable_statuses = ['Draft']
         
         is_owner = (project.submitted_by == user)
         is_editable_status = (project.status in editable_statuses)
@@ -102,7 +108,7 @@ class CanCreateNewVersion:
             return False
             
         # Define which statuses allow creating new versions
-        versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed', 'Rescinded_Revoked']
+        versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed', 'Rescinded_Revoked', 'Conditional_Approval']
         
         is_owner = (project.submitted_by == user)
         is_versionable_status = (project.status in versionable_statuses)
@@ -121,11 +127,12 @@ class IsProjectManager:
         """Check if user is a project manager with proper permissions"""
         if not user or not user.is_authenticated:
             return False
-            
+        
+        user_role = getattr(user.profile, 'role', None) if hasattr(user, 'profile') else None
         return (
-            user.has_perm('projects.can_review_projects') or
-            user.groups.filter(name='Project Managers').exists() or
-            user.is_superuser
+            user.is_superuser or
+            user.is_staff or
+            (user_role and user_role.name in ['Admin', 'Approver'])
         )
 
 
@@ -135,11 +142,12 @@ class IsProjectAdministrator:
         """Check if user is a project administrator with full permissions"""
         if not user or not user.is_authenticated:
             return False
-            
+        
+        user_role = getattr(user.profile, 'role', None) if hasattr(user, 'profile') else None
         return (
-            user.has_perm('projects.can_manage_all_projects') or
-            user.groups.filter(name='Project Administrators').exists() or
-            user.is_superuser
+            user.is_superuser or
+            user.is_staff or
+            (user_role and user_role.name == 'Admin')
         )
 
 
@@ -179,92 +187,28 @@ class CanViewProject:
         return False
 
 
-def setup_project_permissions():
+def setup_project_roles():
     """
-    Set up custom permissions and groups for the project management system.
+    Set up roles for the project management system.
     This should be run as a data migration or management command.
     """
-    # Get content types
-    project_ct = ContentType.objects.get_for_model(Project)
-    drawing_ct = ContentType.objects.get_for_model(Drawing)
+    from apps.accounts.models import Role
     
-    # Create custom permissions
-    permissions = [
-        ('can_review_projects', 'Can review and approve projects'),
-        ('can_manage_all_projects', 'Can manage all projects'),
-        ('can_bulk_operations', 'Can perform bulk operations on projects'),
-        ('can_restore_projects', 'Can restore obsoleted projects'),
-        ('view_approved_projects', 'Can view all approved projects'),
-        ('can_manage_drawings', 'Can manage all drawings'),
+    # Create roles if they don't exist
+    roles = [
+        ('Admin', 'Full system administrator with all permissions'),
+        ('Approver', 'Can review and approve projects'),
+        ('Submitter', 'Can submit and manage own projects'),
+        ('Viewer', 'Can view approved projects only'),
     ]
     
-    created_permissions = []
-    for codename, name in permissions:
-        permission, created = Permission.objects.get_or_create(
-            codename=codename,
-            content_type=project_ct,
-            defaults={'name': name}
+    created_roles = []
+    for name, description in roles:
+        role, created = Role.objects.get_or_create(
+            name=name,
+            defaults={'description': description}
         )
         if created:
-            created_permissions.append(permission)
+            created_roles.append(role)
     
-    # Create user groups
-    groups_permissions = {
-        'Project Users': [
-            'projects.add_project',
-            'projects.change_project',
-            'projects.view_project',
-            'projects.add_drawing',
-            'projects.change_drawing',
-            'projects.view_drawing',
-            'projects.view_approved_projects',
-        ],
-        'Project Managers': [
-            'projects.add_project',
-            'projects.change_project',
-            'projects.view_project',
-            'projects.add_drawing',
-            'projects.change_drawing',
-            'projects.view_drawing',
-            'projects.can_review_projects',
-            'projects.can_bulk_operations',
-            'projects.view_approved_projects',
-        ],
-        'Project Administrators': [
-            'projects.add_project',
-            'projects.change_project',
-            'projects.delete_project',
-            'projects.view_project',
-            'projects.add_drawing',
-            'projects.change_drawing',
-            'projects.delete_drawing',
-            'projects.view_drawing',
-            'projects.can_review_projects',
-            'projects.can_manage_all_projects',
-            'projects.can_bulk_operations',
-            'projects.can_restore_projects',
-            'projects.view_approved_projects',
-            'projects.can_manage_drawings',
-        ],
-    }
-    
-    created_groups = []
-    for group_name, permission_codenames in groups_permissions.items():
-        group, created = Group.objects.get_or_create(name=group_name)
-        if created:
-            created_groups.append(group)
-        
-        # Assign permissions to group
-        for codename in permission_codenames:
-            try:
-                app_label, perm_codename = codename.split('.')
-                permission = Permission.objects.get(
-                    codename=perm_codename,
-                    content_type__app_label=app_label
-                )
-                group.permissions.add(permission)
-            except (ValueError, Permission.DoesNotExist):
-                # Skip invalid permissions
-                pass
-    
-    return created_permissions, created_groups
+    return created_roles

@@ -8,6 +8,31 @@ DocuHub is an enterprise-grade Django web application designed to provide a **St
 
 User registration in DocuHub is handled by administrators. When an admin creates a new user, a password is automatically generated and sent to the user's email. For security, passwords are encrypted and cannot be viewed by anyone, including administrators, in the database.
 
+## Recent Updates
+
+### Project Review System Overhaul (Latest)
+Major improvements to the project approval workflow and permissions:
+- **Fixed approval status inconsistencies**: Corrected template status names to match model definitions (`Approved_Endorsed`, `Rescinded_Revoked`)
+- **Enhanced ReviewForm**: Added all 4 approval options (Approved & Endorsed, Conditional Approval, Request for Revision, Rejected)
+- **Role-based permissions**: Migrated from Django Groups to custom Role model (`apps.accounts.models.Role`)
+- **Conditional Approval workflow**: When projects receive conditional approval, users can no longer edit directly but must create new versions
+- **Permission logic refinement**: 
+  - `Conditional_Approval` status removed from editable statuses
+  - `Conditional_Approval` added to versionable statuses
+  - Users must create new versions to address conditional approval requirements
+
+### Role System Implementation
+Replaced Django Groups with custom Role model:
+- **Roles**: Admin, Approver, Submitter, Viewer
+- **Permission classes updated**: All permission logic now uses `user.profile.role.name`
+- **Template integration**: Uses existing `has_role` template tag
+- **Setup function**: `setup_project_roles()` replaces group-based setup
+
+### Previous Changes
+- **Project Folder Link Migration**: Moved project folder links from drawings to project level
+- **UUID Import Fix**: Resolved project submission errors with missing UUID imports
+- **Database Schema Updates**: Applied migration `0005_remove_drawing_drawing_list_link_and_more.py`
+
 ## System Architecture
 
 ### Technology Stack
@@ -104,7 +129,7 @@ SENTRY_DSN=your-sentry-dsn-for-error-tracking
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py collectstatic --noinput
-python manage.py setup_permissions
+python manage.py setup_roles
 ```
 
 #### 4. Application Deployment
@@ -243,7 +268,7 @@ Draft → Pending Approval → {
 - **Draft**: Initial creation state, full editing capabilities
 - **Pending Approval**: Under administrative review, no editing allowed
 - **Approved & Endorsed**: Final approval, project locked
-- **Conditional Approval**: Approved with conditions, editing permitted
+- **Conditional Approval**: Approved with conditions, **direct editing disabled** - users must create new version to address requirements
 - **Request for Revision**: Triggers new version creation
 - **Rejected**: Project rejected, requires administrative action for recovery
 - **Rescinded & Revoked**: Previously approved project revoked
@@ -331,7 +356,7 @@ GET    /api/current-version/       # Application version information
 ## Security Implementation
 
 ### Authentication and Authorization
-- Role-based access control with Django groups
+- Role-based access control with custom Role model (Admin, Approver, Submitter, Viewer)
 - Object-level permissions for project ownership
 - Session timeout and secure cookie configuration
 - CSRF protection on all state-changing operations
@@ -388,7 +413,7 @@ python manage.py create_sample_versions
 python manage.py sample_data
 
 # System maintenance
-python manage.py setup_permissions
+python manage.py setup_roles
 python manage.py cleanup_sessions
 ```
 
