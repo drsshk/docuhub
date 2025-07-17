@@ -324,6 +324,21 @@ class ProjectSubmissionService:
         if admin_users.exists():
             self.email_service.notify_admin_new_submission(project, admin_users)
 
+    def _update_drawing_statuses(self, project: Project, new_status: str) -> None:
+        """Update all drawing statuses to match the project decision"""
+        # Map project statuses to appropriate drawing statuses
+        status_mapping = {
+            'Approved_Endorsed': 'Approved_Endorsed',
+            'Rejected': 'Rejected',
+            'Request_for_Revision': 'Request_for_Revision',
+            'Conditional_Approval': 'Conditional_Approval',
+        }
+        
+        drawing_status = status_mapping.get(new_status, new_status)
+        
+        # Update all drawings for this project
+        project.drawings.update(status=drawing_status)
+
 
 class ProjectBulkOperationsService:
     """Service for bulk operations on projects"""

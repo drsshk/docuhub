@@ -15,6 +15,7 @@ urlpatterns = [
     path('<uuid:project_pk>/add_drawing/', views.add_drawing, name='add_drawing'),
     path('drawing/<uuid:pk>/edit/', views.edit_drawing, name='edit_drawing'),
     path('drawing/<uuid:pk>/delete/', views.delete_drawing, name='delete_drawing'),
+    path('drawing/<uuid:pk>/update-status/', views.update_drawing_status, name='update_drawing_status'),
     path('admin/pending/', views.admin_pending_projects, name='admin_pending'),
     path('admin/bulk-action/', views.bulk_action_projects, name='bulk_action'),
     path('<uuid:pk>/restore/', views.restore_project, name='restore'),

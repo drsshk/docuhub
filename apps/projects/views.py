@@ -12,8 +12,9 @@ from django.db.models import Q, Count, Max
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Project, Drawing, ApprovalHistory, ProjectHistory
+from .models import Project, Drawing, ApprovalHistory, ProjectHistory, PROJECT_STATUS_CHOICES
 from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm
+from .permissions import IsProjectManager, CanEditProject
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
@@ -244,7 +245,8 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context['can_edit'] = CanEditProject.has_permission(self.request.user, self.object)
         context['can_create_new_version'] = CanCreateNewVersion.has_permission(self.request.user, self.object)
         context['can_review'] = is_admin and (self.object.status == 'Pending_Approval')
-        context['drawings'] = self.object.drawings.filter(status='Active').select_related('added_by')
+        context['is_review_page'] = False
+        context['drawings'] = self.object.drawings.select_related('added_by')
 
         # Get all project versions for the version history sidebar
         # Only get versions that belong to the same project group
@@ -357,7 +359,7 @@ def submit_project(request, pk):
         messages.error(request, 'Only drafts or conditionally approved projects can be submitted.')
         return redirect('projects:detail', pk=pk)
     
-    if not project.drawings.filter(status='Active').exists():
+    if not project.drawings.exists():
         messages.error(request, 'Project must have at least one drawing before submission.')
         return redirect('projects:detail', pk=pk)
     
@@ -386,7 +388,7 @@ def is_admin_check(user):
 def review_project(request, pk):
     """Admin review project"""
     project = get_object_or_404(Project, pk=pk)
-    drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+    drawings = project.drawings.order_by('sort_order', 'drawing_no')
     
     if project.status != 'Pending_Approval':
         messages.error(request, 'Only pending projects can be reviewed.')
@@ -426,10 +428,14 @@ def review_project(request, pk):
     else:
         form = ReviewForm()
     
+    is_admin = IsProjectManager.has_permission(request.user)
     context = {
         'project': project,
         'form': form,
         'drawings': drawings,
+        'can_review': is_admin and (project.status == 'Pending_Approval'),
+        'can_edit': CanEditProject.has_permission(request.user, project),
+        'is_review_page': True,
         'project_versions': Project.objects.filter(
             project_group_id=project.project_group_id,
             project_name=project.project_name,
@@ -473,7 +479,7 @@ def add_drawing(request, project_pk):
                 # a script to close the modal and provide user feedback.
 
                 # 1. Prepare the updated drawing list HTML.
-                drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+                drawings = project.drawings.order_by('sort_order', 'drawing_no')
                 can_edit = CanEditProject.has_permission(request.user, project)
                 list_html = render_to_string(
                     'projects/partials/drawing_list.html',
@@ -537,7 +543,7 @@ def add_drawing(request, project_pk):
                 # a script to close the modal and provide user feedback.
 
                 # 1. Prepare the updated drawing list HTML.
-                drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+                drawings = project.drawings.order_by('sort_order', 'drawing_no')
                 can_edit = CanEditProject.has_permission(request.user, project)
                 list_html = render_to_string(
                     'projects/partials/drawing_list.html',
@@ -584,7 +590,7 @@ def edit_drawing(request, pk):
         if form.is_valid():
             form.save()
             if request.headers.get('HX-Request'):
-                drawings = project.drawings.filter(status='Active').order_by('sort_order', 'drawing_no')
+                drawings = project.drawings.order_by('sort_order', 'drawing_no')
                 can_edit = CanEditProject.has_permission(request.user, project)
                 list_html = render_to_string(
                     'projects/partials/drawing_list.html',
@@ -620,7 +626,7 @@ def delete_drawing(request, pk):
     if request.method == 'POST':
         drawing_no = drawing.drawing_no
         drawing.delete()
-        project.no_of_drawings = project.drawings.filter(status='Active').count()
+        project.no_of_drawings = project.drawings.count()
         project.save()
         if request.headers.get('HX-Request'):
             return HttpResponse(status=200) # HTMX will remove the element
@@ -872,3 +878,41 @@ def quick_action(request, pk):
     else:
         messages.error(request, 'Failed to process review. Please try again.')
         return redirect('projects:admin_pending')
+
+
+@user_passes_test(is_admin_check)
+@csrf_protect
+def update_drawing_status(request, pk):
+    """Update drawing status - only during review for project managers"""
+    drawing = get_object_or_404(Drawing, pk=pk)
+    project = drawing.project
+    
+    # Check if user is project manager
+    if not IsProjectManager.has_permission(request.user):
+        return HttpResponseForbidden("Only project managers can update drawing status.")
+    
+    # Check if project is in review status (Pending_Approval)
+    if project.status != 'Pending_Approval':
+        return HttpResponseForbidden("Drawing status can only be updated during project review.")
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('drawing_status_' + str(pk))
+        if new_status and new_status in [choice[0] for choice in PROJECT_STATUS_CHOICES]:
+            drawing.status = new_status
+            drawing.save()
+            
+            if request.headers.get('HX-Request'):
+                # Return the updated row for HTMX
+                context = {
+                    'drawing': drawing,
+                    'project': project,
+                    'can_review': IsProjectManager.has_permission(request.user) and project.status == 'Pending_Approval',
+                    'can_edit': CanEditProject.has_permission(request.user, project),
+                    'is_review_page': True,
+                }
+                return render(request, 'projects/partials/drawing_row.html', context)
+            
+            messages.success(request, f'Drawing {drawing.drawing_no} status updated to {drawing.get_status_display()}.')
+            return redirect('projects:detail', pk=project.pk)
+    
+    return HttpResponseForbidden("Invalid request method.")
