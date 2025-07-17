@@ -10,7 +10,15 @@ User registration in DocuHub is handled by administrators. When an admin creates
 
 ## Recent Updates
 
-### Project Review System Overhaul (Latest)
+### Drawing Status Management System (Latest)
+Enhanced granular control over individual drawing approvals during project review:
+- **Status Synchronization**: Main project decision automatically syncs all drawing statuses with intelligent mapping
+- **Individual Override**: Reviewers can modify individual drawing statuses after bulk sync for granular control
+- **Clean Review Interface**: Hidden edit/delete actions during review to focus on approval decisions
+- **CSRF Protection**: Secure HTMX requests for real-time status updates
+- **Visual Feedback**: Color-coded status indicators with smooth UI transitions
+
+### Project Review System Overhaul
 Major improvements to the project approval workflow and permissions:
 - **Fixed approval status inconsistencies**: Corrected template status names to match model definitions (`Approved_Endorsed`, `Rescinded_Revoked`)
 - **Enhanced ReviewForm**: Added all 4 approval options (Approved & Endorsed, Conditional Approval, Request for Revision, Rejected)
@@ -273,6 +281,45 @@ Draft → Pending Approval → {
 - **Rejected**: Project rejected, requires administrative action for recovery
 - **Rescinded & Revoked**: Previously approved project revoked
 - **Obsolete**: Archived state, no further actions permitted
+
+### Drawing Status Management
+
+#### Drawing Status Features
+The system provides granular drawing-level status management during the project review process:
+
+##### Status Synchronization
+- **Bulk Status Updates**: When reviewers change the main project decision dropdown, all drawing statuses automatically sync to match the decision
+- **Individual Control**: After bulk sync, reviewers can still modify individual drawing statuses as needed
+- **Real-time Updates**: Status changes are immediately reflected in the UI with visual feedback
+
+##### Status Mapping
+The following decision-to-status mappings are automatically applied:
+- **Approve** → `Approved_Endorsed`
+- **Conditional Approval** → `Conditional_Approval`
+- **Request for Revision** → `Request_for_Revision`
+- **Reject** → `Rejected`
+
+##### Review Interface Features
+- **Clean Review UI**: During review, editing actions (Add Drawing, Edit, Delete) are hidden to focus on approval decisions
+- **Visual Status Indicators**: Drawing statuses display with color-coded badges for quick visual identification
+- **Contextual Actions**: Only relevant review actions are visible during the approval process
+
+##### Drawing Status States
+Each drawing can have the following statuses:
+- **Draft**: Initial state, editable
+- **Pending_Approval**: Under review
+- **Approved_Endorsed**: Finalized and approved
+- **Conditional_Approval**: Approved with conditions
+- **Request_for_Revision**: Requires changes
+- **Rejected**: Not approved
+- **Rescinded_Revoked**: Previously approved but revoked
+- **Obsolete**: Archived status
+
+##### Technical Implementation
+- **CSRF Protection**: All status update requests include proper CSRF tokens
+- **HTMX Integration**: Real-time status updates without page reloads
+- **Permission Checks**: Only authorized reviewers can modify drawing statuses during review
+- **Audit Trail**: All status changes are logged for compliance tracking
 
 ### User Role Definitions
 
