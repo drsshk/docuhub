@@ -71,6 +71,10 @@ Replaced Django Groups with custom Role model:
 - 2GB RAM minimum, 4GB recommended
 - 10GB storage minimum
 
+## Security Report
+For a comprehensive overview of the security posture, including identified vulnerabilities and recommendations, please refer to the [DocuHub Comprehensive Security Report](docs/security_report.md).
+
+
 
 ## Installation and Configuration
 
