@@ -11,17 +11,27 @@ from .validators import (
     validate_sheet_size, validate_drawing_type, validate_comments_length
 )
 
+# Status choices definitions - centralized for easy maintenance
+PROJECT_STATUS_CHOICES = [
+    ('Draft', 'Draft'),
+    ('Pending_Approval', 'Pending Approval'),
+    ('Approved_Endorsed', 'Approved & Endorsed'),
+    ('Conditional_Approval', 'Conditional Approval'),
+    ('Request_for_Revision', 'Request for Revision'),
+    ('Rejected', 'Rejected'),
+    ('Rescinded_Revoked', 'Rescinded & Revoked'),
+    ('Obsolete', 'Obsolete'),
+]
+
+DRAWING_STATUS_CHOICES = [
+    ('Active', 'Active'),
+    ('Inactive', 'Inactive'),
+    ('Replaced', 'Replaced'),
+    ('Obsolete', 'Obsolete'),
+]
+
 class Project(models.Model):
-    STATUS_CHOICES = [
-        ('Draft', 'Draft'),
-        ('Pending_Approval', 'Pending Approval'),
-        ('Approved_Endorsed', 'Approved & Endorsed'),
-        ('Conditional_Approval', 'Conditional Approval'),
-        ('Request_for_Revision', 'Request for Revision'),
-        ('Rejected', 'Rejected'),
-        ('Rescinded_Revoked', 'Rescinded & Revoked'),
-        ('Obsolete', 'Obsolete'),
-    ]
+    STATUS_CHOICES = PROJECT_STATUS_CHOICES
     
     PRIORITY_CHOICES = [
         ('Low', 'Low'),
@@ -94,7 +104,7 @@ class Project(models.Model):
         """
         Update the drawing count for this project
         """
-        self.no_of_drawings = self.drawings.filter(status='Active').count()
+        self.no_of_drawings = self.drawings.filter(status='Draft').count()
         self.save(update_fields=['no_of_drawings', 'updated_at'])
 
     def clean(self):
@@ -143,12 +153,7 @@ class Project(models.Model):
         super().save(*args, **kwargs)
 
 class Drawing(models.Model):
-    STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Inactive', 'Inactive'),
-        ('Replaced', 'Replaced'),
-        ('Obsolete', 'Obsolete'),
-    ]
+    STATUS_CHOICES = Project.STATUS_CHOICES
     
     
 
@@ -166,7 +171,7 @@ class Drawing(models.Model):
     revision_number = models.IntegerField(default=0, validators=[validate_revision_number])
     date_added = models.DateTimeField(auto_now_add=True)
     added_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
     sort_order = models.IntegerField(default=0, validators=[validate_sort_order])
 
     class Meta:
@@ -198,7 +203,7 @@ class Drawing(models.Model):
             existing = Drawing.objects.filter(
                 project=self.project,
                 drawing_no=self.drawing_no,
-                status='Active'
+                status='Draft'
             ).exclude(pk=self.pk)
             
             if existing.exists():
@@ -214,7 +219,7 @@ class Drawing(models.Model):
         super().save(*args, **kwargs)
         # Update project drawing count
         if self.project:
-            self.project.no_of_drawings = self.project.drawings.filter(status='Active').count()
+            self.project.no_of_drawings = self.project.drawings.filter(status='Draft').count()
             self.project.save(update_fields=['no_of_drawings', 'updated_at'])
 
 class ApprovalHistory(models.Model):
