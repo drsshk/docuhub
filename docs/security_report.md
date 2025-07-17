@@ -256,6 +256,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** Has known vulnerabilities, primarily related to HTTP Request Smuggling.
 - **Severity:** High
 - **Details:** Includes CVE-2024-6827, PVE-2024-72809.
+- **Related Files:** `requirements.txt`
 - **Recommendation:** Upgrade to version 23.0.0 or higher.
 
 ### Django Settings Audit
@@ -312,6 +313,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** Sentry is initialized if `SENTRY_DSN` is configured.
 - **Severity:** Informational
 - **Details:** It integrates Django and logging, sets `traces_sample_rate=0.1`, and `send_default_pii=False`.
+- **Related Files:** `docuhub/settings.py`
 - **Recommendation:** Loading `SENTRY_DSN` from environment variables is good. Setting `send_default_pii=False` is a good privacy practice. Ensure that `traces_sample_rate` is appropriate for production to avoid excessive data transmission while still capturing relevant errors. Regularly review Sentry's configuration and collected data to ensure no sensitive information is inadvertently being sent.
 
 ### Hardcoded Credentials
@@ -320,6 +322,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** Hardcoded passwords were found in `apps/projects/tests.py` (`password='password123'`) and `management/commands/sample_data.py` (`password='testpass123'`, `password='admin123'`).
 - **Severity:** Low
 - **Details:** While these are in test/sample data files, it's best practice to avoid hardcoding any credentials, even for testing.
+- **Related Files:** `apps/projects/tests.py`, `management/commands/sample_data.py`
 - **Recommendation:** Consider using Django's `User.set_password()` method with randomly generated passwords for test users, or load test credentials from a secure, non-version-controlled configuration file if specific values are needed.
 
 ### Application Code Audit
@@ -384,6 +387,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** The `ProjectDetailView` logs project access by admin users, including `project_name` and `project_group_id`.
 - **Severity:** Low
 - **Details:** While this is not inherently sensitive, ensure that no truly sensitive project data is logged in plain text.
+- **Related Files:** `apps/projects/views.py`
 - **Recommendation:** Regularly review logging configurations and practices to ensure that sensitive data (e.g., PII, financial data, secrets) is not inadvertently logged. Implement data masking or redaction for sensitive fields if necessary.
 
 #### `apps/accounts/views.py`
@@ -428,6 +432,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** The `dashboard_stats_api` endpoint provides statistics on users, sessions, and projects.
 - **Severity:** Informational
 - **Details:** It is protected by `@login_required`.
+- **Related Files:** `apps/accounts/views.py`
 - **Recommendation:** Ensure that the data exposed by this API is appropriate for all authenticated users. If certain statistics are only for administrators, implement more granular permission checks (e.g., `user_passes_test(is_admin_role_user)`).
 
 #### `apps/notifications/views.py`
@@ -454,6 +459,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** No explicit error handling for unexpected issues during database queries or data processing is visible in these views.
 - **Severity:** Low
 - **Details:** Unhandled exceptions could lead to information disclosure (e.g., stack traces).
+- **Related Files:** `apps/notifications/views.py`
 - **Recommendation:** Implement robust error handling (e.g., `try-except` blocks) for critical operations to catch unexpected errors and provide generic error messages to the user, logging the full details internally.
 
 #### `apps/core/views.py`
@@ -480,6 +486,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** The `current_version_api` has a `try-except` block that catches generic `Exception` and returns a `JsonResponse` with an error message.
 - **Severity:** Informational
 - **Details:** This is good for preventing stack trace exposure.
+- **Related Files:** `apps/core/views.py`
 - **Recommendation:** Ensure that specific exceptions are caught where possible to provide more granular error handling and logging. The generic `Exception` catch is a good fallback.
 
 #### `apps/accounts/utils.py`
@@ -500,6 +507,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** The `log_user_action` function has a `try-except` block to prevent logging failures from breaking main functionality. The email sending functions also have `try-except` blocks.
 - **Severity:** Informational
 - **Details:** This is good, preventing critical failures due to external service issues.
+- **Related Files:** `apps/accounts/utils.py`
 - **Recommendation:** N/A
 
 #### `apps/projects/api_views.py`
@@ -538,6 +546,7 @@ This comprehensive security analysis identifies multiple vulnerabilities across 
 - **Finding:** The `get_client_ip(request)` function is used to retrieve the client's IP address for logging and audit purposes.
 - **Severity:** Medium
 - **Details:** As noted in `apps/accounts/utils.py`, the implementation of this function needs to be reviewed for IP spoofing vulnerabilities.
+- **Related Files:** `apps/projects/api_views.py`, `apps/accounts/utils.py`
 - **Recommendation:** Refer to the recommendation for `get_client_ip` in `apps/accounts/utils.py`.
 
 ## Security Recommendations by Priority
