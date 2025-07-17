@@ -1,7 +1,7 @@
 import bleach
 from django import forms
 from django.contrib.auth.models import User
-from .models import Project, Drawing
+from .models import Project, Drawing, PROJECT_STATUS_CHOICES
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -154,3 +154,95 @@ class ProjectRestoreForm(forms.Form):
             'placeholder': 'Enter reason for restoring this project'
         })
     )
+
+class HistoryFilterForm(forms.Form):
+    TYPE_CHOICES = [
+        ('', 'All Types'),
+        ('submission', 'Submissions'),
+        ('change', 'Changes'),
+    ]
+    
+    SORT_CHOICES = [
+        ('-date', 'Date (Newest First)'),
+        ('date', 'Date (Oldest First)'),
+        ('project', 'Project Name (A-Z)'),
+        ('-project', 'Project Name (Z-A)'),
+        ('user', 'User (A-Z)'),
+        ('-user', 'User (Z-A)'),
+        ('type', 'Type'),
+    ]
+    
+    # Project filter
+    project = forms.ModelChoiceField(
+        queryset=Project.objects.all(),
+        required=False,
+        empty_label="All Projects",
+        widget=forms.Select(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        })
+    )
+    
+    # User filter
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        empty_label="All Users",
+        widget=forms.Select(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        })
+    )
+    
+    # Type filter
+    entry_type = forms.ChoiceField(
+        choices=TYPE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        })
+    )
+    
+    # Status filter
+    status = forms.ChoiceField(
+        choices=[('', 'All Statuses')] + PROJECT_STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        })
+    )
+    
+    # Date range filters
+    date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'type': 'date'
+        })
+    )
+    
+    date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'type': 'date'
+        })
+    )
+    
+    # Sort field
+    sort_by = forms.ChoiceField(
+        choices=SORT_CHOICES,
+        required=False,
+        initial='-date',
+        widget=forms.Select(attrs={
+            'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if user:
+            # Limit project choices based on user permissions
+            if not getattr(user, 'profile', None) or user.profile.role.name not in ['Admin', 'Approver']:
+                self.fields['project'].queryset = Project.objects.filter(submitted_by=user)
+                self.fields['user'].queryset = User.objects.filter(id=user.id)

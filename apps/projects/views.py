@@ -13,7 +13,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 
 from .models import Project, Drawing, ApprovalHistory, ProjectHistory, PROJECT_STATUS_CHOICES
-from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm
+from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
 from .permissions import IsProjectManager, CanEditProject
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
@@ -829,12 +829,111 @@ def create_new_version(request, pk):
 @login_required
 def history_log(request):
     """History log view: Users see their own, approvers/viewers see all."""
-    if IsProjectManager.has_permission(request.user):
-        history = ProjectHistory.objects.all().order_by('-date_submitted')
-    else:
-        history = ProjectHistory.objects.filter(submitted_by=request.user).order_by('-date_submitted')
+    from itertools import chain
+    from django.db.models import Q
+    from datetime import datetime
     
-    return render(request, 'projects/history_log.html', {'history': history})
+    # Initialize filter form
+    filter_form = HistoryFilterForm(request.GET, user=request.user)
+    
+    # Base querysets
+    if IsProjectManager.has_permission(request.user):
+        project_history = ProjectHistory.objects.all()
+        approval_history = ApprovalHistory.objects.all()
+    else:
+        project_history = ProjectHistory.objects.filter(submitted_by=request.user)
+        approval_history = ApprovalHistory.objects.filter(performed_by=request.user)
+    
+    # Apply filters if form is valid
+    if filter_form.is_valid():
+        filters = filter_form.cleaned_data
+        
+        # Project filter
+        if filters.get('project'):
+            project_history = project_history.filter(project=filters['project'])
+            approval_history = approval_history.filter(project=filters['project'])
+        
+        # User filter
+        if filters.get('user'):
+            project_history = project_history.filter(submitted_by=filters['user'])
+            approval_history = approval_history.filter(performed_by=filters['user'])
+        
+        # Status filter
+        if filters.get('status'):
+            project_history = project_history.filter(approval_status=filters['status'])
+            approval_history = approval_history.filter(
+                Q(previous_status=filters['status']) | Q(new_status=filters['status'])
+            )
+        
+        # Date range filters
+        if filters.get('date_from'):
+            project_history = project_history.filter(date_submitted__date__gte=filters['date_from'])
+            approval_history = approval_history.filter(performed_at__date__gte=filters['date_from'])
+        
+        if filters.get('date_to'):
+            project_history = project_history.filter(date_submitted__date__lte=filters['date_to'])
+            approval_history = approval_history.filter(performed_at__date__lte=filters['date_to'])
+        
+        # Type filter (submission or change)
+        if filters.get('entry_type') == 'submission':
+            approval_history = ApprovalHistory.objects.none()  # Empty queryset
+        elif filters.get('entry_type') == 'change':
+            project_history = ProjectHistory.objects.none()  # Empty queryset
+    
+    # Apply sorting
+    sort_by = filter_form.cleaned_data.get('sort_by', '-date') if filter_form.is_valid() else '-date'
+    
+    if sort_by == 'project':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: x.project.project_name.lower()
+        )
+    elif sort_by == '-project':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: x.project.project_name.lower(),
+            reverse=True
+        )
+    elif sort_by == 'user':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: (getattr(x, 'submitted_by', None) or getattr(x, 'performed_by', None)).username.lower()
+        )
+    elif sort_by == '-user':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: (getattr(x, 'submitted_by', None) or getattr(x, 'performed_by', None)).username.lower(),
+            reverse=True
+        )
+    elif sort_by == 'type':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: 'submission' if hasattr(x, 'receipt_id') and x.receipt_id else 'change'
+        )
+    elif sort_by == 'date':
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: getattr(x, 'date_submitted', None) or getattr(x, 'performed_at', None)
+        )
+    else:  # Default: '-date'
+        combined_history = sorted(
+            chain(project_history, approval_history),
+            key=lambda x: getattr(x, 'date_submitted', None) or getattr(x, 'performed_at', None),
+            reverse=True
+        )
+    
+    # Pagination
+    paginator = Paginator(combined_history, 25)  # 25 records per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'history': page_obj,
+        'filter_form': filter_form,
+        'total_count': len(combined_history)
+    }
+    
+    return render(request, 'projects/history_log.html', context)
 
 @login_required
 @user_passes_test(lambda u: IsProjectManager.has_permission(u))
