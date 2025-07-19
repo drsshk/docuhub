@@ -99,10 +99,11 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Static and Media Files ---
-STATIC_URL = '/docuhub/static/'
+STATIC_URL = "/docuhub/static/"
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_URL = '/docuhub/media/'
+MEDIA_URL = "/docuhub/media/"
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Development vs. Production Settings ---
@@ -113,8 +114,8 @@ if DEBUG:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
         "http://152.42.210.234"
     ]
     # Use Brevo email service even in development mode
@@ -300,7 +301,7 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@docuhub.com')
 BREVO_SENDER_NAME = config('BREVO_SENDER_NAME', default='DocuHub System')
 
 # Frontend URL for email links
-FRONTEND_URL = config('FRONTEND_URL', default='http://152.42.210.234/docuhub')
+FRONTEND_URL = config('FRONTEND_URL', default='http://152.42.210.234')
 
 # Email Template IDs (Brevo)
 EMAIL_TEMPLATES = {
@@ -323,8 +324,9 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # Login/Logout URLs
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+FORCE_SCRIPT_NAME = None
 
 # Sentry
 if config('SENTRY_DSN', default=''):
