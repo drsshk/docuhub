@@ -322,9 +322,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Login/Logout URLs
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/docuhub/accounts/login/'
+LOGIN_REDIRECT_URL = '/docuhub/'
+LOGOUT_REDIRECT_URL = '/docuhub/'
 
 # Sentry
 if config('SENTRY_DSN', default=''):
