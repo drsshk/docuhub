@@ -324,9 +324,12 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # Login/Logout URLs
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Nginx sub-path configuration
 FORCE_SCRIPT_NAME = None
+USE_X_FORWARDED_HOST = True
 
 # Sentry
 if config('SENTRY_DSN', default=''):
