@@ -328,8 +328,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Nginx sub-path configuration
-FORCE_SCRIPT_NAME = None
+FORCE_SCRIPT_NAME = "/docuhub"
 USE_X_FORWARDED_HOST = True
+
+
 
 # Sentry
 if config('SENTRY_DSN', default=''):
