@@ -328,7 +328,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Nginx sub-path configuration
-FORCE_SCRIPT_NAME = "/docuhub"
+FORCE_SCRIPT_NAME = None
 USE_X_FORWARDED_HOST = True
 
 
