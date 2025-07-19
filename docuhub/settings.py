@@ -99,10 +99,10 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Static and Media Files ---
-STATIC_URL = '/static/'
+STATIC_URL = '/docuhub/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_URL = '/media/'
+MEDIA_URL = '/docuhub/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Development vs. Production Settings ---
@@ -300,7 +300,7 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@docuhub.com')
 BREVO_SENDER_NAME = config('BREVO_SENDER_NAME', default='DocuHub System')
 
 # Frontend URL for email links
-FRONTEND_URL = config('FRONTEND_URL', default='http://152.42.210.234')
+FRONTEND_URL = config('FRONTEND_URL', default='http://152.42.210.234/docuhub')
 
 # Email Template IDs (Brevo)
 EMAIL_TEMPLATES = {
@@ -322,9 +322,12 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Login/Logout URLs
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/docuhub/accounts/login/'
+LOGIN_REDIRECT_URL = '/docuhub/dashboard/'
+LOGOUT_REDIRECT_URL = '/docuhub/'
+
+# Force script name for sub-path deployment
+FORCE_SCRIPT_NAME = '/docuhub'
 
 # Sentry
 if config('SENTRY_DSN', default=''):
