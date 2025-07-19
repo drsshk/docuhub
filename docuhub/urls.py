@@ -4,10 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from apps.core import views as core_views
 
-# Main URL patterns (FORCE_SCRIPT_NAME handles /docuhub prefix)
 urlpatterns = [
     path('docuhub/admin/', admin.site.urls),
-    path('', core_views.dashboard, name='dashboard'),
+    path('docuhub/', core_views.dashboard, name='dashboard'),
     path('docuhub/core/', include('apps.core.urls')),
     path('docuhub/notifications/', include('apps.notifications.urls')),
     path('docuhub/api/', include('apps.projects.api_urls')),
