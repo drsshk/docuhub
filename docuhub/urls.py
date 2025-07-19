@@ -5,13 +5,13 @@ from django.conf.urls.static import static
 from apps.core import views as core_views
 
 urlpatterns = [
-    path('docuhub/admin/', admin.site.urls),
-    path('docuhub/', core_views.dashboard, name='dashboard'),
-    path('docuhub/core/', include('apps.core.urls')),
-    path('docuhub/notifications/', include('apps.notifications.urls')),
-    path('docuhub/api/', include('apps.projects.api_urls')),
-    path('docuhub/accounts/', include('apps.accounts.urls')),
-    path('docuhub/projects/', include('apps.projects.urls')),
+    path('admin/', admin.site.urls),
+    path('', core_views.dashboard, name='dashboard'),
+    path('core/', include('apps.core.urls')),
+    path('notifications/', include('apps.notifications.urls')),
+    path('api/', include('apps.projects.api_urls')),
+    path('accounts/', include('apps.accounts.urls')),
+    path('projects/', include('apps.projects.urls')),
 ]
 
 # Serve static and media files in development
