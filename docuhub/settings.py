@@ -322,12 +322,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Login/Logout URLs
-LOGIN_URL = '/docuhub/accounts/login/'
-LOGIN_REDIRECT_URL = '/docuhub/'
-LOGOUT_REDIRECT_URL = '/docuhub/'
-
-# Force script name for sub-path deployment
-FORCE_SCRIPT_NAME = '/docuhub'
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Sentry
 if config('SENTRY_DSN', default=''):
