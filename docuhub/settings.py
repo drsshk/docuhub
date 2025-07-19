@@ -326,6 +326,9 @@ LOGIN_URL = '/docuhub/accounts/login/'
 LOGIN_REDIRECT_URL = '/docuhub/'
 LOGOUT_REDIRECT_URL = '/docuhub/'
 
+# Force script name for sub-path deployment
+FORCE_SCRIPT_NAME = '/docuhub'
+
 # Sentry
 if config('SENTRY_DSN', default=''):
     import sentry_sdk
