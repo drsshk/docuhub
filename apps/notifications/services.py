@@ -266,13 +266,16 @@ class BrevoEmailService:
         context = {
             'user_name': user.get_full_name() or user.username,
             'user': user,
-            'setup_url': setup_url
+            'reset_url': setup_url,
+            'email_company_name': getattr(settings, 'EMAIL_COMPANY_NAME', 'DocuHub'),
+            'email_logo_url': getattr(settings, 'EMAIL_LOGO_URL', None),
+            'email_welcome_message': getattr(settings, 'EMAIL_WELCOME_MESSAGE', 'Your account has been created. Please click the link below to set your password and activate your account.'),
         }
         
-        subject = f"Welcome to DocuHub - Set Up Your Account"
+        subject = f"Welcome to {context['email_company_name']} - Set Up Your Account"
         
         return self.send_custom_email(
-            'account_setup',
+            'new_user_welcome',
             user.email,
             user.get_full_name() or user.username,
             subject,

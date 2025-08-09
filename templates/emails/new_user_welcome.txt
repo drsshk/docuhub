@@ -1,0 +1,7 @@
+Welcome to {{ email_company_name | default:'DocuHub' }}, {{ user.first_name }}!
+
+{{ email_welcome_message | default:'Your account has been created. Please click the link below to set your password and activate your account.' }}
+
+Set Your Password: {{ reset_url }}
+
+If you did not request this, please ignore this email.

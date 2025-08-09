@@ -1,0 +1,15 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+  {% if email_logo_url %}
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ email_logo_url }}" alt="{{ email_company_name }} Logo" style="max-width: 200px;">
+    </div>
+  {% endif %}
+  <h2>Welcome to {{ email_company_name | default:'DocuHub' }}, {{ user.first_name }}!</h2>
+  <p>{{ email_welcome_message | default:'Your account has been created. Please click the link below to set your password and activate your account.' }}</p>
+  <p style="text-align: center;">
+    <a href="{{ reset_url }}" class="button">Set Your Password</a>
+  </p>
+  <p>If you did not request this, please ignore this email.</p>
+{% endblock %}

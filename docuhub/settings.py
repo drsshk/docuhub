@@ -354,6 +354,11 @@ USE_X_FORWARDED_HOST = True
 
 
 
+# Custom Email Branding
+EMAIL_COMPANY_NAME = config('EMAIL_COMPANY_NAME', default='DocuHub')
+EMAIL_LOGO_URL = config('EMAIL_LOGO_URL', default=None)
+EMAIL_WELCOME_MESSAGE = config('EMAIL_WELCOME_MESSAGE', default='Your account has been created. Please click the link below to set your password and activate your account.')
+
 # Sentry
 if config('SENTRY_DSN', default=''):
     import sentry_sdk
