@@ -231,3 +231,5 @@ Gemini.md
 Claude.md
 .claude/settings.local.json
 .claude/
+
+temp/

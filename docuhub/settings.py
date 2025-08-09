@@ -24,6 +24,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_extensions',
 ]
@@ -99,11 +100,11 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Static and Media Files ---
-STATIC_URL = "/docuhub/static/"
+STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_URL = "/docuhub/media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Development vs. Production Settings ---
@@ -183,6 +184,26 @@ else:
 # --- Shared Settings ---
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # Django REST Framework
 REST_FRAMEWORK_BASE = {

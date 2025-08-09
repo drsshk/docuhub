@@ -42,4 +42,16 @@ urlpatterns = [
 
     # --- API URLs ---
     path('api/dashboard-stats/', views.dashboard_stats_api, name='dashboard_stats_api'),
+    path('api/login/', views.api_login, name='api_login'),
+    path('api/logout/', views.api_logout, name='api_logout'),
+    path('api/user/', views.api_user, name='api_user'),
+    
+    # --- User Management API URLs ---
+    path('api/users/', views.api_users_list, name='api_users_list'),
+    path('api/roles/', views.api_roles_list, name='api_roles_list'),
+    path('api/users/<int:user_id>/sessions/', views.api_user_sessions, name='api_user_sessions'),
+    path('api/users/<int:user_id>/toggle-active/', views.api_user_toggle_active, name='api_user_toggle_active'),
+    path('api/users/<int:user_id>/toggle-staff/', views.api_user_toggle_staff, name='api_user_toggle_staff'),
+    path('api/users/<int:user_id>/reset-password/', views.api_user_reset_password, name='api_user_reset_password'),
+    path('api/users/create/', views.api_create_user, name='api_create_user'),
 ]

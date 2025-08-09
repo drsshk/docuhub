@@ -4,9 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import {
   HomeIcon,
   FolderIcon,
-  DocumentTextIcon,
   ChartBarIcon,
-  CogIcon,
   UsersIcon,
   BellIcon,
   UserIcon,

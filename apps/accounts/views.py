@@ -339,3 +339,350 @@ def dashboard_stats_api(request):
     return JsonResponse(stats)
 
 
+# --- DRF API Views ---
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from .models import Role
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_login(request):
+    """API endpoint for user login"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response({'error': 'Username and password are required'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        if user.is_active:
+            # Create or get token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            # Create user session - handle null session_key for API requests
+            session_key = request.session.session_key
+            if not session_key:
+                # Force session creation for API requests
+                request.session.create()
+                session_key = request.session.session_key
+            
+            UserSession.objects.get_or_create(
+                user=user,
+                session_key=session_key,
+                defaults={
+                    'ip_address': get_client_ip(request),
+                    'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+                    'is_active': True,
+                }
+            )
+            
+            return Response({
+                'token': token.key,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'is_staff': user.is_staff,
+                }
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Account is disabled'}, 
+                           status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        return Response({'error': 'Invalid credentials'}, 
+                       status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def api_logout(request):
+    """API endpoint for user logout"""
+    try:
+        # Delete the token
+        if hasattr(request.user, 'auth_token'):
+            request.user.auth_token.delete()
+        
+        # Mark session as inactive
+        session_key = request.session.session_key
+        if session_key:
+            UserSession.objects.filter(
+                user=request.user,
+                session_key=session_key
+            ).update(is_active=False)
+        
+        return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def api_user(request):
+    """API endpoint to get current user info"""
+    if request.user.is_authenticated:
+        return Response({
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'is_staff': request.user.is_staff,
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Not authenticated'}, 
+                       status=status.HTTP_401_UNAUTHORIZED)
+
+# --- User Management API Views ---
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_users_list(request):
+    """API endpoint to list all users with filtering"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    users = User.objects.select_related('profile', 'profile__role').all()
+    
+    # Apply filters
+    search = request.GET.get('search', '')
+    role_id = request.GET.get('role', '')
+    status_filter = request.GET.get('status', '')
+    
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(email__icontains=search) |
+            Q(profile__employee_id__icontains=search)
+        )
+    
+    if role_id:
+        users = users.filter(profile__role_id=role_id)
+    
+    if status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
+    elif status_filter == 'staff':
+        users = users.filter(is_staff=True)
+    
+    # Serialize user data
+    user_data = []
+    for user in users:
+        profile = user.profile
+        user_data.append({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_active': user.is_active,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
+            'date_joined': user.date_joined.isoformat(),
+            'last_login': user.last_login.isoformat() if user.last_login else None,
+            'profile': {
+                'department': profile.department,
+                'phone_number': profile.phone_number,
+                'job_title': profile.job_title,
+                'employee_id': profile.employee_id,
+                'bio': profile.bio,
+                'location': profile.location,
+                'hire_date': profile.hire_date.isoformat() if profile.hire_date else None,
+                'is_active_employee': profile.is_active_employee,
+                'email_notifications': profile.email_notifications,
+                'sms_notifications': profile.sms_notifications,
+                'role': {
+                    'id': str(profile.role.id),
+                    'name': profile.role.name,
+                    'description': profile.role.description,
+                } if profile.role else None
+            }
+        })
+    
+    return Response({'users': user_data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_roles_list(request):
+    """API endpoint to list all roles"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    roles = Role.objects.all()
+    roles_data = [{'id': str(role.id), 'name': role.name, 'description': role.description} for role in roles]
+    
+    return Response({'roles': roles_data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_user_sessions(request, user_id):
+    """API endpoint to get user sessions"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        sessions = UserSession.objects.filter(user=user).order_by('-created_at')
+        
+        sessions_data = []
+        for session in sessions:
+            sessions_data.append({
+                'id': str(session.id),
+                'session_key': session.session_key,
+                'ip_address': session.ip_address,
+                'user_agent': session.user_agent,
+                'created_at': session.created_at.isoformat(),
+                'last_activity': session.last_activity.isoformat(),
+                'is_active': session.is_active
+            })
+        
+        return Response({'sessions': sessions_data}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_user_toggle_active(request, user_id):
+    """API endpoint to toggle user active status"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        if user == request.user:
+            return Response({'error': 'Cannot change your own status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.is_active = not user.is_active
+        user.save(update_fields=['is_active'])
+        
+        return Response({
+            'message': f'User has been {"activated" if user.is_active else "deactivated"}',
+            'is_active': user.is_active
+        }, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_user_toggle_staff(request, user_id):
+    """API endpoint to toggle user staff status"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        if user == request.user:
+            return Response({'error': 'Cannot change your own staff status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.is_staff = not user.is_staff
+        user.save(update_fields=['is_staff'])
+        
+        return Response({
+            'message': f'User staff status has been {"granted" if user.is_staff else "revoked"}',
+            'is_staff': user.is_staff
+        }, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_user_reset_password(request, user_id):
+    """API endpoint to reset user password"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        
+        if not user.email:
+            return Response({'error': 'User does not have an email address'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        temp_password = User.objects.make_random_password(length=10)
+        user.set_password(temp_password)
+        user.save()
+        
+        send_password_reset_email(user, temp_password)
+        
+        return Response({
+            'message': f'Temporary password has been sent to {user.email}'
+        }, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': f'Failed to reset password: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_create_user(request):
+    """API endpoint to create a new user"""
+    if not request.user.is_staff:
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        data = request.data
+        
+        # Validate required fields
+        required_fields = ['username', 'email', 'first_name', 'last_name']
+        for field in required_fields:
+            if not data.get(field):
+                return Response({'error': f'{field} is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if username already exists
+        if User.objects.filter(username=data['username']).exists():
+            return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if email already exists
+        if User.objects.filter(email=data['email']).exists():
+            return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create user
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            is_staff=data.get('is_staff', False),
+            is_active=data.get('is_active', True)
+        )
+        
+        # Update profile
+        profile = user.profile
+        profile.department = data.get('department', '')
+        profile.phone_number = data.get('phone_number', '')
+        profile.job_title = data.get('job_title', '')
+        profile.employee_id = data.get('employee_id', '')
+        profile.bio = data.get('bio', '')
+        profile.location = data.get('location', '')
+        
+        # Set role if provided
+        role_id = data.get('role_id')
+        if role_id:
+            try:
+                role = Role.objects.get(id=role_id)
+                profile.role = role
+            except Role.DoesNotExist:
+                pass
+        
+        profile.save()
+        
+        # Send account setup email
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        send_account_setup_email(user, token, uid)
+        
+        return Response({
+            'message': 'User created successfully. Account setup email sent.',
+            'user_id': user.id
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({'error': f'Failed to create user: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)

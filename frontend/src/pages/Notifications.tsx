@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import {
-  BellIcon,
   EnvelopeIcon,
   ChartBarIcon,
   CogIcon,
@@ -10,7 +8,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Notifications: React.FC = () => {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('preferences');
 
   const tabs = [
