@@ -111,7 +111,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     # --- Development Settings ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','152.42.210.234']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','152.42.210.234', 'docuhub.rujilabs.com'] # Added for testing. Ensure this is configured via environment variables in production.
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
