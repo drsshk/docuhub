@@ -117,7 +117,8 @@ if DEBUG:
         "http://127.0.0.1:3000",
         "http://localhost:8080",
         "http://127.0.0.1:8080",
-        "http://152.42.210.234"
+        "http://152.42.210.234",
+        "docuhub.rujilabs.com"
     ]
     # Use Brevo email service even in development mode
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
