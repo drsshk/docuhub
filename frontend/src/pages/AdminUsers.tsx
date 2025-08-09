@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { userService, User, Role, UserSession, CreateUserData } from '../services/userService';
+import { userService } from '../services/userService';
+import type { User, Role, UserSession, CreateUserData } from '../services/userService';
 import {
   UserIcon,
   PlusIcon,
@@ -66,16 +67,6 @@ const AdminUsers: React.FC = () => {
     );
   }
 
-  useEffect(() => {
-    fetchUsers();
-    fetchRoles();
-  }, []);
-
-  // Re-fetch users when filters change
-  useEffect(() => {
-    fetchUsers();
-  }, [searchTerm, roleFilter, statusFilter, fetchUsers]);
-
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -95,14 +86,21 @@ const AdminUsers: React.FC = () => {
     }
   }, [searchTerm, roleFilter, statusFilter]);
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const response = await userService.getRoles();
       setRoles(response.roles);
     } catch (err) {
       console.error('Failed to load roles:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchRoles();
+  }, [fetchUsers, fetchRoles]);
+
+  // Re-fetch users when filters change - removed separate effect since fetchUsers handles dependencies
 
   const fetchUserSessions = async (userId: number) => {
     try {
