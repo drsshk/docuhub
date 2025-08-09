@@ -21,9 +21,7 @@ export interface AuthResponse {
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const API_BASE_URL = import.meta.env.PROD
-  ? 'https://docuhub.rujilabs.com'
-  : 'http://localhost:8000';
+    const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/').replace(/\/?$/, '/');
     console.log('Requesting URL:', api.defaults.baseURL);
     const response = await api.post('accounts/api/login/', credentials);
     const { token, user } = response.data;
