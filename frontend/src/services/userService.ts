@@ -86,7 +86,7 @@ class UserService {
     if (params?.role) queryParams.append('role', params.role);
     if (params?.status) queryParams.append('status', params.status);
     
-    const url = `${API_BASE_URL}/accounts/api/users/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${API_BASE_URL}accounts/api/users/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     
     const response = await fetch(url, {
       method: 'GET',
@@ -101,7 +101,7 @@ class UserService {
   }
 
   async getRoles(): Promise<{ roles: Role[] }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/roles/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/roles/`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -114,7 +114,7 @@ class UserService {
   }
 
   async getUserSessions(userId: number): Promise<{ sessions: UserSession[] }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/users/${userId}/sessions/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/users/${userId}/sessions/`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
@@ -127,7 +127,7 @@ class UserService {
   }
 
   async toggleUserActive(userId: number): Promise<{ message: string; is_active: boolean }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/users/${userId}/toggle-active/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/users/${userId}/toggle-active/`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });
@@ -141,7 +141,7 @@ class UserService {
   }
 
   async toggleUserStaff(userId: number): Promise<{ message: string; is_staff: boolean }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/users/${userId}/toggle-staff/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/users/${userId}/toggle-staff/`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });
@@ -155,7 +155,7 @@ class UserService {
   }
 
   async resetUserPassword(userId: number): Promise<{ message: string }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/users/${userId}/reset-password/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/users/${userId}/reset-password/`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });
@@ -169,7 +169,7 @@ class UserService {
   }
 
   async createUser(userData: CreateUserData): Promise<{ message: string; user_id: number }> {
-    const response = await fetch(`${API_BASE_URL}/accounts/api/users/create/`, {
+    const response = await fetch(`${API_BASE_URL}accounts/api/users/create/`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(userData),
