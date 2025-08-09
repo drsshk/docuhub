@@ -24,7 +24,7 @@ export const authService = {
     const API_BASE_URL = import.meta.env.PROD
   ? 'https://docuhub.rujilabs.com'
   : 'http://localhost:8000';
-    console.log('Requesting URL:', api.defaults.baseURL + url);
+    console.log('Requesting URL:', api.defaults.baseURL);
     const response = await api.post('accounts/api/login/', credentials);
     const { token, user } = response.data;
     
