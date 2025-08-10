@@ -30,6 +30,37 @@
 }
 
 @layer components {
+  /* Mobile Navigation Fixed Positioning */
+  .mobile-nav-fixed {
+    position: fixed !important;
+    bottom: 0px !important;
+    left: 0px !important;
+    right: 0px !important;
+    width: 100vw !important;
+    z-index: 2147483647 !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+
+  /* Mobile Navbar Fixed Positioning */
+  .mobile-navbar-fixed {
+    position: fixed !important;
+    top: 0px !important;
+    left: 0px !important;
+    right: 0px !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    z-index: 2147483646 !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    margin: 0px !important;
+    padding: 0px !important;
+  }
+
   /* Design System Utilities */
   .heading-l {
     @apply text-xl sm:text-2xl font-medium text-ocean-deep;

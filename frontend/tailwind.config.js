@@ -51,6 +51,9 @@ export default {
         'large': '24px',
         'macro': '48px',
       },
+      padding: {
+        'safe-area-pb': 'env(safe-area-inset-bottom)',
+      },
       animation: {
         'fade-in': 'fade-in 300ms ease-in-out',
         'slide-up': 'slide-up 300ms ease-out',
@@ -82,5 +85,20 @@ export default {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            'display': 'none'
+          }
+        }
+      })
+    }
+  ],
 }

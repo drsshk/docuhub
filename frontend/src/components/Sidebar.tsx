@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -12,25 +13,75 @@ import {
   ChevronDoubleRightIcon,
 } from '@heroicons/react/24/outline';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isMobile?: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
   const { isProjectManager } = useAuth();
-  const [isLargeScreen, setIsLargeScreen] = React.useState(false);
   const [isCompact, setIsCompact] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(true);
 
+  // Force mobile sidebar positioning on mount and updates
   React.useEffect(() => {
-    const handleResize = () => {
-      const isLarge = window.innerWidth >= 1024;
-      setIsLargeScreen(isLarge);
-      
-      // Always show navigation (bottom on mobile, sidebar on desktop)
-      setIsOpen(true);
-    };
+    if (isMobile && typeof document !== 'undefined') {
+      const enforceMobileNavPosition = () => {
+        // Find any existing mobile navigation elements and ensure correct positioning
+        const mobileNavs = document.querySelectorAll('[data-mobile-nav="true"]');
+        mobileNavs.forEach((nav) => {
+          const element = nav as HTMLElement;
+          
+          // Nuclear positioning enforcement
+          element.style.setProperty('position', 'fixed', 'important');
+          element.style.setProperty('bottom', '0px', 'important');
+          element.style.setProperty('left', '0px', 'important');
+          element.style.setProperty('right', '0px', 'important');
+          element.style.setProperty('top', 'auto', 'important');
+          element.style.setProperty('z-index', '2147483646', 'important'); // Just below navbar
+          element.style.setProperty('transform', 'translateZ(0)', 'important');
+          element.style.setProperty('width', '100vw', 'important');
+          element.style.setProperty('max-width', '100vw', 'important');
+          element.style.setProperty('min-width', '100vw', 'important');
+          element.style.setProperty('margin', '0px', 'important');
+          element.style.setProperty('padding', '0px', 'important');
+          element.style.setProperty('inset', 'auto 0px 0px 0px', 'important');
+          element.style.setProperty('contain', 'none', 'important');
+          element.style.setProperty('isolation', 'auto', 'important');
+          element.style.setProperty('display', 'block', 'important');
+          element.style.setProperty('visibility', 'visible', 'important');
+          
+          // Force override any potential interfering styles from other components
+          element.classList.remove('relative', 'absolute', 'sticky');
+          element.classList.add('mobile-nav-fixed');
+        });
+      };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+      // Enforce positioning immediately
+      enforceMobileNavPosition();
+
+      // Enforce positioning on scroll to prevent any movement
+      const handleScroll = () => {
+        enforceMobileNavPosition();
+      };
+
+      // Enforce positioning on resize
+      const handleResize = () => {
+        enforceMobileNavPosition();
+      };
+
+      // Add event listeners
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('resize', handleResize, { passive: true });
+      document.addEventListener('touchmove', handleScroll, { passive: true });
+
+      // Cleanup
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleResize);
+        document.removeEventListener('touchmove', handleScroll);
+      };
+    }
+  }, [isMobile]);
 
   const navigation = [
     {
@@ -87,45 +138,107 @@ const Sidebar: React.FC = () => {
 
   const sidebarWidth = isCompact ? 'w-16 lg:w-20' : 'w-64 lg:w-72';
 
-  return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && !isLargeScreen && (
+  // Mobile Bottom Navigation - Use React Portal for true isolation
+  if (isMobile) {
+    const mobileNav = (
+      <div 
+        data-mobile-nav="true"
+        className="mobile-nav-fixed bg-white/95 backdrop-blur-md border-t border-mist/30 shadow-lg" 
+        style={{ 
+          position: 'fixed !important',
+          bottom: '0px !important',
+          left: '0px !important',
+          right: '0px !important',
+          top: 'auto !important',
+          width: '100vw !important',
+          maxWidth: '100vw !important',
+          minWidth: '100vw !important',
+          height: 'auto !important',
+          zIndex: 2147483646,
+          transform: 'none !important',
+          translate: 'none !important',
+          margin: '0px !important',
+          padding: '0px !important',
+          boxSizing: 'border-box !important',
+          inset: 'auto 0px 0px 0px !important',
+          display: 'block !important',
+          visibility: 'visible !important',
+          opacity: '1 !important',
+          pointerEvents: 'auto !important',
+          overflow: 'visible !important',
+          WebkitTransform: 'none !important',
+          MozTransform: 'none !important',
+          msTransform: 'none !important',
+          WebkitBackfaceVisibility: 'hidden !important',
+          backfaceVisibility: 'hidden !important',
+          willChange: 'auto !important',
+          contain: 'none !important',
+          isolation: 'auto !important'
+        }}
+      >
         <div 
-          className="fixed inset-0 bg-ocean-deep/30 backdrop-blur-sm z-40 animate-fade-in"
-          onClick={closeSidebar}
-        />
-      )}
-      
-      {/* Compact Sidebar */}
+          className="flex items-center justify-around px-2 py-2" 
+          style={{ 
+            paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+            boxSizing: 'border-box'
+          }}
+        >
+          {filteredNavigation.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              onClick={handleNavClick}
+              className={({ isActive }) =>
+                `group flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-200 ease-out min-w-[60px] ${
+                  isActive
+                    ? 'text-atlantic bg-gradient-to-br from-atlantic/10 to-coastal/10 shadow-sm scale-105'
+                    : 'text-neutral hover:text-ocean-deep hover:bg-mist/30 hover:scale-105'
+                } font-medium`
+              }
+            >
+              <item.icon className="h-5 w-5 mb-1 transition-all duration-200 group-hover:scale-110" />
+              <span className="text-xs transition-colors duration-200 leading-tight">{item.shortName}</span>
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    );
+
+    // Render directly to document.body to avoid any CSS inheritance issues
+    if (typeof document !== 'undefined') {
+      return createPortal(mobileNav, document.body);
+    }
+    
+    return mobileNav;
+  }
+
+  // Desktop Sidebar
+  return (
+    <>      
+      {/* Desktop Compact Sidebar */}
       <div className={`
         bg-white/95 backdrop-blur-md min-h-screen shadow-xl border-r border-mist/20 z-50 relative
         ${sidebarWidth}
         transform transition-all duration-300 ease-in-out
-        ${isLargeScreen 
-          ? `static ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}` 
-          : `fixed inset-y-0 left-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`
-        }
+        ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}
       `}>
         {/* Floating Compact Toggle - Desktop Only */}
-        {isLargeScreen && (
-          <button
-            onClick={toggleCompact}
-            className={`
-              absolute -right-3 top-8 z-10 bg-white/95 backdrop-blur-md 
-              border border-mist/30 rounded-full p-2 shadow-lg
-              text-neutral hover:text-atlantic hover:bg-atlantic/10 hover:scale-110
-              transition-all duration-300 ease-out group
-            `}
-            title={isCompact ? "Expand Sidebar" : "Compact Sidebar"}
-          >
-            {isCompact ? (
-              <ChevronDoubleRightIcon className="h-3 w-3" />
-            ) : (
-              <ChevronDoubleLeftIcon className="h-3 w-3" />
-            )}
-          </button>
-        )}
+        <button
+          onClick={toggleCompact}
+          className={`
+            absolute -right-3 top-8 z-10 bg-white/95 backdrop-blur-md 
+            border border-mist/30 rounded-full p-2 shadow-lg
+            text-neutral hover:text-atlantic hover:bg-atlantic/10 hover:scale-110
+            transition-all duration-300 ease-out group
+          `}
+          title={isCompact ? "Expand Sidebar" : "Compact Sidebar"}
+        >
+          {isCompact ? (
+            <ChevronDoubleRightIcon className="h-3 w-3" />
+          ) : (
+            <ChevronDoubleLeftIcon className="h-3 w-3" />
+          )}
+        </button>
 
         <div className={`${isCompact ? 'pt-6' : 'pt-4'} pb-6 h-full`}>
           {/* Compact Header */}
