@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { projectService } from '../services/projects';
-import type { Project } from '../services/projects';
+import { useProjects } from '@/services/projects'; // Import the useProjects hook
+import type { Project } from '@/services/projects';
 import {
   PlusIcon,
   FunnelIcon,
@@ -14,28 +14,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Projects: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: projects, isLoading, isError, error } = useProjects(); // Use the hook
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const projectsData = await projectService.getProjects();
-        setProjects(Array.isArray(projectsData) ? projectsData : []);
-      } catch (err: any) {
-        setError('Failed to load projects');
-        setProjects([]); // Ensure projects is always an array
-        console.error('Error fetching projects:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -84,12 +65,12 @@ const Projects: React.FC = () => {
     }
   };
 
-  const filteredProjects = Array.isArray(projects) ? projects.filter(project => {
+  const filteredProjects = (projects || []).filter((project: Project) => {
     const matchesSearch = project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.project_description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || project.status === statusFilter;
     return matchesSearch && matchesStatus;
-  }) : [];
+  });
 
   const statusOptions = [
     'Draft',
@@ -102,10 +83,18 @@ const Projects: React.FC = () => {
     'Obsolete',
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+        Error: {error?.message || 'Failed to load projects'}
       </div>
     );
   }
@@ -184,71 +173,67 @@ const Projects: React.FC = () => {
       </div>
 
       {/* Projects List */}
-      {error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          {error}
+      {filteredProjects.length === 0 ? (
+        <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          <div className="px-4 py-6 text-center">
+            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchTerm || statusFilter
+                ? 'Try adjusting your search or filter criteria.'
+                : 'Get started by creating your first project.'}
+            </p>
+          </div>
         </div>
       ) : (
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          {filteredProjects.length === 0 ? (
-            <div className="px-4 py-6 text-center">
-              <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {searchTerm || statusFilter
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Get started by creating your first project.'}
-              </p>
-            </div>
-          ) : (
-            <ul className="divide-y divide-gray-200">
-              {filteredProjects.map((project) => (
-                <li key={project.id}>
-                  <Link
-                    to={`/projects/${project.id}`}
-                    className="block hover:bg-gray-50 px-4 py-4 sm:px-6"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center min-w-0 flex-1">
-                        <div className="flex-shrink-0">
-                          {getStatusIcon(project.status)}
-                        </div>
-                        <div className="ml-4 min-w-0 flex-1">
-                          <div className="flex items-center">
-                            <h4 className="text-sm font-medium text-gray-900 truncate">
-                              {project.project_name}
-                            </h4>
-                            <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(project.priority)}`}>
-                              {project.priority}
-                            </span>
-                          </div>
-                          <div className="mt-1">
-                            <p className="text-sm text-gray-500 truncate">
-                              {project.project_description}
-                            </p>
-                          </div>
-                          <div className="mt-2 flex items-center text-sm text-gray-500">
-                            <span>Version {project.version}</span>
-                            <span className="mx-2">•</span>
-                            <span>{project.drawings?.length || 0} drawings</span>
-                            <span className="mx-2">•</span>
-                            <span>By {project.submitted_by.first_name} {project.submitted_by.last_name}</span>
-                            <span className="mx-2">•</span>
-                            <span>{new Date(project.date_created).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
+          <ul className="divide-y divide-gray-200">
+            {filteredProjects.map((project: Project) => (
+              <li key={project.id}>
+                <Link
+                  to={`/projects/${project.id}`}
+                  className="block hover:bg-gray-50 px-4 py-4 sm:px-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center min-w-0 flex-1">
                       <div className="flex-shrink-0">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                          {project.status.replace('_', ' ')}
-                        </span>
+                        {getStatusIcon(project.status)}
+                      </div>
+                      <div className="ml-4 min-w-0 flex-1">
+                        <div className="flex items-center">
+                          <h4 className="text-sm font-medium text-gray-900 truncate">
+                            {project.project_name}
+                          </h4>
+                          <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(project.priority)}`}>
+                            {project.priority}
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          <p className="text-sm text-gray-500 truncate">
+                            {project.project_description}
+                          </p>
+                        </div>
+                        <div className="mt-2 flex items-center text-sm text-gray-500">
+                          <span>Version {project.version}</span>
+                          <span className="mx-2">•</span>
+                          <span>{project.drawings?.length || 0} drawings</span>
+                          <span className="mx-2">•</span>
+                          <span>By {project.submitted_by.first_name} {project.submitted_by.last_name}</span>
+                          <span className="mx-2">•</span>
+                          <span>{new Date(project.date_created).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+                    <div className="flex-shrink-0">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                        {project.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

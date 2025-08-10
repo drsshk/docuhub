@@ -123,7 +123,7 @@ if DEBUG:
     EMAIL_HOST = 'smtp-relay.brevo.com'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = config('DEFAULT_FROM_EMAIL', default='contact.cenergi@gmail.com')
+    EMAIL_HOST_USER = config('DEFAULT_FROM_EMAIL', default='info@docuhub.rujilabs.com')
     EMAIL_HOST_PASSWORD = config('BREVO_SMTP_KEY', default='')
     CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
     AUTH_PASSWORD_VALIDATORS = [{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 4}}]

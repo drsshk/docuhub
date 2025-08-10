@@ -191,7 +191,7 @@ const AdminUsers: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="sm:flex sm:items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-medium text-ocean-deep">User Management</h1>
           <p className="mt-2 text-sm text-ocean-deep">
@@ -220,7 +220,7 @@ const AdminUsers: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm pl-10"
-                placeholder="Search by name, username, email, or employee ID..."
+                placeholder="Search users..."
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
@@ -274,7 +274,7 @@ const AdminUsers: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 hidden sm:table-header-group">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User Info
@@ -282,13 +282,13 @@ const AdminUsers: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Department / Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                     Contact
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                     Last Login
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,7 +299,7 @@ const AdminUsers: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 md:whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
                           <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
@@ -316,7 +316,7 @@ const AdminUsers: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 hidden md:table-cell">
                       <div className="text-sm text-gray-900">{user.profile.department}</div>
                       <div className="text-sm text-gray-500">{user.profile.job_title}</div>
                       {user.profile.role && (
@@ -325,7 +325,7 @@ const AdminUsers: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-900">
                       <div className="flex items-center">
                         <EnvelopeIcon className="h-4 w-4 text-gray-400 mr-2" />
                         {user.email}
@@ -343,7 +343,7 @@ const AdminUsers: React.FC = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="flex flex-col space-y-1">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           user.is_active 
@@ -365,7 +365,7 @@ const AdminUsers: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500">
                       <div className="flex items-center">
                         <ClockIcon className="h-4 w-4 mr-2" />
                         {user.last_login 
@@ -374,8 +374,8 @@ const AdminUsers: React.FC = () => {
                         }
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex space-x-1">
+                    <td className="px-6 py-4 md:whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex flex-wrap gap-1">
                         <button
                           onClick={() => {
                             setSelectedUser(user);
@@ -453,8 +453,8 @@ const AdminUsers: React.FC = () => {
 
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto border w-11/12 max-w-4xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
+        <div className="flex items-center justify-center min-h-screen p-4">
+          <div className="relative border w-11/12 max-w-4xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-medium text-ocean-deep">User Details</h3>
@@ -581,8 +581,8 @@ const AdminUsers: React.FC = () => {
 
       {/* User Sessions Modal */}
       {showSessionsModal && selectedUser && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto border w-11/12 max-w-6xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative border w-11/12 max-w-6xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-medium text-ocean-deep">
@@ -620,7 +620,7 @@ const AdminUsers: React.FC = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {userSessions.map((session) => (
                       <tr key={session.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 md:whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             session.is_active 
                               ? 'bg-green-100 text-green-800' 
@@ -629,16 +629,16 @@ const AdminUsers: React.FC = () => {
                             {session.is_active ? 'Active' : 'Expired'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 md:whitespace-nowrap text-sm text-gray-900">
                           {session.ip_address}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
+                        <td className="px-6 py-4 md:whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
                           {session.user_agent}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 md:whitespace-nowrap text-sm text-gray-500">
                           {new Date(session.created_at).toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 md:whitespace-nowrap text-sm text-gray-500">
                           {new Date(session.last_activity).toLocaleString()}
                         </td>
                       </tr>
@@ -662,8 +662,8 @@ const AdminUsers: React.FC = () => {
 
       {/* Create User Modal Placeholder */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto border w-11/12 max-w-2xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative border w-11/12 max-w-2xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-medium text-ocean-deep">Create New User</h3>

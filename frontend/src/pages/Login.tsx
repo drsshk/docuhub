@@ -97,10 +97,10 @@ const Login: React.FC = () => {
                 Welcome to DocuHub
               </h1>
             </div>
-            <p className="text-sm sm:body-m text-wave/90 max-w-3xl leading-relaxed mb-3 sm:mb-small">
+            <p className="text-sm sm:body-m text-white max-w-3xl leading-relaxed mb-3 sm:mb-small">
               Streamlined Document Workflow: Professional Drawing Version Management System for teams. Track, manage, and approve technical drawings with automated workflows and complete audit trails.
             </p>
-            <div className="flex items-center text-xs sm:body-s text-wave/80">
+            <div className="flex items-center text-xs sm:body-s text-white">
               <div className="w-2 h-2 bg-success rounded-full mr-2 sm:mr-small"></div>
               System operational - All services running
             </div>
@@ -111,11 +111,11 @@ const Login: React.FC = () => {
             {features.map((feature, index) => (
               <div key={index} className="flex items-start space-x-2 sm:space-x-small">
                 <div className="flex-shrink-0">
-                  <feature.icon className="h-4 w-4 sm:h-5 sm:w-5 text-wave/70" />
+                  <feature.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <div>
                   <h3 className="text-sm sm:body-l font-semibold text-white">{feature.title}</h3>
-                  <p className="text-wave/80 text-xs sm:body-s">{feature.description}</p>
+                  <p className="text-white text-xs sm:body-s">{feature.description}</p>
                 </div>
               </div>
             ))}
@@ -125,15 +125,15 @@ const Login: React.FC = () => {
           <div className="mt-4 sm:mt-large pt-3 sm:pt-medium border-t border-wave/30">
             <div className="grid grid-cols-3 gap-2 sm:gap-small text-center">
               <div className="flex flex-col items-center">
-                <ShieldCheckIcon className="h-4 w-4 sm:h-6 sm:w-6 text-wave/70 mb-1 sm:mb-micro" />
+                <ShieldCheckIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white mb-1 sm:mb-micro" />
                 <span className="text-xs sm:body-s font-medium text-white">Secure</span>
               </div>
               <div className="flex flex-col items-center">
-                <BoltIcon className="h-4 w-4 sm:h-6 sm:w-6 text-wave/70 mb-1 sm:mb-micro" />
+                <BoltIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white mb-1 sm:mb-micro" />
                 <span className="text-xs sm:body-s font-medium text-white">Fast</span>
               </div>
               <div className="flex flex-col items-center">
-                <HandThumbUpIcon className="h-4 w-4 sm:h-6 sm:w-6 text-wave/70 mb-1 sm:mb-micro" />
+                <HandThumbUpIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white mb-1 sm:mb-micro" />
                 <span className="text-xs sm:body-s font-medium text-white">Friendly</span>
               </div>
             </div>

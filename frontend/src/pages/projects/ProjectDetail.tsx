@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { projectService } from '../services/projects';
-import type { Project, Drawing, ReviewProjectRequest } from '../services/projects';
+import React, { useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  useProject,
+  useSubmitProject,
+  useReviewProject,
+  useDeleteProject,
+} from '@/services/projects';
+import type { ReviewProjectRequest, Project } from '@/services/projects';
 import {
   ArrowLeftIcon,
   PencilIcon,
@@ -22,31 +27,15 @@ const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isProjectManager } = useAuth();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const { data: project, isLoading, isError, error } = useProject(id || '');
+  const submitProjectMutation = useSubmitProject();
+  const reviewProjectMutation = useReviewProject();
+  const deleteProjectMutation = useDeleteProject();
+
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'revise'>('approve');
   const [reviewComments, setReviewComments] = useState('');
-  const [submitLoading, setSubmitLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!id) return;
-      
-      try {
-        const projectData = await projectService.getProject(id);
-        setProject(projectData);
-      } catch (err: any) {
-        setError('Failed to load project');
-        console.error('Error fetching project:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProject();
-  }, [id]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -81,44 +70,42 @@ const ProjectDetail: React.FC = () => {
   };
 
   const handleSubmitProject = async () => {
-    if (!project) return;
-    
-    setSubmitLoading(true);
+    if (!project || !id) return;
     try {
-      await projectService.submitProject(project.id);
-      const updatedProject = await projectService.getProject(project.id);
-      setProject(updatedProject);
-    } catch (err: any) {
-      setError('Failed to submit project');
-      console.error('Error submitting project:', err);
-    } finally {
-      setSubmitLoading(false);
+      await submitProjectMutation.mutateAsync(id);
+    } catch (err) {
+      console.error('Failed to submit project', err);
     }
   };
 
   const handleReviewProject = async () => {
-    if (!project) return;
-    
-    setSubmitLoading(true);
+    if (!project || !id) return;
     try {
       const reviewData: ReviewProjectRequest = {
         action: reviewAction,
         comments: reviewComments,
       };
-      await projectService.reviewProject(project.id, reviewData);
-      const updatedProject = await projectService.getProject(project.id);
-      setProject(updatedProject);
+      await reviewProjectMutation.mutateAsync({ id, review: reviewData });
       setShowReviewModal(false);
       setReviewComments('');
-    } catch (err: any) {
-      setError('Failed to review project');
-      console.error('Error reviewing project:', err);
-    } finally {
-      setSubmitLoading(false);
+    } catch (err) {
+      console.error('Failed to review project', err);
     }
   };
 
-  if (loading) {
+  const handleDeleteProject = async () => {
+    if (!project || !id) return;
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        await deleteProjectMutation.mutateAsync(id);
+        navigate('/projects');
+      } catch (err) {
+        console.error('Failed to delete project', err);
+      }
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
@@ -126,17 +113,20 @@ const ProjectDetail: React.FC = () => {
     );
   }
 
-  if (error || !project) {
+  if (isError || !project) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-        {error || 'Project not found'}
+        Error: {error?.message || 'Project not found'}
       </div>
     );
   }
 
-  const canEdit = user?.id === project.submitted_by.id && (project.status === 'Draft' || project.status === 'Request_for_Revision');
-  const canSubmit = user?.id === project.submitted_by.id && (project.status === 'Draft' || project.status === 'Request_for_Revision') && project.drawings.length > 0;
-  const canReview = isProjectManager && project.status === 'Pending_Approval';
+  const currentProject: Project = project;
+
+  const canEdit = user?.id === currentProject.submitted_by.id && (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision');
+  const canSubmit = user?.id === currentProject.submitted_by.id && (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision') && currentProject.drawings.length > 0;
+  const canReview = isProjectManager && currentProject.status === 'Pending_Approval';
+  const canCreateNewVersion = currentProject.status === 'Approved_Endorsed' || currentProject.status === 'Conditional_Approval' || currentProject.status === 'Request_for_Revision';
 
   return (
     <div className="space-y-6">
@@ -150,11 +140,11 @@ const ProjectDetail: React.FC = () => {
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{project.project_name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{currentProject.project_name}</h1>
             <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
-              <span>Version {project.version}</span>
+              <span>Version {currentProject.version}</span>
               <span>•</span>
-              <span>{project.drawings.length} drawings</span>
+              <span>{currentProject.drawings.length} drawings</span>
             </div>
           </div>
         </div>
@@ -162,10 +152,10 @@ const ProjectDetail: React.FC = () => {
           {canSubmit && (
             <button
               onClick={handleSubmitProject}
-              disabled={submitLoading}
+              disabled={submitProjectMutation.isPending}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
-              {submitLoading ? 'Submitting...' : 'Submit for Approval'}
+              {submitProjectMutation.isPending ? 'Submitting...' : 'Submit for Approval'}
             </button>
           )}
           {canReview && (
@@ -177,13 +167,31 @@ const ProjectDetail: React.FC = () => {
             </button>
           )}
           {canEdit && (
-            <button
+            <Link
+              to={`/projects/${currentProject.id}/edit`}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               <PencilIcon className="h-4 w-4 mr-2" />
               Edit Project
-            </button>
+            </Link>
           )}
+          {canCreateNewVersion && (
+            <Link
+              to={`/projects/${currentProject.id}/new-version`}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" />
+              New Version
+            </Link>
+          )}
+          <button
+            onClick={handleDeleteProject}
+            disabled={deleteProjectMutation.isPending}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+          >
+            {deleteProjectMutation.isPending ? 'Deleting...' : 'Delete Project'}
+            <TrashIcon className="h-4 w-4 ml-2" />
+          </button>
         </div>
       </div>
 
@@ -192,13 +200,13 @@ const ProjectDetail: React.FC = () => {
         <div className="px-4 py-5 sm:px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              {getStatusIcon(project.status)}
-              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                {project.status.replace('_', ' ')}
+              {getStatusIcon(currentProject.status)}
+              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(currentProject.status)}`}>
+                {currentProject.status.replace('_', ' ')}
               </span>
             </div>
             <div className="text-sm text-gray-500">
-              Created {new Date(project.date_created).toLocaleDateString()}
+              Created {new Date(currentProject.date_created).toLocaleDateString()}
             </div>
           </div>
           <h3 className="mt-2 text-lg leading-6 font-medium text-gray-900">
@@ -210,13 +218,13 @@ const ProjectDetail: React.FC = () => {
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Description</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {project.project_description || 'No description provided'}
+                {currentProject.project_description || 'No description provided'}
               </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Priority</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {project.priority}
+                {currentProject.priority}
               </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -224,16 +232,16 @@ const ProjectDetail: React.FC = () => {
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 <div className="flex items-center">
                   <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
-                  {project.submitted_by.first_name} {project.submitted_by.last_name} (@{project.submitted_by.username})
+                  {currentProject.submitted_by.first_name} {currentProject.submitted_by.last_name} (@{currentProject.submitted_by.username})
                 </div>
               </dd>
             </div>
-            {project.project_folder_link && (
+            {currentProject.project_folder_link && (
               <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Project Folder</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <a
-                    href={project.project_folder_link}
+                    href={currentProject.project_folder_link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-primary-600 hover:text-primary-500"
@@ -244,24 +252,24 @@ const ProjectDetail: React.FC = () => {
                 </dd>
               </div>
             )}
-            {project.date_submitted && (
+            {currentProject.date_submitted && (
               <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Date Submitted</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <div className="flex items-center">
                     <CalendarIcon className="h-4 w-4 mr-2 text-gray-400" />
-                    {new Date(project.date_submitted).toLocaleDateString()}
+                    {new Date(currentProject.date_submitted).toLocaleDateString()}
                   </div>
                 </dd>
               </div>
             )}
-            {project.reviewed_by && project.date_reviewed && (
+            {currentProject.reviewed_by && currentProject.date_reviewed && (
               <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Reviewed by</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <div className="flex items-center">
                     <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
-                    {project.reviewed_by.first_name} {project.reviewed_by.last_name} on {new Date(project.date_reviewed).toLocaleDateString()}
+                    {currentProject.reviewed_by.first_name} {currentProject.reviewed_by.last_name} on {new Date(currentProject.date_reviewed).toLocaleDateString()}
                   </div>
                 </dd>
               </div>
@@ -275,7 +283,7 @@ const ProjectDetail: React.FC = () => {
         <div className="px-4 py-5 sm:p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Drawings ({project.drawings.length})
+              Drawings ({currentProject.drawings.length})
             </h3>
             {canEdit && (
               <button className="bg-transparent border border-coastal text-coastal hover:bg-coastal hover:text-white px-6 py-3 rounded-lg font-medium">
@@ -285,7 +293,7 @@ const ProjectDetail: React.FC = () => {
             )}
           </div>
           
-          {project.drawings.length === 0 ? (
+          {currentProject.drawings.length === 0 ? (
             <div className="mt-4 text-center py-6">
               <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No drawings</h3>
@@ -321,7 +329,7 @@ const ProjectDetail: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {project.drawings.map((drawing: Drawing) => (
+                  {currentProject.drawings.map((drawing) => (
                     <tr key={drawing.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {drawing.drawing_number}
@@ -403,10 +411,10 @@ const ProjectDetail: React.FC = () => {
                 </button>
                 <button
                   onClick={handleReviewProject}
-                  disabled={submitLoading || ((reviewAction === 'reject' || reviewAction === 'revise') && !reviewComments.trim())}
+                  disabled={reviewProjectMutation.isPending || ((reviewAction === 'reject' || reviewAction === 'revise') && !reviewComments.trim())}
                   className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
                 >
-                  {submitLoading ? 'Submitting...' : 'Submit Review'}
+                  {reviewProjectMutation.isPending ? 'Submitting...' : 'Submit Review'}
                 </button>
               </div>
             </div>

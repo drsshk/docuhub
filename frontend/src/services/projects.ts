@@ -1,4 +1,5 @@
 import api from './api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface Project {
   id: string;
@@ -74,7 +75,7 @@ export interface ReviewProjectRequest {
 export const projectService = {
   async getProjects(): Promise<Project[]> {
     const response = await api.get('/api/projects/');
-    return response.data;
+    return response.data.results; // Changed to return results array
   },
 
   async getProject(id: string): Promise<Project> {
@@ -122,4 +123,75 @@ export const projectService = {
   async deleteDrawing(id: string): Promise<void> {
     await api.delete(`/api/drawings/${id}/`);
   },
+};
+
+// React Query hooks
+export const useProjects = () => {
+  return useQuery<Project[], Error>({
+    queryKey: ['projects'],
+    queryFn: projectService.getProjects,
+  });
+};
+
+export const useProject = (id: string) => {
+  return useQuery<Project, Error>({
+    queryKey: ['project', id],
+    queryFn: () => projectService.getProject(id),
+    enabled: !!id, // Only run query if id is available
+  });
+};
+
+export const useCreateProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation<Project, Error, CreateProjectRequest>({
+    mutationFn: (newProject: CreateProjectRequest) => projectService.createProject(newProject),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useUpdateProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation<Project, Error, { id: string; project: Partial<CreateProjectRequest> }>({
+    mutationFn: ({ id, project }: { id: string; project: Partial<CreateProjectRequest> }) =>
+      projectService.updateProject(id, project),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['project', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useDeleteProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (id: string) => projectService.deleteProject(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useSubmitProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (id: string) => projectService.submitProject(id),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['project', variables] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useReviewProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, { id: string; review: ReviewProjectRequest }>({
+    mutationFn: ({ id, review }: { id: string; review: ReviewProjectRequest }) =>
+      projectService.reviewProject(id, review),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['project', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
 };
