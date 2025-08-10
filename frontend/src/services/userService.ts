@@ -182,6 +182,21 @@ class UserService {
 
     return response.json();
   }
+
+  async updateProfile(userId: number, profileData: Partial<User>): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}accounts/api/user/`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to update profile: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
 }
 
 export const userService = new UserService();

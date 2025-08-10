@@ -44,7 +44,21 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get('/accounts/api/user/');
+    const response = await api.get('accounts/api/user/');
+    return response.data;
+  },
+
+  async changePassword(passwordData: {
+    current_password: string;
+    new_password: string;
+    confirm_password: string;
+  }): Promise<{ message: string }> {
+    const response = await api.post('accounts/api/change-password/', passwordData);
+    return response.data;
+  },
+
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response = await api.post('accounts/api/password-reset-request/', { email });
     return response.data;
   },
 

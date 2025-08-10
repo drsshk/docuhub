@@ -45,6 +45,8 @@ urlpatterns = [
     path('api/login/', views.api_login, name='api_login'),
     path('api/logout/', views.api_logout, name='api_logout'),
     path('api/user/', views.api_user, name='api_user'),
+    path('api/change-password/', views.api_change_password, name='api_change_password'),
+    path('api/password-reset-request/', views.api_password_reset_request, name='api_password_reset_request'),
     
     # --- User Management API URLs ---
     path('api/users/', views.api_users_list, name='api_users_list'),

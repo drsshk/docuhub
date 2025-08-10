@@ -282,13 +282,14 @@ class BrevoEmailService:
             context
         )
     
-    def send_password_reset_email(self, user, temp_password, login_url):
+    def send_password_reset_email(self, user, temp_password, login_url, is_temp_password=False):
         """Send password reset email with temporary password"""
         context = {
             'user_name': user.get_full_name() or user.username,
             'user': user,
             'temp_password': temp_password,
-            'login_url': login_url
+            'login_url': login_url,
+            'is_temp_password': is_temp_password,
         }
         
         subject = f"DocuHub Password Reset"

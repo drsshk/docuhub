@@ -197,7 +197,7 @@ def send_account_setup_email(user, token, uid):
         logger.error(f"Error sending account setup email to {user.email}: {e}")
         return False
 
-def send_password_reset_email(user, temp_password):
+def send_password_reset_email(user, temp_password, is_temp_password=False):
     """
     Sends a temporary password to the user's email using custom templates.
     """
@@ -212,7 +212,7 @@ def send_password_reset_email(user, temp_password):
         login_url = f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:8000')}/accounts/login/"
         
         # Send the email using our custom template system
-        success = email_service.send_password_reset_email(user, temp_password, login_url)
+        success = email_service.send_password_reset_email(user, temp_password, login_url, is_temp_password)
         
         if success:
             logger.info(f"Password reset email sent successfully to {user.email}")

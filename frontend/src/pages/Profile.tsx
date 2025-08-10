@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  UserCircleIcon,
-  KeyIcon,
-  EnvelopeIcon,
-  IdentificationIcon,
-} from '@heroicons/react/24/outline';
+import { userService } from '../services/userService';
+import { authService } from '../services/auth';
+import type { User } from '../services/auth';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -33,10 +30,17 @@ const Profile: React.FC = () => {
     setMessage('');
 
     try {
-      // TODO: Implement profile update API call
+      if (!user) {
+        setMessage('User not logged in.');
+        setLoading(false);
+        return;
+      }
+      const updatedUser = await userService.updateProfile(user.id, profileData);
+      // Optionally update the user in AuthContext if needed
+      // updateAuthUser(updatedUser); 
       setMessage('Profile updated successfully!');
     } catch (error) {
-      setMessage('Failed to update profile');
+      setMessage(`Failed to update profile: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }
@@ -54,7 +58,7 @@ const Profile: React.FC = () => {
     setMessage('');
 
     try {
-      // TODO: Implement password change API call
+      await authService.changePassword(passwordData);
       setMessage('Password changed successfully!');
       setPasswordData({
         current_password: '',
@@ -62,7 +66,7 @@ const Profile: React.FC = () => {
         confirm_password: '',
       });
     } catch (error) {
-      setMessage('Failed to change password');
+      setMessage(`Failed to change password: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }

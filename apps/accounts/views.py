@@ -348,6 +348,8 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from .models import Role
+from .serializers import UserProfileSerializer, ChangePasswordSerializer
+from django.contrib.auth import update_session_auth_hash
 
 @csrf_exempt
 @api_view(['POST'])
@@ -423,10 +425,11 @@ def api_logout(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
 def api_user(request):
-    """API endpoint to get current user info"""
-    if request.user.is_authenticated:
+    """API endpoint to get/update current user info"""
+    if request.method == 'GET':
         return Response({
             'id': request.user.id,
             'username': request.user.username,
@@ -435,9 +438,62 @@ def api_user(request):
             'last_name': request.user.last_name,
             'is_staff': request.user.is_staff,
         }, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Not authenticated'}, 
-                       status=status.HTTP_401_UNAUTHORIZED)
+    elif request.method in ['PUT', 'PATCH']:
+        serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_change_password(request):
+    """API endpoint to change current user's password"""
+    serializer = ChangePasswordSerializer(data=request.data)
+    if serializer.is_valid():
+        user = request.user
+        current_password = serializer.validated_data.get('current_password')
+        new_password = serializer.validated_data.get('new_password')
+
+        if not user.check_password(current_password):
+            return Response({'current_password': ['Wrong password.']}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(request, user) # Important to keep user logged in
+
+        return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_password_reset_request(request):
+    """API endpoint to request a password reset by email."""
+    email = request.data.get('email')
+    if not email:
+        return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        # Return a generic success message to prevent email enumeration
+        return Response({'message': 'If an account with that email exists, a temporary password has been sent.'}, status=status.HTTP_200_OK)
+
+    try:
+        temp_password = User.objects.make_random_password(length=10)
+        user.set_password(temp_password)
+        user.save()
+
+        # Send email with temporary password and reminder to change
+        # The send_password_reset_email utility function needs to be updated
+        # to accept a temporary password directly or a flag for this scenario.
+        # For now, we'll assume it can handle a direct password or we'll modify it.
+        # Let's modify send_password_reset_email to accept a direct password.
+        send_password_reset_email(user, temp_password, is_temp_password=True)
+
+        return Response({'message': 'If an account with that email exists, a temporary password has been sent.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': f'Failed to send password reset email: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # --- User Management API Views ---
 

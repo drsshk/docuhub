@@ -111,14 +111,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     # --- Development Settings ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','152.42.210.234', 'docuhub.rujilabs.com'] # Added for testing. Ensure this is configured via environment variables in production.
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com']
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://152.42.210.234",
-        "docuhub.rujilabs.com"
+        "http://127.0.0.1:8080"
     ]
     # Use Brevo email service even in development mode
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -319,11 +317,11 @@ else: # Production logging
 # Email Configuration (Brevo)
 BREVO_API_KEY = config('BREVO_API_KEY', default='')
 BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@docuhub.com')
-BREVO_SENDER_NAME = config('BREVO_SENDER_NAME', default='DocuHub System')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
+BREVO_SENDER_NAME = config('BREVO_SENDER_NAME', default='')
 
 # Frontend URL for email links
-FRONTEND_URL = config('FRONTEND_URL', default='http://152.42.210.234')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8000')
 
 # Email Template IDs (Brevo)
 EMAIL_TEMPLATES = {
