@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
 import { authService } from '../services/auth';
 import type { User } from '../services/auth';
+import { IdentificationIcon, KeyIcon, UserCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
