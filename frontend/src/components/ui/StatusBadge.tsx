@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from './Badge';
-import { STATUS_COLORS, type StatusType } from '../../lib/constants';
+import { STATUS_COLORS, type StatusType } from '@/lib/constants';
 import { 
   ClockIcon, 
   CheckCircleIcon, 
