@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -135,7 +135,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -155,7 +155,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">

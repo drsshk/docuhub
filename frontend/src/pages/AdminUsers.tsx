@@ -193,15 +193,15 @@ const AdminUsers: React.FC = () => {
       {/* Header */}
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <h1 className="text-2xl font-medium text-ocean-deep">User Management</h1>
+          <p className="mt-2 text-sm text-ocean-deep">
             Manage user accounts, permissions, roles, and access levels.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            className="bg-atlantic text-white hover:bg-ocean-deep px-6 py-3 rounded-lg font-medium"
           >
             <PlusIcon className="h-4 w-4 mr-2" />
             Create User
@@ -210,7 +210,7 @@ const AdminUsers: React.FC = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="md:col-span-2">
@@ -219,7 +219,7 @@ const AdminUsers: React.FC = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md pl-10"
+                className="border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm pl-10"
                 placeholder="Search by name, username, email, or employee ID..."
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -233,7 +233,7 @@ const AdminUsers: React.FC = () => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              className="border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
             >
               <option value="">All Roles</option>
               {roles.map(role => (
@@ -247,7 +247,7 @@ const AdminUsers: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              className="border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -266,7 +266,7 @@ const AdminUsers: React.FC = () => {
       )}
 
       {/* Users Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <div className="bg-white border border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow overflow-hidden sm:rounded-md">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
@@ -381,7 +381,7 @@ const AdminUsers: React.FC = () => {
                             setSelectedUser(user);
                             setShowUserModal(true);
                           }}
-                          className="text-primary-600 hover:text-primary-900 p-1 rounded"
+                          className="text-atlantic hover:text-ocean-deep px-3 py-2 font-medium p-1 rounded"
                           title="View Details"
                         >
                           <EyeIcon className="h-4 w-4" />
@@ -392,28 +392,28 @@ const AdminUsers: React.FC = () => {
                             setSelectedUser(user);
                             setShowSessionsModal(true);
                           }}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded"
+                          className="text-atlantic hover:text-ocean-deep px-3 py-2 font-medium p-1 rounded"
                           title="View Sessions"
                         >
                           <ClockIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => resetUserPassword(user.id)}
-                          className="text-orange-600 hover:text-orange-900 p-1 rounded"
+                          className="text-atlantic hover:text-ocean-deep px-3 py-2 font-medium p-1 rounded"
                           title="Reset Password"
                         >
                           <KeyIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => toggleUserActive(user.id, user.is_active)}
-                          className={`${user.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} p-1 rounded`}
+                          className={`${user.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} text-atlantic hover:text-ocean-deep px-3 py-2 font-medium p-1 rounded`}
                           title={user.is_active ? 'Deactivate User' : 'Activate User'}
                         >
                           {user.is_active ? <UserMinusIcon className="h-4 w-4" /> : <UserPlusIcon className="h-4 w-4" />}
                         </button>
                         <button
                           onClick={() => toggleUserStaff(user.id, user.is_staff)}
-                          className={`${user.is_staff ? 'text-purple-600 hover:text-purple-900' : 'text-indigo-600 hover:text-indigo-900'} p-1 rounded`}
+                          className={`${user.is_staff ? 'text-purple-600 hover:text-purple-900' : 'text-indigo-600 hover:text-indigo-900'} text-atlantic hover:text-ocean-deep px-3 py-2 font-medium p-1 rounded`}
                           title={user.is_staff ? 'Remove Staff Status' : 'Make Staff'}
                         >
                           <ShieldCheckIcon className="h-4 w-4" />
@@ -454,13 +454,13 @@ const AdminUsers: React.FC = () => {
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto border w-11/12 max-w-4xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">User Details</h3>
+                <h3 className="text-lg font-medium text-ocean-deep">User Details</h3>
                 <button
                   onClick={() => setShowUserModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-atlantic hover:text-ocean-deep"
                 >
                   <XCircleIcon className="h-6 w-6" />
                 </button>
@@ -469,7 +469,7 @@ const AdminUsers: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-semibold text-gray-800">Personal Information</h4>
+                  <h4 className="text-lg font-medium text-ocean-deep">Personal Information</h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Full Name</label>
@@ -492,7 +492,7 @@ const AdminUsers: React.FC = () => {
 
                 {/* Work Information */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-semibold text-gray-800">Work Information</h4>
+                  <h4 className="text-lg font-medium text-ocean-deep">Work Information</h4>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Department</label>
@@ -515,7 +515,7 @@ const AdminUsers: React.FC = () => {
 
                 {/* Account Status */}
                 <div className="space-y-4 md:col-span-2">
-                  <h4 className="text-md font-semibold text-gray-800">Account Status</h4>
+                  <h4 className="text-lg font-medium text-ocean-deep">Account Status</h4>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
@@ -558,7 +558,7 @@ const AdminUsers: React.FC = () => {
                 {/* Bio */}
                 {selectedUser.profile.bio && (
                   <div className="space-y-4 md:col-span-2">
-                    <h4 className="text-md font-semibold text-gray-800">Biography</h4>
+                    <h4 className="text-lg font-medium text-ocean-deep">Biography</h4>
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <p className="text-sm text-gray-900">{selectedUser.profile.bio}</p>
                     </div>
@@ -582,15 +582,15 @@ const AdminUsers: React.FC = () => {
       {/* User Sessions Modal */}
       {showSessionsModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto border w-11/12 max-w-6xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-ocean-deep">
                   User Sessions - {selectedUser.first_name} {selectedUser.last_name}
                 </h3>
                 <button
                   onClick={() => setShowSessionsModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-atlantic hover:text-ocean-deep"
                 >
                   <XCircleIcon className="h-6 w-6" />
                 </button>
@@ -663,13 +663,13 @@ const AdminUsers: React.FC = () => {
       {/* Create User Modal Placeholder */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto border w-11/12 max-w-2xl bg-white border-mist/30 rounded-xl shadow-sm hover:shadow-md p-6 transition-shadow">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Create New User</h3>
+                <h3 className="text-lg font-medium text-ocean-deep">Create New User</h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-atlantic hover:text-ocean-deep"
                 >
                   <XCircleIcon className="h-6 w-6" />
                 </button>
@@ -679,74 +679,74 @@ const AdminUsers: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h4 className="text-md font-semibold text-gray-800">Basic Information</h4>
+                    <h4 className="text-lg font-medium text-ocean-deep">Basic Information</h4>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Username *</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Username *</label>
                       <input
                         type="text"
                         required
                         value={createUserData.username}
                         onChange={(e) => setCreateUserData({ ...createUserData, username: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Email *</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Email *</label>
                       <input
                         type="email"
                         required
                         value={createUserData.email}
                         onChange={(e) => setCreateUserData({ ...createUserData, email: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">First Name *</label>
+                        <label className="block text-sm font-medium text-ocean-deep mb-2">First Name *</label>
                         <input
                           type="text"
                           required
                           value={createUserData.first_name}
                           onChange={(e) => setCreateUserData({ ...createUserData, first_name: e.target.value })}
-                          className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Last Name *</label>
+                        <label className="block text-sm font-medium text-ocean-deep mb-2">Last Name *</label>
                         <input
                           type="text"
                           required
                           value={createUserData.last_name}
                           onChange={(e) => setCreateUserData({ ...createUserData, last_name: e.target.value })}
-                          className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Employee ID</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Employee ID</label>
                       <input
                         type="text"
                         value={createUserData.employee_id}
                         onChange={(e) => setCreateUserData({ ...createUserData, employee_id: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       />
                     </div>
                   </div>
 
                   {/* Work Information */}
                   <div className="space-y-4">
-                    <h4 className="text-md font-semibold text-gray-800">Work Information</h4>
+                    <h4 className="text-lg font-medium text-ocean-deep">Work Information</h4>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Department</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Department</label>
                       <select
                         value={createUserData.department}
                         onChange={(e) => setCreateUserData({ ...createUserData, department: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       >
                         <option value="">Select Department</option>
                         <option value="Engineering">Engineering</option>
@@ -761,11 +761,11 @@ const AdminUsers: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Job Title</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Job Title</label>
                       <select
                         value={createUserData.job_title}
                         onChange={(e) => setCreateUserData({ ...createUserData, job_title: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       >
                         <option value="">Select Job Title</option>
                         <option value="Engineer">Engineer</option>
@@ -785,11 +785,11 @@ const AdminUsers: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Role</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Role</label>
                       <select
                         value={createUserData.role_id}
                         onChange={(e) => setCreateUserData({ ...createUserData, role_id: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       >
                         <option value="">Select Role</option>
                         {roles.map(role => (
@@ -799,22 +799,22 @@ const AdminUsers: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Phone Number</label>
                       <input
                         type="text"
                         value={createUserData.phone_number}
                         onChange={(e) => setCreateUserData({ ...createUserData, phone_number: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Location</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Location</label>
                       <input
                         type="text"
                         value={createUserData.location}
                         onChange={(e) => setCreateUserData({ ...createUserData, location: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                       />
                     </div>
                   </div>
@@ -822,12 +822,12 @@ const AdminUsers: React.FC = () => {
                   {/* Bio and Settings */}
                   <div className="md:col-span-2 space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Bio</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Bio</label>
                       <textarea
                         rows={3}
                         value={createUserData.bio}
                         onChange={(e) => setCreateUserData({ ...createUserData, bio: e.target.value })}
-                        className="mt-1 shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
                         placeholder="Brief description about the user"
                       />
                     </div>
@@ -859,13 +859,13 @@ const AdminUsers: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-transparent border border-coastal text-coastal hover:bg-coastal hover:text-white px-6 py-3 rounded-lg font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-atlantic text-white hover:bg-ocean-deep px-6 py-3 rounded-lg font-medium"
                   >
                     Create User
                   </button>

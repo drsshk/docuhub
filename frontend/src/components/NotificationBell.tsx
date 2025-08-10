@@ -40,13 +40,13 @@ const NotificationBell: React.FC = () => {
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'text-green-600';
+        return 'text-success';
       case 'warning':
-        return 'text-yellow-600';
+        return 'text-warning';
       case 'error':
-        return 'text-red-600';
+        return 'text-error';
       default:
-        return 'text-blue-600';
+        return 'text-atlantic';
     }
   };
 
@@ -54,25 +54,30 @@ const NotificationBell: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
+        className="relative p-2.5 text-neutral hover:text-ocean-deep hover:bg-mist/20 focus:outline-none focus:ring-2 focus:ring-atlantic/20 rounded-xl transition-all duration-200 ease-out group"
       >
-        <BellIcon className="h-6 w-6" />
+        <BellIcon className="h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform duration-200" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 transform translate-x-1 -translate-y-1"></span>
+          <span className="absolute -top-1 -right-1 flex h-5 w-5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-5 w-5 bg-error items-center justify-center">
+              <span className="text-white text-xs font-medium">{unreadCount > 9 ? '9+' : unreadCount}</span>
+            </span>
+          </span>
         )}
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+        <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-mist/30 z-50 animate-slide-up">
           <div className="py-1">
-            <div className="px-4 py-2 border-b border-gray-200">
-              <h3 className="text-sm font-medium text-gray-900">
+            <div className="px-4 py-3 border-b border-mist/30">
+              <h3 className="text-sm font-medium text-ocean-deep">
                 Notifications {unreadCount > 0 && `(${unreadCount} unread)`}
               </h3>
             </div>
             
             {notifications.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-gray-500">
+              <div className="px-4 py-6 text-center text-sm text-neutral">
                 No notifications
               </div>
             ) : (
@@ -80,17 +85,17 @@ const NotificationBell: React.FC = () => {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`px-4 py-3 border-b border-gray-100 last:border-b-0 ${
-                      !notification.read ? 'bg-blue-50' : ''
+                    className={`px-4 py-3 border-b border-mist/20 last:border-b-0 ${
+                      !notification.read ? 'bg-wave/5' : ''
                     }`}
                   >
                     <div className="flex items-start">
                       <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${getNotificationColor(notification.type).replace('text-', 'bg-')}`}></div>
                       <div className="ml-3 flex-1">
-                        <p className="text-sm text-gray-900">
+                        <p className="text-sm text-ocean-deep">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-neutral mt-1">
                           {new Date(notification.timestamp).toLocaleDateString()}
                         </p>
                       </div>
@@ -100,8 +105,8 @@ const NotificationBell: React.FC = () => {
               </div>
             )}
             
-            <div className="px-4 py-2 border-t border-gray-200">
-              <button className="text-sm text-primary-600 hover:text-primary-500">
+            <div className="px-4 py-3 border-t border-mist/30">
+              <button className="text-sm text-atlantic hover:text-ocean-deep transition-colors duration-150 min-h-[44px] flex items-center">
                 View all notifications
               </button>
             </div>

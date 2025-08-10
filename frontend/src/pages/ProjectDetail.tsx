@@ -278,7 +278,7 @@ const ProjectDetail: React.FC = () => {
               Drawings ({project.drawings.length})
             </h3>
             {canEdit && (
-              <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+              <button className="bg-transparent border border-coastal text-coastal hover:bg-coastal hover:text-white px-6 py-3 rounded-lg font-medium">
                 <PlusIcon className="h-4 w-4 mr-2" />
                 Add Drawing
               </button>
@@ -342,7 +342,7 @@ const ProjectDetail: React.FC = () => {
                       </td>
                       {canEdit && (
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button className="text-primary-600 hover:text-primary-900 mr-2">
+                          <button className="text-atlantic hover:text-ocean-deep px-3 py-2 font-medium mr-2">
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button className="text-red-600 hover:text-red-900">
