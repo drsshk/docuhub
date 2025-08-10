@@ -10,6 +10,7 @@ const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -40,6 +41,7 @@ const Profile: React.FC = () => {
       // Optionally update the user in AuthContext if needed
       // updateAuthUser(updatedUser); 
       setMessage('Profile updated successfully!');
+      setIsEditing(false);
     } catch (error) {
       setMessage(`Failed to update profile: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
@@ -152,7 +154,8 @@ const Profile: React.FC = () => {
                     type="text"
                     value={profileData.first_name}
                     onChange={(e) => setProfileData({ ...profileData, first_name: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                    disabled={!isEditing}
+                    className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 ${!isEditing ? 'bg-gray-50 text-gray-500' : ''}`}
                   />
                 </div>
 
@@ -164,7 +167,8 @@ const Profile: React.FC = () => {
                     type="text"
                     value={profileData.last_name}
                     onChange={(e) => setProfileData({ ...profileData, last_name: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                    disabled={!isEditing}
+                    className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 ${!isEditing ? 'bg-gray-50 text-gray-500' : ''}`}
                   />
                 </div>
 
@@ -176,7 +180,8 @@ const Profile: React.FC = () => {
                     type="email"
                     value={profileData.email}
                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                    disabled={!isEditing}
+                    className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 ${!isEditing ? 'bg-gray-50 text-gray-500' : ''}`}
                   />
                 </div>
 
@@ -194,14 +199,41 @@ const Profile: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-                >
-                  {loading ? 'Updating...' : 'Update Profile'}
-                </button>
+              <div className="flex justify-end space-x-3">
+                {!isEditing ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Edit Profile
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setProfileData({
+                          first_name: user?.first_name || '',
+                          last_name: user?.last_name || '',
+                          email: user?.email || '',
+                        });
+                        setMessage(''); // Clear any messages on cancel
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                    >
+                      {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </>
+                )}
               </div>
             </form>
           )}

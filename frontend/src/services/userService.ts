@@ -68,7 +68,7 @@ export interface CreateUserData {
 
 class UserService {
   private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     return {
       'Content-Type': 'application/json',
       'Authorization': token ? `Token ${token}` : '',
