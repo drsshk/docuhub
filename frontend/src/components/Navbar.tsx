@@ -115,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = () => {
       data-mobile-navbar="true"
       className="mobile-navbar-fixed bg-white/95 backdrop-blur-md shadow-sm border-b border-mist/30"
       style={{
-        position: 'fixed !important',
+        position: 'fixed',
         top: '0px !important',
         left: '0px !important',
         right: '0px !important',
@@ -125,14 +125,14 @@ const Navbar: React.FC<NavbarProps> = () => {
         zIndex: 2147483647,
         transform: 'translateZ(0) !important',
         WebkitTransform: 'translateZ(0) !important',
-        backfaceVisibility: 'hidden !important',
-        WebkitBackfaceVisibility: 'hidden !important',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
         margin: '0px !important',
         padding: '0px !important',
-        boxSizing: 'border-box !important',
+        boxSizing: 'border-box',
         height: 'auto !important',
         display: 'block !important',
-        visibility: 'visible !important',
+        visibility: 'visible',
         opacity: '1 !important'
       }}
     >

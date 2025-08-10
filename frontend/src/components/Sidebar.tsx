@@ -145,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
         data-mobile-nav="true"
         className="mobile-nav-fixed bg-white/95 backdrop-blur-md border-t border-mist/30 shadow-lg" 
         style={{ 
-          position: 'fixed !important',
+          position: 'fixed',
           bottom: '0px !important',
           left: '0px !important',
           right: '0px !important',
@@ -159,21 +159,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
           translate: 'none !important',
           margin: '0px !important',
           padding: '0px !important',
-          boxSizing: 'border-box !important',
+          boxSizing: 'border-box',
           inset: 'auto 0px 0px 0px !important',
           display: 'block !important',
-          visibility: 'visible !important',
+          visibility: 'visible',
           opacity: '1 !important',
-          pointerEvents: 'auto !important',
+          pointerEvents: 'auto',
           overflow: 'visible !important',
           WebkitTransform: 'none !important',
           MozTransform: 'none !important',
           msTransform: 'none !important',
-          WebkitBackfaceVisibility: 'hidden !important',
-          backfaceVisibility: 'hidden !important',
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
           willChange: 'auto !important',
           contain: 'none !important',
-          isolation: 'auto !important'
+          isolation: 'auto'
         }}
       >
         <div 
