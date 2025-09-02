@@ -4,9 +4,12 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 import logging.handlers
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(dotenv_path=BASE_DIR / '.env')
 
 # --- Core Settings ---
 SECRET_KEY = config('SECRET_KEY')
@@ -43,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -112,12 +115,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 if DEBUG:
     # --- Development Settings ---
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com']
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080"
-    ]
+    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    print(f"CORS_ALLOWED_ORIGINS (after split): {CORS_ALLOWED_ORIGINS}")
     # Use Brevo email service even in development mode
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp-relay.brevo.com'
@@ -133,6 +132,7 @@ else:
     # --- Production Settings ---
     ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
     CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    print(f"CORS_ALLOWED_ORIGINS (after split): {CORS_ALLOWED_ORIGINS}")
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
     EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
@@ -219,17 +219,17 @@ REST_FRAMEWORK_BASE = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ],
+    'DEFAULT_THROTTLE_RATES': {
+        'project_user': '1000/hour',
+        'project_anon': '100/hour',
+        'project_admin': '2000/hour',
+    }
 }
 if not DEBUG:
     REST_FRAMEWORK_BASE['DEFAULT_THROTTLE_CLASSES'] = [
         'apps.projects.permissions.ProjectUserRateThrottle',
         'apps.projects.permissions.ProjectAnonRateThrottle',
     ]
-    REST_FRAMEWORK_BASE['DEFAULT_THROTTLE_RATES'] = {
-        'project_user': '1000/hour',
-        'project_anon': '100/hour',
-        'project_admin': '2000/hour',
-    }
 
 REST_FRAMEWORK = REST_FRAMEWORK_BASE
 

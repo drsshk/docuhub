@@ -21,7 +21,7 @@ from apps.accounts.utils import get_client_ip
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, ProjectOwnerPermission]
-    # throttle_classes = [ProjectUserRateThrottle]  # Temporarily disabled
+    throttle_classes = [ProjectUserRateThrottle]
     
     def get_queryset(self):
         # Use proper permission checking instead of is_staff
@@ -35,7 +35,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_throttles(self):
         """Use admin throttle for privileged users"""
         if IsProjectManager.has_permission(self.request.user):
-            pass  # self.throttle_classes = [ProjectAdminRateThrottle]  # Temporarily disabled
+            self.throttle_classes = [ProjectAdminRateThrottle]
         return super().get_throttles()
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -43,7 +43,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class DrawingViewSet(viewsets.ModelViewSet):
     serializer_class = DrawingSerializer
     permission_classes = [IsAuthenticated, ProjectOwnerPermission]
-    # throttle_classes = [ProjectUserRateThrottle]  # Temporarily disabled
+    throttle_classes = [ProjectUserRateThrottle]
     
     def get_queryset(self):
         # Use proper permission checking instead of is_staff
@@ -59,12 +59,12 @@ class DrawingViewSet(viewsets.ModelViewSet):
     def get_throttles(self):
         """Use admin throttle for privileged users"""
         if IsProjectManager.has_permission(self.request.user):
-            pass  # self.throttle_classes = [ProjectAdminRateThrottle]  # Temporarily disabled
+            self.throttle_classes = [ProjectAdminRateThrottle]
         return super().get_throttles()
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-# @throttle_classes([ProjectUserRateThrottle])  # Temporarily disabled
+@throttle_classes([ProjectUserRateThrottle])
 @csrf_protect
 @never_cache
 def submit_project_api(request, pk):
@@ -94,7 +94,7 @@ def submit_project_api(request, pk):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ProjectManagerPermission])
-# @throttle_classes([ProjectAdminRateThrottle])  # Temporarily disabled
+@throttle_classes([ProjectAdminRateThrottle])
 @csrf_protect
 @never_cache
 def review_project_api(request, pk):

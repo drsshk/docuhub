@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import Textarea from '@/components/ui/Textarea';
 import { useCreateProject } from '@/services/projects';
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
+import { toast } from 'react-toastify';
 
 const ProjectCreate: React.FC = () => {
   const [name, setName] = useState('');
@@ -12,9 +13,11 @@ const ProjectCreate: React.FC = () => {
   const navigate = useNavigate();
   const createProjectMutation = useCreateProject();
   const { isProjectManager, loading: authLoading } = useAuth(); // Get isProjectManager and authLoading
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreateError(null); // Clear previous error
     try {
       await createProjectMutation.mutateAsync({
         project_name: name,
@@ -22,10 +25,11 @@ const ProjectCreate: React.FC = () => {
         version: 1, // Default to 1 for new projects
         priority: 'Normal', // Default priority
       });
+      toast.success('Project created successfully!');
       navigate('/projects');
-    } catch (error) {
-      console.error('Failed to create project', error);
-      // Handle error state here
+    } catch (error: any) {
+      setCreateError(error.message || 'Unknown error');
+      toast.error(`Failed to create project: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -79,6 +83,9 @@ const ProjectCreate: React.FC = () => {
         <Button type="submit" disabled={createProjectMutation.isPending}>
           {createProjectMutation.isPending ? 'Creating...' : 'Create Project'}
         </Button>
+        {createError && (
+          <p className="mt-2 text-sm text-red-600">{createError}</p>
+        )}
       </form>
     </div>
   );

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import Textarea from '@/components/ui/Textarea';
 import { useProject, useUpdateProject } from '@/services/projects';
 import type { Project } from '@/services/projects';
+import { toast } from 'react-toastify';
 
 const ProjectEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,7 @@ const ProjectEdit: React.FC = () => {
 
   const { data: project, isLoading: isProjectLoading, isError: isProjectError, error: projectError } = useProject(id || '');
   const updateProjectMutation = useUpdateProject();
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -31,6 +33,7 @@ const ProjectEdit: React.FC = () => {
     e.preventDefault();
     if (!id) return;
 
+    setUpdateError(null); // Clear previous error
     try {
       await updateProjectMutation.mutateAsync({
         id,
@@ -41,10 +44,11 @@ const ProjectEdit: React.FC = () => {
           project_folder_link: projectFolderLink,
         },
       });
+      toast.success('Project updated successfully!');
       navigate(`/projects/${id}`);
-    } catch (error) {
-      console.error('Failed to update project', error);
-      // Handle error state here
+    } catch (error: any) {
+      setUpdateError(error.message || 'Unknown error');
+      toast.error(`Failed to update project: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -126,6 +130,9 @@ const ProjectEdit: React.FC = () => {
         <Button type="submit" disabled={updateProjectMutation.isPending}>
           {updateProjectMutation.isPending ? 'Updating...' : 'Update Project'}
         </Button>
+        {updateError && (
+          <p className="mt-2 text-sm text-red-600">{updateError}</p>
+        )}
       </form>
     </div>
   );

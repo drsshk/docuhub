@@ -22,6 +22,8 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +34,10 @@ const ProjectDetail: React.FC = () => {
   const submitProjectMutation = useSubmitProject();
   const reviewProjectMutation = useReviewProject();
   const deleteProjectMutation = useDeleteProject();
+
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'revise'>('approve');
@@ -71,15 +77,19 @@ const ProjectDetail: React.FC = () => {
 
   const handleSubmitProject = async () => {
     if (!project || !id) return;
+    setSubmitError(null); // Clear previous error
     try {
       await submitProjectMutation.mutateAsync(id);
-    } catch (err) {
-      console.error('Failed to submit project', err);
+      toast.success('Project submitted successfully!');
+    } catch (err: any) {
+      setSubmitError(err.message || 'Unknown error');
+      toast.error(`Failed to submit project: ${err.message || 'Unknown error'}`);
     }
   };
 
   const handleReviewProject = async () => {
     if (!project || !id) return;
+    setReviewError(null); // Clear previous error
     try {
       const reviewData: ReviewProjectRequest = {
         action: reviewAction,
@@ -88,19 +98,24 @@ const ProjectDetail: React.FC = () => {
       await reviewProjectMutation.mutateAsync({ id, review: reviewData });
       setShowReviewModal(false);
       setReviewComments('');
-    } catch (err) {
-      console.error('Failed to review project', err);
+      toast.success(`Project ${reviewAction}d successfully!`);
+    } catch (err: any) {
+      setReviewError(err.message || 'Unknown error');
+      toast.error(`Failed to review project: ${err.message || 'Unknown error'}`);
     }
   };
 
   const handleDeleteProject = async () => {
     if (!project || !id) return;
     if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      setDeleteError(null); // Clear previous error
       try {
         await deleteProjectMutation.mutateAsync(id);
         navigate('/projects');
-      } catch (err) {
-        console.error('Failed to delete project', err);
+        toast.success('Project deleted successfully!');
+      } catch (err: any) {
+        setDeleteError(err.message || 'Unknown error');
+        toast.error(`Failed to delete project: ${err.message || 'Unknown error'}`);
       }
     }
   };
@@ -158,6 +173,9 @@ const ProjectDetail: React.FC = () => {
               {submitProjectMutation.isPending ? 'Submitting...' : 'Submit for Approval'}
             </button>
           )}
+          {submitError && (
+            <p className="mt-2 text-sm text-red-600">{submitError}</p>
+          )}
           {canReview && (
             <button
               onClick={() => setShowReviewModal(true)}
@@ -192,6 +210,9 @@ const ProjectDetail: React.FC = () => {
             {deleteProjectMutation.isPending ? 'Deleting...' : 'Delete Project'}
             <TrashIcon className="h-4 w-4 ml-2" />
           </button>
+          {deleteError && (
+            <p className="mt-2 text-sm text-red-600">{deleteError}</p>
+          )}
         </div>
       </div>
 
@@ -417,6 +438,9 @@ const ProjectDetail: React.FC = () => {
                   {reviewProjectMutation.isPending ? 'Submitting...' : 'Submit Review'}
                 </button>
               </div>
+              {reviewError && (
+                <p className="mt-2 text-sm text-red-600 text-right">{reviewError}</p>
+              )}
             </div>
           </div>
         </div>

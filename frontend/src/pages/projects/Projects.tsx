@@ -11,6 +11,9 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ExclamationTriangleIcon,
+  QuestionMarkCircleIcon,
+  NoSymbolIcon,
+  ArchiveBoxIcon,
 } from '@heroicons/react/24/outline';
 
 const Projects: React.FC = () => {
@@ -28,6 +31,12 @@ const Projects: React.FC = () => {
         return <ClockIcon className="h-5 w-5 text-yellow-500" />;
       case 'Request_for_Revision':
         return <ExclamationTriangleIcon className="h-5 w-5 text-orange-500" />;
+      case 'Conditional_Approval':
+        return <QuestionMarkCircleIcon className="h-5 w-5 text-blue-500" />;
+      case 'Rescinded_Revoked':
+        return <NoSymbolIcon className="h-5 w-5 text-purple-500" />;
+      case 'Obsolete':
+        return <ArchiveBoxIcon className="h-5 w-5 text-gray-500" />;
       default:
         return <DocumentTextIcon className="h-5 w-5 text-gray-500" />;
     }
@@ -45,6 +54,12 @@ const Projects: React.FC = () => {
         return 'bg-orange-100 text-orange-800';
       case 'Draft':
         return 'bg-gray-100 text-gray-800';
+      case 'Conditional_Approval':
+        return 'bg-blue-100 text-blue-800';
+      case 'Rescinded_Revoked':
+        return 'bg-purple-100 text-purple-800';
+      case 'Obsolete':
+        return 'bg-gray-200 text-gray-700';
       default:
         return 'bg-gray-100 text-gray-800';
     }
