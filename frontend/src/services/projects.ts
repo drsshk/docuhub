@@ -3,19 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface Project {
   id: string;
-  project_group_id: string;
   project_name: string;
   project_description: string;
-  version: number;
   status: string;
   priority: string;
   project_folder_link: string;
-  submitted_by: {
+  deadline_date?: string;
+  submitted_by: number | {
     id: number;
     username: string;
     first_name: string;
     last_name: string;
   };
+  submitted_by_name?: string;
   reviewed_by?: {
     id: number;
     username: string;
@@ -32,6 +32,8 @@ export interface Drawing {
   id: string;
   drawing_number: string;
   drawing_title: string;
+  drawing_description?: string;
+  version: number;
   revision_number: string;
   status: string;
   drawing_type: string;
@@ -51,14 +53,15 @@ export interface Drawing {
 export interface CreateProjectRequest {
   project_name: string;
   project_description: string;
-  version: number;
   priority: string;
   project_folder_link?: string;
+  deadline_date?: string | null;
 }
 
 export interface CreateDrawingRequest {
-  drawing_number: string;
+  drawing_no: string;
   drawing_title: string;
+  drawing_description?: string;
   revision_number: string;
   drawing_type: string;
   sheet_size: string;
@@ -191,6 +194,47 @@ export const useReviewProject = () => {
       projectService.reviewProject(id, review),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['project', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useDrawings = () => {
+  return useQuery<Drawing[], Error>({
+    queryKey: ['drawings'],
+    queryFn: projectService.getDrawings,
+  });
+};
+
+export const useCreateDrawing = () => {
+  const queryClient = useQueryClient();
+  return useMutation<Drawing, Error, CreateDrawingRequest>({
+    mutationFn: (newDrawing: CreateDrawingRequest) => projectService.createDrawing(newDrawing),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drawings'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useUpdateDrawing = () => {
+  const queryClient = useQueryClient();
+  return useMutation<Drawing, Error, { id: string; drawing: Partial<CreateDrawingRequest> }>({
+    mutationFn: ({ id, drawing }: { id: string; drawing: Partial<CreateDrawingRequest> }) =>
+      projectService.updateDrawing(id, drawing),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drawings'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+};
+
+export const useDeleteDrawing = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (id: string) => projectService.deleteDrawing(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drawings'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });

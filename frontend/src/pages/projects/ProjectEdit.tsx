@@ -19,6 +19,7 @@ const ProjectEdit: React.FC = () => {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('');
   const [projectFolderLink, setProjectFolderLink] = useState('');
+  const [deadlineDate, setDeadlineDate] = useState('');
 
   useEffect(() => {
     if (project) {
@@ -26,6 +27,7 @@ const ProjectEdit: React.FC = () => {
       setDescription(project.project_description);
       setPriority(project.priority);
       setProjectFolderLink(project.project_folder_link || '');
+      setDeadlineDate(project.deadline_date ? new Date(project.deadline_date).toISOString().split('T')[0] : '');
     }
   }, [project]);
 
@@ -42,6 +44,7 @@ const ProjectEdit: React.FC = () => {
           project_description: description,
           priority,
           project_folder_link: projectFolderLink,
+          deadline_date: deadlineDate || null,
         },
       });
       toast.success('Project updated successfully!');
@@ -125,6 +128,17 @@ const ProjectEdit: React.FC = () => {
             type="url"
             value={projectFolderLink}
             onChange={(e) => setProjectFolderLink(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="deadlineDate" className="block text-sm font-medium text-gray-700">
+            Deadline Date (Optional)
+          </label>
+          <Input
+            id="deadlineDate"
+            type="date"
+            value={deadlineDate}
+            onChange={(e) => setDeadlineDate(e.target.value)}
           />
         </div>
         <Button type="submit" disabled={updateProjectMutation.isPending}>

@@ -1,7 +1,7 @@
 import bleach
 from django import forms
 from django.contrib.auth.models import User
-from .models import Project, Drawing, PROJECT_STATUS_CHOICES
+from .models import Project, Document
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -45,28 +45,38 @@ class ProjectForm(forms.ModelForm):
 
 
 
-class DrawingForm(forms.ModelForm):
+class DocumentForm(forms.ModelForm):
     class Meta:
-        model = Drawing
+        model = Document
         fields = [
-            'drawing_no', 'drawing_title', 'drawing_description'
+            'document_number', 'title', 'description', 'discipline', 'revision', 'file_path'
         ]
         widgets = {
-            'drawing_no': forms.TextInput(attrs={
+            'document_number': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'placeholder': 'e.g., A001, M001, E001',
-                'maxlength': '4'
+                'maxlength': '20'
             }),
-            'drawing_title': forms.TextInput(attrs={
+            'title': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
-                'placeholder': 'Enter drawing title'
+                'placeholder': 'Enter document title'
             }),
-            'drawing_description': forms.Textarea(attrs={
+            'description': forms.Textarea(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'rows': 3,
-                'placeholder': 'Enter drawing description (optional)'
+                'placeholder': 'Enter document description (optional)'
             }),
-            
+            'discipline': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'e.g., Architecture, Engineering, MEP'
+            }),
+            'revision': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'e.g., A, B, C or 01, 02, 03'
+            }),
+            'file_path': forms.FileInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+            })
         }
 
 class ReviewForm(forms.Form):
@@ -203,7 +213,7 @@ class HistoryFilterForm(forms.Form):
     
     # Status filter
     status = forms.ChoiceField(
-        choices=[('', 'All Statuses')] + PROJECT_STATUS_CHOICES,
+        choices=[('', 'All Statuses')] + Document.STATUS_CHOICES,
         required=False,
         widget=forms.Select(attrs={
             'class': 'px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'

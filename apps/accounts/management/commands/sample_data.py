@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from apps.projects.models import Project, Drawing
+from apps.projects.models import Project, Document, ProjectGroup
 from apps.accounts.models import UserProfile
 import random
 

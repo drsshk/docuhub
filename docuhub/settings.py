@@ -75,9 +75,10 @@ TEMPLATES = [
 ]
 
 # --- Database ---
-if config('DATABASE_URL', default=None):
+database_url = config('DATABASE_URL', default='')
+if database_url:
     DATABASES = {
-        'default': dj_database_url.parse(config('DATABASE_URL'))
+        'default': dj_database_url.parse(database_url)
     }
 else:
     DATABASES = {
@@ -114,8 +115,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     # --- Development Settings ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com']
-    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com', 'http://localhost:3000']
+    cors_origins_str = config('CORS_ALLOWED_ORIGINS', default='')
+    CORS_ALLOWED_ORIGINS = cors_origins_str.split(',') if cors_origins_str else ['http://localhost:3000']
+    if 'http://localhost:3000' not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append('http://localhost:3000')
     print(f"CORS_ALLOWED_ORIGINS (after split): {CORS_ALLOWED_ORIGINS}")
     # Use Brevo email service even in development mode
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -130,8 +134,10 @@ if DEBUG:
     REST_FRAMEWORK = {} # Reset to avoid production settings
 else:
     # --- Production Settings ---
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    allowed_hosts_str = config('ALLOWED_HOSTS', default='')
+    ALLOWED_HOSTS = allowed_hosts_str.split(',') if allowed_hosts_str else []
+    cors_origins_str = config('CORS_ALLOWED_ORIGINS', default='')
+    CORS_ALLOWED_ORIGINS = cors_origins_str.split(',') if cors_origins_str else []
     print(f"CORS_ALLOWED_ORIGINS (after split): {CORS_ALLOWED_ORIGINS}")
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
@@ -181,6 +187,12 @@ else:
 
 
 # --- Shared Settings ---
+
+# CSRF Trusted Origins for API requests
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False

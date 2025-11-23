@@ -6,8 +6,10 @@ import {
   useSubmitProject,
   useReviewProject,
   useDeleteProject,
+  useDeleteDrawing,
+  useCreateDrawing,
 } from '@/services/projects';
-import type { ReviewProjectRequest, Project } from '@/services/projects';
+import type { ReviewProjectRequest, Project, CreateDrawingRequest } from '@/services/projects';
 import {
   ArrowLeftIcon,
   PencilIcon,
@@ -21,6 +23,7 @@ import {
   XCircleIcon,
   ClockIcon,
   ExclamationTriangleIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,14 +37,40 @@ const ProjectDetail: React.FC = () => {
   const submitProjectMutation = useSubmitProject();
   const reviewProjectMutation = useReviewProject();
   const deleteProjectMutation = useDeleteProject();
+  const deleteDrawingMutation = useDeleteDrawing();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [drawingError, setDrawingError] = useState<string | null>(null);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'revise'>('approve');
   const [reviewComments, setReviewComments] = useState('');
+
+  // Drawing modal state
+  const [showDrawingModal, setShowDrawingModal] = useState(false);
+  const [drawingFormData, setDrawingFormData] = useState<CreateDrawingRequest>({
+    drawing_no: '',
+    drawing_title: '',
+    revision_number: '0',
+    drawing_type: 'Plan',
+    sheet_size: 'A1',
+    scale_ratio: '1:100',
+    sort_order: 1,
+    project: '', // Initialize as empty, will be set when project loads
+  });
+  const createDrawingMutation = useCreateDrawing();
+
+  // Update project ID in form data when project loads
+  React.useEffect(() => {
+    if (id) {
+      setDrawingFormData(prev => ({
+        ...prev,
+        project: id,
+      }));
+    }
+  }, [id]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -120,6 +149,57 @@ const ProjectDetail: React.FC = () => {
     }
   };
 
+  const handleDeleteDrawing = async (drawingId: string) => {
+    if (window.confirm('Are you sure you want to delete this drawing? This action cannot be undone.')) {
+      setDrawingError(null);
+      try {
+        await deleteDrawingMutation.mutateAsync(drawingId);
+        toast.success('Drawing deleted successfully!');
+      } catch (err: any) {
+        setDrawingError(err.message || 'Unknown error');
+        toast.error(`Failed to delete drawing: ${err.message || 'Unknown error'}`);
+      }
+    }
+  };
+
+  const handleCreateDrawing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !drawingFormData.project) {
+      setDrawingError('Project information not available. Please try again.');
+      return;
+    }
+
+    setDrawingError(null);
+    console.log('Submitting drawing data:', drawingFormData);
+    try {
+      await createDrawingMutation.mutateAsync(drawingFormData);
+      toast.success('Drawing created successfully!');
+      setShowDrawingModal(false);
+      // Reset form
+      setDrawingFormData({
+        drawing_no: '',
+        drawing_title: '',
+        revision_number: '0',
+        drawing_type: 'Plan',
+        sheet_size: 'A1',
+        scale_ratio: '1:100',
+        sort_order: 1,
+        project: id,
+      });
+    } catch (error: any) {
+      setDrawingError(error.message || 'Unknown error');
+      toast.error(`Failed to create drawing: ${error.message || 'Unknown error'}`);
+    }
+  };
+
+  const handleDrawingInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setDrawingFormData(prev => ({
+      ...prev,
+      [name]: name === 'sort_order' ? parseInt(value) || 0 : value,
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -138,8 +218,30 @@ const ProjectDetail: React.FC = () => {
 
   const currentProject: Project = project;
 
-  const canEdit = user?.id === currentProject.submitted_by.id && (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision');
-  const canSubmit = user?.id === currentProject.submitted_by.id && (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision') && currentProject.drawings.length > 0;
+  // Handle both cases: submitted_by as number or object
+  const submittedById = typeof currentProject.submitted_by === 'number' 
+    ? currentProject.submitted_by 
+    : currentProject.submitted_by?.id;
+    
+  const canEdit = user && 
+    (user.id === submittedById) && 
+    (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision');
+  const canSubmit = user && 
+    (user.id === submittedById) && 
+    (currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision') && 
+    currentProject.drawings.length > 0;
+
+  // Debug logging
+  console.log('Debug Info:', {
+    user: user,
+    userId: user?.id,
+    submittedBy: currentProject.submitted_by,
+    submittedById,
+    projectStatus: currentProject.status,
+    userMatch: user?.id === submittedById,
+    statusMatch: currentProject.status === 'Draft' || currentProject.status === 'Request_for_Revision',
+    canEdit
+  });
   const canReview = isProjectManager && currentProject.status === 'Pending_Approval';
   const canCreateNewVersion = currentProject.status === 'Approved_Endorsed' || currentProject.status === 'Conditional_Approval' || currentProject.status === 'Request_for_Revision';
 
@@ -213,6 +315,9 @@ const ProjectDetail: React.FC = () => {
           {deleteError && (
             <p className="mt-2 text-sm text-red-600">{deleteError}</p>
           )}
+          {drawingError && (
+            <p className="mt-2 text-sm text-red-600">{drawingError}</p>
+          )}
         </div>
       </div>
 
@@ -227,7 +332,7 @@ const ProjectDetail: React.FC = () => {
               </span>
             </div>
             <div className="text-sm text-gray-500">
-              Created {new Date(currentProject.date_created).toLocaleDateString()}
+              Created {currentProject.date_created ? new Date(currentProject.date_created).toLocaleDateString() : 'Unknown'}
             </div>
           </div>
           <h3 className="mt-2 text-lg leading-6 font-medium text-gray-900">
@@ -253,7 +358,12 @@ const ProjectDetail: React.FC = () => {
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 <div className="flex items-center">
                   <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
-                  {currentProject.submitted_by.first_name} {currentProject.submitted_by.last_name} (@{currentProject.submitted_by.username})
+                  {currentProject.submitted_by_name || 
+                    (typeof currentProject.submitted_by === 'object' 
+                      ? `${currentProject.submitted_by.first_name} ${currentProject.submitted_by.last_name} (@${currentProject.submitted_by.username})`
+                      : `User ID: ${currentProject.submitted_by}`
+                    )
+                  }
                 </div>
               </dd>
             </div>
@@ -307,7 +417,10 @@ const ProjectDetail: React.FC = () => {
               Drawings ({currentProject.drawings.length})
             </h3>
             {canEdit && (
-              <button className="bg-transparent border border-coastal text-coastal hover:bg-coastal hover:text-white px-6 py-3 rounded-lg font-medium">
+              <button
+                onClick={() => setShowDrawingModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
                 <PlusIcon className="h-4 w-4 mr-2" />
                 Add Drawing
               </button>
@@ -327,18 +440,18 @@ const ProjectDetail: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Drawing Number
+                      </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Drawing Number
-                    </th>
+                        Title
+                      </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Title
-                    </th>
+                        Version
+                      </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Revision
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
+                        Type
+                      </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
@@ -359,7 +472,7 @@ const ProjectDetail: React.FC = () => {
                         {drawing.drawing_title}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {drawing.revision_number}
+                        V{drawing.version:03d}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {drawing.drawing_type}
@@ -371,10 +484,17 @@ const ProjectDetail: React.FC = () => {
                       </td>
                       {canEdit && (
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button className="text-atlantic hover:text-ocean-deep px-3 py-2 font-medium mr-2">
+                          <Link
+                            to={`/projects/${currentProject.id}/drawings/${drawing.id}/edit`}
+                            className="text-primary-600 hover:text-primary-900 px-3 py-2 font-medium mr-2"
+                          >
                             <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteDrawing(drawing.id)}
+                            className="text-red-600 hover:text-red-900"
+                            disabled={deleteDrawingMutation.isPending}
+                          >
                             <TrashIcon className="h-4 w-4" />
                           </button>
                         </td>
@@ -444,9 +564,121 @@ const ProjectDetail: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
-};
+       )}
 
-export default ProjectDetail;
+      {/* Drawing Creation Modal */}
+      {showDrawingModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white max-w-2xl">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Add New Drawing</h3>
+                <button
+                  onClick={() => setShowDrawingModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleCreateDrawing} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="drawing_no" className="block text-sm font-medium text-gray-700">
+                      Drawing Number *
+                    </label>
+                    <input
+                      id="drawing_no"
+                      name="drawing_no"
+                      type="text"
+                      value={drawingFormData.drawing_no}
+                      onChange={handleDrawingInputChange}
+                      required
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      placeholder="e.g., A-101"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="drawing_title" className="block text-sm font-medium text-gray-700">
+                      Drawing Title *
+                    </label>
+                    <input
+                      id="drawing_title"
+                      name="drawing_title"
+                      type="text"
+                      value={drawingFormData.drawing_title}
+                      onChange={handleDrawingInputChange}
+                      required
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      placeholder="e.g., Ground Floor Plan"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <div>
+                    <label htmlFor="drawing_type" className="block text-sm font-medium text-gray-700">
+                      Drawing Type
+                    </label>
+                    <select
+                      id="drawing_type"
+                      name="drawing_type"
+                      value={drawingFormData.drawing_type}
+                      onChange={handleDrawingInputChange}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    >
+                      <option value="Plan">Plan</option>
+                      <option value="Elevation">Elevation</option>
+                      <option value="Section">Section</option>
+                      <option value="Detail">Detail</option>
+                      <option value="Schedule">Schedule</option>
+                      <option value="Specification">Specification</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="drawing_description" className="block text-sm font-medium text-gray-700">
+                    Drawing Description
+                  </label>
+                  <textarea
+                    id="drawing_description"
+                    name="drawing_description"
+                    value={drawingFormData.drawing_description || ''}
+                    onChange={handleDrawingInputChange}
+                    rows={3}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    placeholder="Optional description of drawing..."
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowDrawingModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createDrawingMutation.isPending}
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                  >
+                    {createDrawingMutation.isPending ? 'Creating...' : 'Create Drawing'}
+                  </button>
+                </div>
+
+                {drawingError && (
+                  <p className="mt-2 text-sm text-red-600">{drawingError}</p>
+                )}
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+     </div>
+   );
+ };
+
+ export default ProjectDetail;

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.conf import settings
 from django.http import JsonResponse
-from apps.projects.models import Project, Drawing
+from apps.projects.models import Project, Document
 from .models import Version, VersionImprovement
 from .forms import VersionForm, VersionImprovementFormSet
 import os
@@ -21,22 +21,22 @@ def dashboard(request):
     is_admin = IsProjectManager.has_permission(request.user)
     
     # Fetch stats for the current user
-    user_projects = Project.objects.filter(submitted_by=request.user)
-    user_drawings = Drawing.objects.filter(project__submitted_by=request.user)
+    user_projects = Project.objects.filter(created_by=request.user)
+    user_documents = Document.objects.filter(project__created_by=request.user)
     stats = {
         'total_projects': user_projects.values('project_group_id').distinct().count(),
-        'draft_projects': user_projects.filter(status='Draft').count(),
-        'pending_projects': user_projects.filter(status='Pending_Approval').count(),
-        'approved_projects': user_projects.filter(status='Approved').count(),
-        'total_drawings': user_drawings.count(),
+        'draft_documents': user_documents.filter(status='Draft').count(),
+        'pending_documents': user_documents.filter(status='Pending_Review').count(),
+        'approved_documents': user_documents.filter(status='Approved').count(),
+        'total_documents': user_documents.count(),
     }
 
     # Fetch recent projects for the user
-    # Fetch all projects for the user, ordered by project_group_id and then by version (descending)
+    # Fetch all projects for the user, ordered by project_group and then by version_number (descending)
     # This allows easy grouping and selection of the latest version in Python
-    all_user_projects = user_projects.order_by('project_group_id', '-version')
+    all_user_projects = user_projects.order_by('project_group', '-version_number')
 
-    # Manually filter to get only the latest version for each project_group_id
+    # Manually filter to get only the latest version for each project_group
     seen_project_groups = set()
     recent_projects = []
     for project in all_user_projects:
@@ -51,7 +51,7 @@ def dashboard(request):
     admin_stats = {}
     if is_admin:
         admin_stats = {
-            'pending_approvals': Project.objects.filter(status='Pending_Approval').count(),
+            'pending_approvals': Document.objects.filter(status='Pending_Review').count(),
             'total_projects': Project.objects.count(),
             'total_users': User.objects.count(),
         }

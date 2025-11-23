@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils import timezone
 from typing import Dict, List, Optional
-from .models import EmailLog
+from apps.accounts.models import EmailLog
 
 class BrevoEmailService:
     def __init__(self):

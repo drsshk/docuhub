@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   HomeIcon,
@@ -11,6 +11,8 @@ import {
   UserIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -19,69 +21,19 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
   const { isProjectManager } = useAuth();
-  const [isCompact, setIsCompact] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(true);
+  const [isCompact, setIsCompact] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
 
-  // Force mobile sidebar positioning on mount and updates
-  React.useEffect(() => {
-    if (isMobile && typeof document !== 'undefined') {
-      const enforceMobileNavPosition = () => {
-        // Find any existing mobile navigation elements and ensure correct positioning
-        const mobileNavs = document.querySelectorAll('[data-mobile-nav="true"]');
-        mobileNavs.forEach((nav) => {
-          const element = nav as HTMLElement;
-          
-          // Nuclear positioning enforcement
-          element.style.setProperty('position', 'fixed', 'important');
-          element.style.setProperty('bottom', '0px', 'important');
-          element.style.setProperty('left', '0px', 'important');
-          element.style.setProperty('right', '0px', 'important');
-          element.style.setProperty('top', 'auto', 'important');
-          element.style.setProperty('z-index', '2147483646', 'important'); // Just below navbar
-          element.style.setProperty('transform', 'translateZ(0)', 'important');
-          element.style.setProperty('width', '100vw', 'important');
-          element.style.setProperty('max-width', '100vw', 'important');
-          element.style.setProperty('min-width', '100vw', 'important');
-          element.style.setProperty('margin', '0px', 'important');
-          element.style.setProperty('padding', '0px', 'important');
-          element.style.setProperty('inset', 'auto 0px 0px 0px', 'important');
-          element.style.setProperty('contain', 'none', 'important');
-          element.style.setProperty('isolation', 'auto', 'important');
-          element.style.setProperty('display', 'block', 'important');
-          element.style.setProperty('visibility', 'visible', 'important');
-          
-          // Force override any potential interfering styles from other components
-          element.classList.remove('relative', 'absolute', 'sticky');
-          element.classList.add('mobile-nav-fixed');
-        });
-      };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
 
-      // Enforce positioning immediately
-      enforceMobileNavPosition();
-
-      // Enforce positioning on scroll to prevent any movement
-      const handleScroll = () => {
-        enforceMobileNavPosition();
-      };
-
-      // Enforce positioning on resize
-      const handleResize = () => {
-        enforceMobileNavPosition();
-      };
-
-      // Add event listeners
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', handleResize, { passive: true });
-      document.addEventListener('touchmove', handleScroll, { passive: true });
-
-      // Cleanup
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
-        document.removeEventListener('touchmove', handleScroll);
-      };
-    }
-  }, [isMobile]);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navigation = [
     {
@@ -89,24 +41,35 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
       href: '/dashboard',
       icon: HomeIcon,
       shortName: 'Home',
+      description: 'Overview and analytics',
     },
     {
       name: 'Projects',
       href: '/projects', 
       icon: FolderIcon,
       shortName: 'Projects',
+      description: 'Manage your projects',
+    },
+    {
+      name: 'Documents',
+      href: '/documents',
+      icon: DocumentTextIcon,
+      shortName: 'Docs',
+      description: 'Document library',
     },
     {
       name: 'Notifications',
       href: '/notifications',
       icon: BellIcon,
       shortName: 'Alerts',
+      description: 'Updates and alerts',
     },
     {
       name: 'Profile',
       href: '/profile',
       icon: UserIcon,
       shortName: 'Profile',
+      description: 'Account settings',
     },
     {
       name: 'User Management',
@@ -114,6 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
       icon: UsersIcon,
       shortName: 'Users',
       adminOnly: true,
+      description: 'Manage users',
     },
     {
       name: 'Reports',
@@ -121,6 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
       icon: ChartBarIcon,
       shortName: 'Reports',
       adminOnly: true,
+      description: 'Analytics and reports',
     },
   ];
 
@@ -138,73 +103,54 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
 
   const sidebarWidth = isCompact ? 'w-16 lg:w-20' : 'w-64 lg:w-72';
 
-  // Mobile Bottom Navigation - Use React Portal for true isolation
+  // Mobile Bottom Navigation
   if (isMobile) {
     const mobileNav = (
-      <div 
-        data-mobile-nav="true"
-        className="mobile-nav-fixed bg-white/95 backdrop-blur-md border-t border-mist/30 shadow-lg" 
-        style={{ 
-          position: 'fixed',
-          bottom: '0px !important',
-          left: '0px !important',
-          right: '0px !important',
-          top: 'auto !important',
-          width: '100vw !important',
-          maxWidth: '100vw !important',
-          minWidth: '100vw !important',
-          height: 'auto !important',
-          zIndex: 2147483646,
-          transform: 'none !important',
-          translate: 'none !important',
-          margin: '0px !important',
-          padding: '0px !important',
-          boxSizing: 'border-box',
-          inset: 'auto 0px 0px 0px !important',
-          display: 'block !important',
-          visibility: 'visible',
-          opacity: '1 !important',
-          pointerEvents: 'auto',
-          overflow: 'visible !important',
-          WebkitTransform: 'none !important',
-          MozTransform: 'none !important',
-          msTransform: 'none !important',
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
-          willChange: 'auto !important',
-          contain: 'none !important',
-          isolation: 'auto'
-        }}
-      >
+      <div className={`fixed bottom-0 left-0 right-0 z-40 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-md shadow-lg border-t border-mist/30' 
+          : 'bg-white/90 backdrop-blur-sm border-t border-mist/20'
+      }`}>
         <div 
           className="flex items-center justify-around px-2 py-2" 
           style={{ 
-            paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
-            boxSizing: 'border-box'
+            paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
           }}
         >
-          {filteredNavigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              onClick={handleNavClick}
-              className={({ isActive }) =>
-                `group flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-200 ease-out min-w-[60px] ${
-                  isActive
-                    ? 'text-atlantic bg-gradient-to-br from-atlantic/10 to-coastal/10 shadow-sm scale-105'
-                    : 'text-neutral hover:text-ocean-deep hover:bg-mist/30 hover:scale-105'
-                } font-medium`
-              }
-            >
-              <item.icon className="h-5 w-5 mb-1 transition-all duration-200 group-hover:scale-110" />
-              <span className="text-xs transition-colors duration-200 leading-tight">{item.shortName}</span>
-            </NavLink>
-          ))}
+          {filteredNavigation.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                onClick={handleNavClick}
+                className={({ isActive: linkActive }) =>
+                  `group flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all duration-300 ease-out min-w-[65px] relative ${
+                    linkActive
+                      ? 'text-atlantic bg-gradient-to-br from-atlantic/15 to-coastal/15 shadow-md scale-105 border border-atlantic/20'
+                      : 'text-neutral hover:text-ocean-deep hover:bg-mist/30 hover:scale-105'
+                  } font-medium`
+                }
+              >
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-atlantic rounded-full animate-pulse" />
+                )}
+                
+                <item.icon className="h-5 w-5 mb-1.5 transition-all duration-300 group-hover:scale-110" />
+                <span className="text-xs transition-colors duration-300 leading-tight font-medium">{item.shortName}</span>
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full mb-2 px-2 py-1 bg-ocean-deep/90 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                  {item.description || item.name}
+                </div>
+              </NavLink>
+            );
+          })}
         </div>
       </div>
     );
 
-    // Render directly to document.body to avoid any CSS inheritance issues
     if (typeof document !== 'undefined') {
       return createPortal(mobileNav, document.body);
     }
@@ -220,7 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile = false }) => {
         bg-white/95 backdrop-blur-md min-h-screen shadow-xl border-r border-mist/20 z-50 relative
         ${sidebarWidth}
         transform transition-all duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}
+        translate-x-0 opacity-100
       `}>
         {/* Floating Compact Toggle - Desktop Only */}
         <button

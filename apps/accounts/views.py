@@ -347,7 +347,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-from .models import Role
+# from .models import Role  # Role model removed in ERD restructure
 from .serializers import UserProfileSerializer, ChangePasswordSerializer
 from django.contrib.auth import update_session_auth_hash
 

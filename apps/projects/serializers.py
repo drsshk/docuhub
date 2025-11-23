@@ -1,46 +1,106 @@
 from rest_framework import serializers
-from .models import Project, Drawing, ApprovalHistory
+from .models import Project, Document, ProjectGroup, ApprovalHistory, ProjectHistory
 
-class DrawingSerializer(serializers.ModelSerializer):
-    added_by_name = serializers.CharField(source='added_by.get_full_name', read_only=True)
+class ProjectGroupSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
+    latest_project = serializers.SerializerMethodField()
     
     class Meta:
-        model = Drawing
+        model = ProjectGroup
         fields = [
-            'id', 'drawing_no', 'drawing_title', 'drawing_description',
-             'status',
-            'date_added', 'added_by', 'added_by_name'
+            'id', 'code', 'name', 'client_name',
+            'created_by', 'created_by_name', 'created_at', 'updated_at',
+            'latest_project'
         ]
-        read_only_fields = ['id', 'date_added', 'added_by', 'added_by_name']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'created_by', 'created_by_name', 'latest_project']
+    
+    def get_latest_project(self, obj):
+        latest = obj.get_latest_project()
+        if latest:
+            return {
+                'id': latest.id,
+                'version_number': latest.version_number,
+                'version_display': latest.version_display,
+                'created_at': latest.created_at
+            }
+        return None
+
+class DocumentSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
+    updated_by_name = serializers.CharField(source='updated_by.get_full_name', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    
+    class Meta:
+        model = Document
+        fields = [
+            'id', 'project', 'project_name', 'document_number', 'title', 'description', 
+            'discipline', 'revision', 'file_path', 'status',
+            'created_at', 'updated_at', 'created_by', 'created_by_name',
+            'updated_by', 'updated_by_name'
+        ]
+        read_only_fields = [
+            'id', 'created_at', 'updated_at', 'created_by', 'created_by_name', 
+            'updated_by', 'updated_by_name', 'project_name'
+        ]
 
 class ApprovalHistorySerializer(serializers.ModelSerializer):
     performed_by_name = serializers.CharField(source='performed_by.get_full_name', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    document_number = serializers.CharField(source='document.document_number', read_only=True)
     
     class Meta:
         model = ApprovalHistory
         fields = [
-            'id', 'action', 'performed_by', 'performed_by_name', 'performed_at',
-            'comments', 'previous_status', 'new_status', 'version'
+            'id', 'project', 'project_name', 'document', 'document_number',
+            'action', 'from_status', 'to_status', 
+            'performed_by', 'performed_by_name', 'performed_at',
+            'comment', 'ip_address', 'user_agent'
+        ]
+        read_only_fields = [
+            'id', 'performed_at', 'performed_by', 'performed_by_name',
+            'project_name', 'document_number'
+        ]
+
+class ProjectHistorySerializer(serializers.ModelSerializer):
+    performed_by_name = serializers.CharField(source='performed_by.get_full_name', read_only=True)
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+    document_number = serializers.CharField(source='document.document_number', read_only=True)
+    
+    class Meta:
+        model = ProjectHistory
+        fields = [
+            'id', 'project', 'project_name', 'document', 'document_number',
+            'event_type', 'payload', 'performed_by', 'performed_by_name', 'performed_at'
+        ]
+        read_only_fields = [
+            'id', 'performed_at', 'performed_by', 'performed_by_name',
+            'project_name', 'document_number'
         ]
 
 class ProjectSerializer(serializers.ModelSerializer):
-    submitted_by_name = serializers.CharField(source='submitted_by.get_full_name', read_only=True)
-    reviewed_by_name = serializers.CharField(source='reviewed_by.get_full_name', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
     version_display = serializers.CharField(read_only=True)
-    drawings = DrawingSerializer(many=True, read_only=True)
+    documents = DocumentSerializer(many=True, read_only=True)
     approval_history = ApprovalHistorySerializer(many=True, read_only=True)
+    project_group_name = serializers.CharField(source='project_group.name', read_only=True)
+    project_group_code = serializers.CharField(source='project_group.code', read_only=True)
+    document_count = serializers.SerializerMethodField()
     
     class Meta:
         model = Project
         fields = [
-            'id', 'project_name', 'project_description', 'version', 'version_display',
-            'submitted_by', 'submitted_by_name', 'reviewed_by', 'reviewed_by_name',
-            'date_created', 'date_submitted', 'date_reviewed', 'no_of_drawings',
-            'status', 'review_comments', 'revision_notes',
-            'project_priority', 'deadline_date', 'drawings', 'approval_history', 'project_folder_link'
+            'id', 'project_group', 'project_group_name', 'project_group_code',
+            'project_name', 'client_name', 'project_description', 
+            'version_number', 'version_display', 'is_latest',
+            'created_by', 'created_by_name', 'created_at', 'updated_at',
+            'reference_no', 'notes', 'project_priority', 'deadline_date', 
+            'project_folder_link', 'documents', 'approval_history', 'document_count'
         ]
         read_only_fields = [
-            'id', 'version', 'version_display', 'submitted_by', 'submitted_by_name',
-            'reviewed_by', 'reviewed_by_name', 'date_created', 'date_submitted',
-            'date_reviewed', 'no_of_drawings', 'drawings', 'approval_history'
+            'id', 'version_display', 'created_by', 'created_by_name', 'created_at', 'updated_at',
+            'documents', 'approval_history', 'project_group_name', 'project_group_code',
+            'document_count'
         ]
+    
+    def get_document_count(self, obj):
+        return obj.documents.count()

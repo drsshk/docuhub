@@ -12,8 +12,8 @@ from django.db.models import Q, Count, Max
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Project, Drawing, ApprovalHistory, ProjectHistory, PROJECT_STATUS_CHOICES
-from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
+from .models import Project, Document, ProjectGroup, ApprovalHistory, ProjectHistory
+from .forms import ProjectForm, DocumentForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
 from .permissions import IsProjectManager, CanEditProject
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
@@ -43,8 +43,8 @@ from django.db.models import Q, Count, Max
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Project, Drawing, ApprovalHistory, ProjectHistory, PROJECT_STATUS_CHOICES
-from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
+from .models import Project, Document, ProjectGroup, ApprovalHistory, ProjectHistory
+from .forms import ProjectForm, DocumentForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
 from .permissions import IsProjectManager, CanEditProject
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
@@ -74,8 +74,8 @@ from django.db.models import Q, Count, Max
 from django.core.paginator import Paginator
 from django.db import transaction
 
-from .models import Project, Drawing, ApprovalHistory, ProjectHistory, PROJECT_STATUS_CHOICES
-from .forms import ProjectForm, DrawingForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
+from .models import Project, Document, ProjectGroup, ApprovalHistory, ProjectHistory
+from .forms import ProjectForm, DocumentForm, ReviewForm, BulkActionForm, ProjectRestoreForm, HistoryFilterForm
 from .permissions import IsProjectManager, CanEditProject
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
@@ -982,7 +982,7 @@ def update_drawing_status(request, pk):
     
     if request.method == 'POST':
         new_status = request.POST.get('drawing_status_' + str(pk))
-        if new_status and new_status in [choice[0] for choice in PROJECT_STATUS_CHOICES]:
+        if new_status and new_status in [choice[0] for choice in Document.STATUS_CHOICES]:
             drawing.status = new_status
             drawing.save()
             
@@ -1924,7 +1924,7 @@ def update_drawing_status(request, pk):
     
     if request.method == 'POST':
         new_status = request.POST.get('drawing_status_' + str(pk))
-        if new_status and new_status in [choice[0] for choice in PROJECT_STATUS_CHOICES]:
+        if new_status and new_status in [choice[0] for choice in Document.STATUS_CHOICES]:
             drawing.status = new_status
             drawing.save()
             
@@ -2942,7 +2942,7 @@ def update_drawing_status(request, pk):
     
     if request.method == 'POST':
         new_status = request.POST.get('drawing_status_' + str(pk))
-        if new_status and new_status in [choice[0] for choice in PROJECT_STATUS_CHOICES]:
+        if new_status and new_status in [choice[0] for choice in Document.STATUS_CHOICES]:
             drawing.status = new_status
             drawing.save()
             

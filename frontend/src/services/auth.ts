@@ -23,7 +23,7 @@ export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/').replace(/\/?$/, '/');
     console.log('Requesting URL:', api.defaults.baseURL);
-    const response = await api.post('accounts/api/login/', credentials);
+    const response = await api.post('/accounts/api/login/', credentials);
     const { token, user } = response.data;
     
     localStorage.setItem('auth_token', token);
@@ -44,7 +44,7 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get('accounts/api/user/');
+    const response = await api.get('/accounts/api/user/');
     return response.data;
   },
 
@@ -53,12 +53,12 @@ export const authService = {
     new_password: string;
     confirm_password: string;
   }): Promise<{ message: string }> {
-    const response = await api.post('accounts/api/change-password/', passwordData);
+    const response = await api.post('/accounts/api/change-password/', passwordData);
     return response.data;
   },
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
-    const response = await api.post('accounts/api/password-reset-request/', { email });
+    const response = await api.post('/accounts/api/password-reset-request/', { email });
     return response.data;
   },
 

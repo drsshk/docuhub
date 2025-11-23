@@ -12,6 +12,8 @@ import ProjectEdit from './pages/projects/ProjectEdit';
 import ProjectSubmit from './pages/projects/ProjectSubmit';
 import ProjectReview from './pages/projects/ProjectReview';
 import NewVersion from './pages/projects/NewVersion';
+import DrawingCreate from './pages/projects/DrawingCreate';
+import DrawingEdit from './pages/projects/DrawingEdit';
 import AdminUsers from './pages/AdminUsers';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
@@ -46,6 +48,8 @@ function App() {
               <Route path="projects/:id/submit" element={<ProjectSubmit />} />
               <Route path="projects/:id/review" element={<ProjectReview />} />
               <Route path="projects/:id/new-version" element={<NewVersion />} />
+              <Route path="projects/:id/drawings/new" element={<DrawingCreate />} />
+              <Route path="projects/:id/drawings/:drawingId/edit" element={<DrawingEdit />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="profile" element={<Profile />} />
               <Route path="admin/users" element={<AdminUsers />} />

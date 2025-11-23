@@ -10,6 +10,8 @@ import { toast } from 'react-toastify';
 const ProjectCreate: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('Normal');
+  const [deadlineDate, setDeadlineDate] = useState('');
   const navigate = useNavigate();
   const createProjectMutation = useCreateProject();
   const { isProjectManager, loading: authLoading } = useAuth(); // Get isProjectManager and authLoading
@@ -22,8 +24,8 @@ const ProjectCreate: React.FC = () => {
       await createProjectMutation.mutateAsync({
         project_name: name,
         project_description: description,
-        version: 1, // Default to 1 for new projects
-        priority: 'Normal', // Default priority
+        priority,
+        deadline_date: deadlineDate || null,
       });
       toast.success('Project created successfully!');
       navigate('/projects');
@@ -78,6 +80,34 @@ const ProjectCreate: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
             required
+          />
+        </div>
+        <div>
+          <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
+            Priority
+          </label>
+          <select
+            id="priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+            required
+          >
+            <option value="Low">Low</option>
+            <option value="Normal">Normal</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="deadlineDate" className="block text-sm font-medium text-gray-700">
+            Deadline Date (Optional)
+          </label>
+          <Input
+            id="deadlineDate"
+            type="date"
+            value={deadlineDate}
+            onChange={(e) => setDeadlineDate(e.target.value)}
           />
         </div>
         <Button type="submit" disabled={createProjectMutation.isPending}>

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
-from .models import Project, Drawing
+from .models import Project, Document
 
 
 class ProjectUserRateThrottle(UserRateThrottle):

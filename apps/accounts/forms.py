@@ -1,3 +1,4 @@
+import logging
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import (
@@ -5,7 +6,10 @@ from django.contrib.auth.forms import (
     PasswordChangeForm as DjangoPasswordChangeForm,
 )
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Role
+from django.db import IntegrityError, DatabaseError
+from .models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 # --- Helper function for styling ---
 
@@ -35,8 +39,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = [
-            'department', 'job_title', 'phone_number', 
-            'bio', 'location', 'email_notifications'
+            'department', 'phone_number'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -57,16 +60,27 @@ class UserProfileForm(forms.ModelForm):
         return email
 
     def save(self, commit=True):
-        profile = super().save(commit=False)
-        if self.user:
-            self.user.first_name = self.cleaned_data['first_name']
-            self.user.last_name = self.cleaned_data['last_name']
-            self.user.email = self.cleaned_data['email']
+        """Save user profile with error handling"""
+        try:
+            profile = super().save(commit=False)
+            if self.user:
+                self.user.first_name = self.cleaned_data['first_name']
+                self.user.last_name = self.cleaned_data['last_name']
+                self.user.email = self.cleaned_data['email']
+                if commit:
+                    self.user.save()
             if commit:
-                self.user.save()
-        if commit:
-            profile.save()
-        return profile
+                profile.save()
+            return profile
+        except IntegrityError as e:
+            logger.error(f"IntegrityError saving user profile: {e}")
+            raise ValidationError("There was an error saving your profile. Please check your information and try again.")
+        except DatabaseError as e:
+            logger.error(f"DatabaseError saving user profile: {e}")
+            raise ValidationError("Database error occurred. Please try again later.")
+        except Exception as e:
+            logger.error(f"Unexpected error saving user profile: {e}")
+            raise ValidationError("An unexpected error occurred. Please try again.")
 
 
 class UserPasswordChangeForm(DjangoPasswordChangeForm):
@@ -99,7 +113,7 @@ class PasswordResetRequestForm(forms.Form):
 
 class AdminUserCreationForm(forms.ModelForm):
     """A form for admins to create new users and assign roles."""
-    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=True, empty_label="-- Select a Role --")
+    role = forms.ModelChoiceField(queryset=None, required=True)
     
     class Meta:
         model = User
@@ -107,32 +121,44 @@ class AdminUserCreationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from .models import Role
+        self.fields['role'].queryset = Role.objects.all()
         add_tailwind_classes(self.fields)
         self.order_fields(('username', 'first_name', 'last_name', 'email', 'role'))
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_unusable_password()
-        
-        role_obj = self.cleaned_data.get('role')
-        if role_obj and role_obj.name.lower() in ['admin', 'approver']:
-            user.is_staff = True
-            if role_obj.name.lower() == 'admin':
-                user.is_superuser = True
-        
-        if commit:
-            user.save()
-            profile, _ = UserProfile.objects.get_or_create(user=user)
-            profile.role = role_obj
-            profile.save()
-        return user
+        """Save admin user creation with error handling"""
+        try:
+            user = super().save(commit=False)
+            user.set_unusable_password()
+            
+            role = self.cleaned_data.get('role')
+            if role and role.name in ['Admin', 'Approver']:
+                user.is_staff = True
+                if role.name == 'Admin':
+                    user.is_superuser = True
+            
+            if commit:
+                user.save()
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.role = role
+                profile.save()
+            return user
+        except IntegrityError as e:
+            logger.error(f"IntegrityError creating admin user: {e}")
+            raise ValidationError("There was an error creating the user. Please check that the username and email are unique.")
+        except DatabaseError as e:
+            logger.error(f"DatabaseError creating admin user: {e}")
+            raise ValidationError("Database error occurred. Please try again later.")
+        except Exception as e:
+            logger.error(f"Unexpected error creating admin user: {e}")
+            raise ValidationError("An unexpected error occurred. Please try again.")
 
 
 class AdminUserUpdateForm(forms.ModelForm):
     """Form for an admin to update a user's details and profile."""
-    department = forms.ChoiceField(choices=UserProfile.DEPARTMENT_CHOICES, required=False)
-    job_title = forms.ChoiceField(choices=UserProfile.JOB_TITLE_CHOICES, required=False)
-    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=True, empty_label="-- Select a Role --")
+    department = forms.CharField(max_length=100, required=False)
+    role = forms.ModelChoiceField(queryset=None, required=True)
 
     class Meta:
         model = User
@@ -140,23 +166,35 @@ class AdminUserUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from .models import Role
+        self.fields['role'].queryset = Role.objects.all()
+        
         if hasattr(self.instance, 'profile'):
             profile = self.instance.profile
             self.fields['department'].initial = profile.department
-            self.fields['job_title'].initial = profile.job_title
             self.fields['role'].initial = profile.role
         add_tailwind_classes(self.fields)
-        self.order_fields(('username', 'first_name', 'last_name', 'email', 'role', 'department', 'job_title', 'is_staff', 'is_active'))
+        self.order_fields(('username', 'first_name', 'last_name', 'email', 'role', 'department', 'is_staff', 'is_active'))
 
     def save(self, commit=True):
-        user = super().save(commit)
-        if commit and hasattr(user, 'profile'):
-            profile = user.profile
-            profile.department = self.cleaned_data.get('department')
-            profile.job_title = self.cleaned_data.get('job_title')
-            profile.role = self.cleaned_data.get('role')
-            profile.save()
-        return user
+        """Save admin user update with error handling"""
+        try:
+            user = super().save(commit)
+            if commit and hasattr(user, 'profile'):
+                profile = user.profile
+                profile.department = self.cleaned_data.get('department')
+                profile.role = self.cleaned_data.get('role')
+                profile.save()
+            return user
+        except IntegrityError as e:
+            logger.error(f"IntegrityError updating admin user: {e}")
+            raise ValidationError("There was an error updating the user. Please check that the email is unique.")
+        except DatabaseError as e:
+            logger.error(f"DatabaseError updating admin user: {e}")
+            raise ValidationError("Database error occurred. Please try again later.")
+        except Exception as e:
+            logger.error(f"Unexpected error updating admin user: {e}")
+            raise ValidationError("An unexpected error occurred. Please try again.")
 
 
 class UserSearchForm(forms.Form):
@@ -166,7 +204,7 @@ class UserSearchForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Search by name, email, etc...'})
     )
     role = forms.ModelChoiceField(
-        queryset=Role.objects.all(),
+        queryset=None,
         required=False,
         empty_label="All Roles"
     )
@@ -177,4 +215,6 @@ class UserSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from .models import Role
+        self.fields['role'].queryset = Role.objects.all()
         add_tailwind_classes(self.fields)

@@ -4,11 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from .models import Project, Drawing
-from .serializers import ProjectSerializer, DrawingSerializer
+from .models import Project, Document
+from .serializers import ProjectSerializer, DocumentSerializer
 from .permissions import (
     CanEditProject, ProjectManagerPermission, ProjectOwnerPermission,
     ProjectUserRateThrottle, ProjectAdminRateThrottle, IsProjectManager
@@ -16,7 +16,7 @@ from .permissions import (
 from .services import ProjectSubmissionService
 from apps.accounts.utils import get_client_ip
 
-@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(never_cache, name='dispatch')
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
@@ -26,11 +26,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Use proper permission checking instead of is_staff
         if IsProjectManager.has_permission(self.request.user):
-            return Project.objects.all().select_related('submitted_by', 'reviewed_by')
-        return Project.objects.filter(submitted_by=self.request.user).select_related('submitted_by', 'reviewed_by')
+            return Project.objects.all().select_related('created_by', 'reviewed_by')
+        return Project.objects.filter(created_by=self.request.user).select_related('created_by', 'reviewed_by')
     
     def perform_create(self, serializer):
-        serializer.save(submitted_by=self.request.user)
+        # Set version to 1 for new projects
+        serializer.save(created_by=self.request.user, version=1)
     
     def get_throttles(self):
         """Use admin throttle for privileged users"""
@@ -38,23 +39,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
             self.throttle_classes = [ProjectAdminRateThrottle]
         return super().get_throttles()
 
-@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(never_cache, name='dispatch')
-class DrawingViewSet(viewsets.ModelViewSet):
-    serializer_class = DrawingSerializer
+class DocumentViewSet(viewsets.ModelViewSet):
+    serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated, ProjectOwnerPermission]
     throttle_classes = [ProjectUserRateThrottle]
     
     def get_queryset(self):
         # Use proper permission checking instead of is_staff
         if IsProjectManager.has_permission(self.request.user):
-            return Drawing.objects.all().select_related('project', 'added_by')
-        return Drawing.objects.filter(
-            project__submitted_by=self.request.user
-        ).select_related('project', 'added_by')
+            return Document.objects.all().select_related('project', 'created_by')
+        return Document.objects.filter(
+            project__created_by=self.request.user
+        ).select_related('project', 'created_by')
     
     def perform_create(self, serializer):
-        serializer.save(added_by=self.request.user)
+        serializer.save(created_by=self.request.user)
     
     def get_throttles(self):
         """Use admin throttle for privileged users"""
@@ -65,13 +66,13 @@ class DrawingViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @throttle_classes([ProjectUserRateThrottle])
-@csrf_protect
+@csrf_exempt
 @never_cache
 def submit_project_api(request, pk):
     """Submit project for approval via API"""
     project = get_object_or_404(Project, pk=pk)
     
-    if project.submitted_by != request.user:
+    if project.created_by != request.user:
         return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
     
     if project.status not in ['Draft', 'Revise_and_Resubmit']:
@@ -95,7 +96,7 @@ def submit_project_api(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, ProjectManagerPermission])
 @throttle_classes([ProjectAdminRateThrottle])
-@csrf_protect
+@csrf_exempt
 @never_cache
 def review_project_api(request, pk):
     """Review project via API (project managers and admins only)"""

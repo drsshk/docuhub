@@ -8,7 +8,7 @@ from django.db import transaction, models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Project, Drawing, ApprovalHistory, ProjectHistory
+from .models import Project, Document, ApprovalHistory, ProjectHistory
 from apps.notifications.services import BrevoEmailService
 
 logger = logging.getLogger('projects')
@@ -45,17 +45,12 @@ class ProjectVersionService:
                 submitted_by=user,
                 status='Draft',
                 revision_notes=revision_notes,
-                
                 project_priority=original_project.project_priority,
                 deadline_date=original_project.deadline_date
             )
             
-            # Copy drawings from original project
-            original_drawings = Drawing.objects.filter(
-                project=original_project,
-                status='Active'
-            )
-            
+            # Copy every drawing so drafts are preserved in the new version.
+            original_drawings = Drawing.objects.filter(project=original_project)
             for drawing in original_drawings:
                 Drawing.objects.create(
                     project=new_project,
@@ -66,7 +61,7 @@ class ProjectVersionService:
                     sheet_size=drawing.sheet_size,
                     revision_number=drawing.revision_number + 1,
                     added_by=user,
-                    status='Active',
+                    status='Draft',
                     sort_order=drawing.sort_order
                 )
             
@@ -80,32 +75,8 @@ class ProjectVersionService:
                 new_status='Draft'
             )
 
-            # Create ProjectHistory entry for the new version
-            new_drawing_numbers = ", ".join([d.drawing_no for d in new_project.drawings.all()])
-            ProjectHistory.objects.create(
-                project=new_project,
-                version=new_project.version,
-                submitted_by=user,
-                date_submitted=timezone.now(),
-                submission_link=new_project.get_absolute_url(),
-                drawing_qty=new_project.no_of_drawings,
-                drawing_numbers=new_drawing_numbers,
-                receipt_id="",  # Will be generated when submitted
-                approval_status='Draft'
-            )
-
-            # Update the original project's ProjectHistory to Obsolete
-            original_project_history = ProjectHistory.objects.filter(
-                project=original_project, version=original_project.version
-            ).first()
-            if original_project_history:
-                original_project_history.approval_status = 'Obsolete'
-                original_project_history.save()
-            
-            # Also set the original project's status to Obsolete
-            original_project.status = 'Obsolete'
-            original_project.save()
-            
+            # Leave history + status changes to the actual approval workflow so
+            # the previously approved version stays visible until superseded.
             logger.info(
                 f"New project version created: {new_project.project_name} "
                 f"V{new_project.version:03d} by {user.username}"
@@ -119,6 +90,10 @@ class ProjectSubmissionService:
     
     def __init__(self):
         self.email_service = BrevoEmailService()
+        self._retirable_statuses = [
+            'Approved_Endorsed',
+            'Conditional_Approval'
+        ]
     
     def submit_for_approval(self, project: Project, user: User, 
                           request_meta: Optional[Dict] = None) -> bool:
@@ -199,6 +174,9 @@ class ProjectSubmissionService:
                     approval_status='Approved_Endorsed'
                 )
                 
+                # Retire the previously approved version in the same group, if any.
+                self._retire_previous_version(project, admin, request_meta)
+                
                 # Send notification email
                 self.email_service.notify_project_approved(
                     project, project.submitted_by, admin
@@ -259,6 +237,42 @@ class ProjectSubmissionService:
         except Exception as e:
             logger.error(f"Failed to reject project {project.id}: {e}")
             return False
+
+    def _retire_previous_version(self, project: Project, admin: User, request_meta: Optional[Dict]) -> None:
+        """Mark the prior approved version in the group as obsolete when a new one is approved."""
+        previous_project = (
+            Project.objects
+            .filter(project_group_id=project.project_group_id)
+            .exclude(pk=project.pk)
+            .filter(status__in=self._retirable_statuses)
+            .order_by('-version')
+            .first()
+        )
+
+        if not previous_project:
+            return
+
+        old_status = previous_project.status
+
+        previous_project.status = 'Obsolete'
+        previous_project.save()
+
+        ApprovalHistory.objects.create(
+            project=previous_project,
+            version=previous_project.version,
+            action='Obsoleted',
+            performed_by=admin,
+            comments=f"Superseded by version V{project.version:03d}.",
+            previous_status=old_status,
+            new_status='Obsolete',
+            ip_address=request_meta.get('ip_address') if request_meta else None,
+            user_agent=request_meta.get('user_agent') if request_meta else None
+        )
+
+        ProjectHistory.objects.filter(
+            project=previous_project,
+            version=previous_project.version
+        ).update(approval_status='Obsolete')
     
     def request_revision(self, project: Project, admin: User, 
                         comments: str = "", request_meta: Optional[Dict] = None) -> bool:

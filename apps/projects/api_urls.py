@@ -4,7 +4,7 @@ from . import api_views
 
 router = DefaultRouter()
 router.register(r'projects', api_views.ProjectViewSet, basename='project')
-router.register(r'drawings', api_views.DrawingViewSet, basename='drawing')
+router.register(r'documents', api_views.DocumentViewSet, basename='document')
 
 urlpatterns = [
     path('', include(router.urls)),
