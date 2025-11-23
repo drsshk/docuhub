@@ -51,7 +51,7 @@ const ProjectDetail: React.FC = () => {
   // Drawing modal state
   const [showDrawingModal, setShowDrawingModal] = useState(false);
   const [drawingFormData, setDrawingFormData] = useState<CreateDrawingRequest>({
-    drawing_no: '',
+    drawing_number: '',
     drawing_title: '',
     revision_number: '0',
     drawing_type: 'Plan',
@@ -177,7 +177,7 @@ const ProjectDetail: React.FC = () => {
       setShowDrawingModal(false);
       // Reset form
       setDrawingFormData({
-        drawing_no: '',
+        drawing_number: '',
         drawing_title: '',
         revision_number: '0',
         drawing_type: 'Plan',
@@ -472,7 +472,7 @@ const ProjectDetail: React.FC = () => {
                         {drawing.drawing_title}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        V{drawing.version:03d}
+                        V{drawing.version.toString().padStart(3, '0')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {drawing.drawing_type}
@@ -584,14 +584,14 @@ const ProjectDetail: React.FC = () => {
               <form onSubmit={handleCreateDrawing} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="drawing_no" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="drawing_number" className="block text-sm font-medium text-gray-700">
                       Drawing Number *
                     </label>
                     <input
-                      id="drawing_no"
-                      name="drawing_no"
+                      id="drawing_number"
+                      name="drawing_number"
                       type="text"
-                      value={drawingFormData.drawing_no}
+                      value={drawingFormData.drawing_number}
                       onChange={handleDrawingInputChange}
                       required
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"

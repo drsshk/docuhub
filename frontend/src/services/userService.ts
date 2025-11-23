@@ -5,19 +5,19 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/').replace(/\/?$/, 
 export interface UserProfile {
   department: string;
   phone_number: string;
-  job_title: string;
-  employee_id: string;
-  bio: string;
-  location: string;
-  hire_date: string;
-  is_active_employee: boolean;
-  email_notifications: boolean;
-  sms_notifications: boolean;
   role: {
     id: string;
     name: string;
     description: string;
-  } | null;
+  };
+}
+
+export interface NotificationPreferences {
+  email_enabled: boolean;
+  submission_notifications: boolean;
+  approval_notifications: boolean;
+  rejection_notifications: boolean;
+  revision_notifications: boolean;
 }
 
 export interface User {
@@ -32,6 +32,7 @@ export interface User {
   date_joined: string;
   last_login?: string;
   profile: UserProfile;
+  notification_preferences: NotificationPreferences;
 }
 
 export interface Role {
@@ -59,11 +60,7 @@ export interface CreateUserData {
   is_active?: boolean;
   department?: string;
   phone_number?: string;
-  job_title?: string;
-  employee_id?: string;
-  bio?: string;
-  location?: string;
-  role_id?: string;
+  role: string; // UUID of the role
 }
 
 class UserService {
@@ -193,6 +190,35 @@ class UserService {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || `Failed to update profile: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getNotificationPreferences(): Promise<NotificationPreferences> {
+    const response = await fetch(`${API_BASE_URL}notifications/api/preferences/`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to fetch notification preferences: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async updateNotificationPreferences(preferences: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
+    const response = await fetch(`${API_BASE_URL}notifications/api/preferences/`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(preferences),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to update notification preferences: ${response.statusText}`);
     }
 
     return response.json();

@@ -1,5 +1,23 @@
 import api from './api';
 
+export interface UserProfile {
+  department: string;
+  phone_number: string;
+  role: {
+    id: string;
+    name: string;
+    description: string;
+  };
+}
+
+export interface NotificationPreferences {
+  email_enabled: boolean;
+  submission_notifications: boolean;
+  approval_notifications: boolean;
+  rejection_notifications: boolean;
+  revision_notifications: boolean;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -7,6 +25,8 @@ export interface User {
   first_name: string;
   last_name: string;
   is_staff: boolean;
+  profile: UserProfile;
+  notification_preferences: NotificationPreferences;
 }
 
 export interface LoginRequest {

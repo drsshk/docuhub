@@ -62,19 +62,19 @@ class ApprovalHistorySerializer(serializers.ModelSerializer):
         ]
 
 class ProjectHistorySerializer(serializers.ModelSerializer):
-    performed_by_name = serializers.CharField(source='performed_by.get_full_name', read_only=True)
+    submitted_by_name = serializers.CharField(source='submitted_by.get_full_name', read_only=True)
     project_name = serializers.CharField(source='project.project_name', read_only=True)
-    document_number = serializers.CharField(source='document.document_number', read_only=True)
     
     class Meta:
         model = ProjectHistory
         fields = [
-            'id', 'project', 'project_name', 'document', 'document_number',
-            'event_type', 'payload', 'performed_by', 'performed_by_name', 'performed_at'
+            'id', 'project', 'project_name', 'version', 'date_submitted',
+            'submission_link', 'drawing_qty', 'drawing_numbers', 'receipt_id',
+            'approval_status', 'submitted_by', 'submitted_by_name'
         ]
         read_only_fields = [
-            'id', 'performed_at', 'performed_by', 'performed_by_name',
-            'project_name', 'document_number'
+            'id', 'date_submitted', 'submitted_by', 'submitted_by_name',
+            'project_name', 'receipt_id'
         ]
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -82,6 +82,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     version_display = serializers.CharField(read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
     approval_history = ApprovalHistorySerializer(many=True, read_only=True)
+    history_logs = ProjectHistorySerializer(many=True, read_only=True)
     project_group_name = serializers.CharField(source='project_group.name', read_only=True)
     project_group_code = serializers.CharField(source='project_group.code', read_only=True)
     document_count = serializers.SerializerMethodField()
@@ -94,11 +95,11 @@ class ProjectSerializer(serializers.ModelSerializer):
             'version_number', 'version_display', 'is_latest',
             'created_by', 'created_by_name', 'created_at', 'updated_at',
             'reference_no', 'notes', 'project_priority', 'deadline_date', 
-            'project_folder_link', 'documents', 'approval_history', 'document_count'
+            'project_folder_link', 'documents', 'approval_history', 'history_logs', 'document_count'
         ]
         read_only_fields = [
             'id', 'version_display', 'created_by', 'created_by_name', 'created_at', 'updated_at',
-            'documents', 'approval_history', 'project_group_name', 'project_group_code',
+            'documents', 'approval_history', 'history_logs', 'project_group_name', 'project_group_code',
             'document_count'
         ]
     

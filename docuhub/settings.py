@@ -115,7 +115,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 if DEBUG:
     # --- Development Settings ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com', 'http://localhost:3000']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','docuhub.rujilabs.com', 'http://localhost:3000', 'testserver']
     cors_origins_str = config('CORS_ALLOWED_ORIGINS', default='')
     CORS_ALLOWED_ORIGINS = cors_origins_str.split(',') if cors_origins_str else ['http://localhost:3000']
     if 'http://localhost:3000' not in CORS_ALLOWED_ORIGINS:

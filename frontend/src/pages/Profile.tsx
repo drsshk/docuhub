@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
 import { authService } from '../services/auth';
 import type { User } from '../services/auth';
-import { IdentificationIcon, KeyIcon, UserCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { IdentificationIcon, KeyIcon, UserCircleIcon, EnvelopeIcon, BellIcon } from '@heroicons/react/24/outline';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -17,6 +17,17 @@ const Profile: React.FC = () => {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     email: user?.email || '',
+    department: user?.profile?.department || '',
+    phone_number: user?.profile?.phone_number || '',
+  });
+
+  // Notification preferences state
+  const [notificationData, setNotificationData] = useState({
+    email_enabled: user?.notification_preferences?.email_enabled ?? true,
+    submission_notifications: user?.notification_preferences?.submission_notifications ?? true,
+    approval_notifications: user?.notification_preferences?.approval_notifications ?? true,
+    rejection_notifications: user?.notification_preferences?.rejection_notifications ?? true,
+    revision_notifications: user?.notification_preferences?.revision_notifications ?? true,
   });
 
   // Password form state
@@ -75,8 +86,24 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleNotificationUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      await userService.updateNotificationPreferences(notificationData);
+      setMessage('Notification preferences updated successfully!');
+    } catch (error) {
+      setMessage(`Failed to update notification preferences: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'profile', name: 'Profile Information', icon: IdentificationIcon },
+    { id: 'notifications', name: 'Notifications', icon: BellIcon },
     { id: 'password', name: 'Change Password', icon: KeyIcon },
   ];
 
@@ -102,11 +129,23 @@ const Profile: React.FC = () => {
               <EnvelopeIcon className="h-4 w-4 mr-2" />
               {user?.email}
             </p>
-            {user?.is_staff && (
-              <span className="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                Staff Member
-              </span>
-            )}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {user?.profile?.role && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {user.profile.role.name}
+                </span>
+              )}
+              {user?.is_staff && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Staff Member
+                </span>
+              )}
+              {user?.profile?.department && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {user.profile.department}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -185,6 +224,45 @@ const Profile: React.FC = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.department}
+                    onChange={(e) => setProfileData({ ...profileData, department: e.target.value })}
+                    disabled={!isEditing}
+                    className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 ${!isEditing ? 'bg-gray-50 text-gray-500' : ''}`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileData.phone_number}
+                    onChange={(e) => setProfileData({ ...profileData, phone_number: e.target.value })}
+                    disabled={!isEditing}
+                    className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 ${!isEditing ? 'bg-gray-50 text-gray-500' : ''}`}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Role
+                  </label>
+                  <input
+                    type="text"
+                    value={user?.profile?.role?.name || 'N/A'}
+                    disabled
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">Role is managed by administrators.</p>
+                </div>
+
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Username
@@ -218,6 +296,8 @@ const Profile: React.FC = () => {
                           first_name: user?.first_name || '',
                           last_name: user?.last_name || '',
                           email: user?.email || '',
+                          department: user?.profile?.department || '',
+                          phone_number: user?.profile?.phone_number || '',
                         });
                         setMessage(''); // Clear any messages on cancel
                       }}
@@ -234,6 +314,110 @@ const Profile: React.FC = () => {
                     </button>
                   </>
                 )}
+              </div>
+            </form>
+          )}
+
+          {activeTab === 'notifications' && (
+            <form onSubmit={handleNotificationUpdate} className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notification Settings</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="email_enabled"
+                      checked={notificationData.email_enabled}
+                      onChange={(e) => setNotificationData({ ...notificationData, email_enabled: e.target.checked })}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="email_enabled" className="ml-3 text-sm font-medium text-gray-700">
+                      Enable email notifications
+                    </label>
+                  </div>
+                  <p className="text-sm text-gray-500 ml-7">Master toggle for all email notifications</p>
+
+                  <div className="pl-7 space-y-3">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="submission_notifications"
+                        checked={notificationData.submission_notifications}
+                        onChange={(e) => setNotificationData({ ...notificationData, submission_notifications: e.target.checked })}
+                        disabled={!notificationData.email_enabled}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+                      />
+                      <label htmlFor="submission_notifications" className="ml-3 text-sm text-gray-700">
+                        Project submission confirmations
+                      </label>
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="approval_notifications"
+                        checked={notificationData.approval_notifications}
+                        onChange={(e) => setNotificationData({ ...notificationData, approval_notifications: e.target.checked })}
+                        disabled={!notificationData.email_enabled}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded disabled:opacity-50"
+                      />
+                      <label htmlFor="approval_notifications" className="ml-3 text-sm text-gray-700">
+                        Project approvals
+                      </label>
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="rejection_notifications"
+                        checked={notificationData.rejection_notifications}
+                        onChange={(e) => setNotificationData({ ...notificationData, rejection_notifications: e.target.checked })}
+                        disabled={!notificationData.email_enabled}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded disabled:opacity-50"
+                      />
+                      <label htmlFor="rejection_notifications" className="ml-3 text-sm text-gray-700">
+                        Project rejections
+                      </label>
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="revision_notifications"
+                        checked={notificationData.revision_notifications}
+                        onChange={(e) => setNotificationData({ ...notificationData, revision_notifications: e.target.checked })}
+                        disabled={!notificationData.email_enabled}
+                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded disabled:opacity-50"
+                      />
+                      <label htmlFor="revision_notifications" className="ml-3 text-sm text-gray-700">
+                        Revision requests
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      About Email Notifications
+                    </h3>
+                    <div className="mt-2 text-sm text-blue-700">
+                      <p>Configure which email notifications you want to receive about your projects and submissions. You can disable all notifications using the master toggle above.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  {loading ? 'Saving...' : 'Save Notification Preferences'}
+                </button>
               </div>
             </form>
           )}

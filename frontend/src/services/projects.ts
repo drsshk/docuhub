@@ -8,6 +8,7 @@ export interface Project {
   status: string;
   priority: string;
   project_folder_link: string;
+  version: number;
   deadline_date?: string;
   submitted_by: number | {
     id: number;
@@ -59,7 +60,7 @@ export interface CreateProjectRequest {
 }
 
 export interface CreateDrawingRequest {
-  drawing_no: string;
+  drawing_number: string;
   drawing_title: string;
   drawing_description?: string;
   revision_number: string;
@@ -73,6 +74,24 @@ export interface CreateDrawingRequest {
 export interface ReviewProjectRequest {
   action: 'approve' | 'reject' | 'revise';
   comments: string;
+}
+
+export interface ProjectHistory {
+  id: string;
+  project: string;
+  version: number;
+  date_submitted: string;
+  submission_link: string;
+  drawing_qty: number;
+  drawing_numbers: string;
+  receipt_id: string;
+  approval_status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED';
+  submitted_by: {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+  };
 }
 
 export const projectService = {
@@ -125,6 +144,11 @@ export const projectService = {
 
   async deleteDrawing(id: string): Promise<void> {
     await api.delete(`/api/drawings/${id}/`);
+  },
+
+  async getProjectHistory(projectId: string): Promise<ProjectHistory[]> {
+    const response = await api.get(`/api/projects/${projectId}/history/`);
+    return response.data;
   },
 };
 
@@ -237,5 +261,13 @@ export const useDeleteDrawing = () => {
       queryClient.invalidateQueries({ queryKey: ['drawings'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
+  });
+};
+
+export const useProjectHistory = (projectId: string) => {
+  return useQuery<ProjectHistory[], Error>({
+    queryKey: ['projectHistory', projectId],
+    queryFn: () => projectService.getProjectHistory(projectId),
+    enabled: !!projectId,
   });
 };

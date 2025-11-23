@@ -26,12 +26,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Use proper permission checking instead of is_staff
         if IsProjectManager.has_permission(self.request.user):
-            return Project.objects.all().select_related('created_by', 'reviewed_by')
-        return Project.objects.filter(created_by=self.request.user).select_related('created_by', 'reviewed_by')
+            return Project.objects.all().select_related('created_by').prefetch_related('documents')
+        return Project.objects.filter(created_by=self.request.user).select_related('created_by').prefetch_related('documents')
     
     def perform_create(self, serializer):
         # Set version to 1 for new projects
-        serializer.save(created_by=self.request.user, version=1)
+        serializer.save(created_by=self.request.user, version_number=1)
     
     def get_throttles(self):
         """Use admin throttle for privileged users"""

@@ -49,17 +49,17 @@ class ProjectOwnerPermission(BasePermission):
         user_role = getattr(request.user.profile, 'role', None) if hasattr(request.user, 'profile') else None
         is_admin_or_approver = user_role and user_role.name in ['Admin', 'Approver']
         
-        if hasattr(obj, 'submitted_by'):
+        if hasattr(obj, 'created_by'):
             return (
-                obj.submitted_by == request.user or
+                obj.created_by == request.user or
                 request.user.is_staff or
                 request.user.is_superuser or
                 is_admin_or_approver
             )
         elif hasattr(obj, 'project'):
-            # For drawings, check the parent project
+            # For documents, check the parent project
             return (
-                obj.project.submitted_by == request.user or
+                obj.project.created_by == request.user or
                 request.user.is_staff or
                 request.user.is_superuser or
                 is_admin_or_approver
@@ -87,7 +87,7 @@ class CanEditProject:
         # Conditional_Approval should not be directly editable - users must create new version
         editable_statuses = ['Draft']
         
-        is_owner = (project.submitted_by == user)
+        is_owner = (project.created_by == user)
         is_editable_status = (project.status in editable_statuses)
         
         # Check if this is the latest version
@@ -110,7 +110,7 @@ class CanCreateNewVersion:
         # Define which statuses allow creating new versions
         versionable_statuses = ['Request_for_Revision', 'Approved_Endorsed', 'Rescinded_Revoked', 'Conditional_Approval']
         
-        is_owner = (project.submitted_by == user)
+        is_owner = (project.created_by == user)
         is_versionable_status = (project.status in versionable_statuses)
         
         # Check if this is the latest version
@@ -174,7 +174,7 @@ class CanViewProject:
             return project.status != 'Draft'
         
         # For regular users (submitters)
-        is_owner = project.submitted_by == user
+        is_owner = project.created_by == user
         
         if is_owner:
             # Submitters can view their own projects (any status)

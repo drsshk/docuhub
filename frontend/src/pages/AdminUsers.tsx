@@ -19,8 +19,6 @@ import {
   ShieldCheckIcon,
   BuildingOfficeIcon,
   PhoneIcon,
-  MapPinIcon,
-  CalendarIcon,
   FunnelIcon,
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
@@ -50,11 +48,7 @@ const AdminUsers: React.FC = () => {
     is_active: true,
     department: '',
     phone_number: '',
-    job_title: '',
-    employee_id: '',
-    bio: '',
-    location: '',
-    role_id: '',
+    role: '',
   });
 
   // Redirect if not admin
@@ -167,11 +161,7 @@ const AdminUsers: React.FC = () => {
         is_active: true,
         department: '',
         phone_number: '',
-        job_title: '',
-        employee_id: '',
-        bio: '',
-        location: '',
-        role_id: '',
+        role: '',
       });
       
       // Close modal and refresh users
@@ -311,14 +301,14 @@ const AdminUsers: React.FC = () => {
                             {user.first_name} {user.last_name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            @{user.username} • {user.profile.employee_id}
+                            @{user.username} • {user.profile.role?.name || 'No Role'}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 hidden md:table-cell">
-                      <div className="text-sm text-gray-900">{user.profile.department}</div>
-                      <div className="text-sm text-gray-500">{user.profile.job_title}</div>
+                      <div className="text-sm text-gray-900">{user.profile.department || 'No Department'}</div>
+                      <div className="text-sm text-gray-500">{user.profile.phone_number || 'No Phone'}</div>
                       {user.profile.role && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
                           {user.profile.role.name}
@@ -334,12 +324,6 @@ const AdminUsers: React.FC = () => {
                         <div className="flex items-center mt-1">
                           <PhoneIcon className="h-4 w-4 text-gray-400 mr-2" />
                           {user.profile.phone_number}
-                        </div>
-                      )}
-                      {user.profile.location && (
-                        <div className="flex items-center mt-1">
-                          <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
-                          {user.profile.location}
                         </div>
                       )}
                     </td>
@@ -484,8 +468,8 @@ const AdminUsers: React.FC = () => {
                       <p className="text-sm text-gray-900">{selectedUser.email}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Employee ID</label>
-                      <p className="text-sm text-gray-900">{selectedUser.profile.employee_id}</p>
+                      <label className="text-sm font-medium text-gray-500">Phone Number</label>
+                      <p className="text-sm text-gray-900">{selectedUser.profile.phone_number || 'Not provided'}</p>
                     </div>
                   </div>
                 </div>
@@ -496,19 +480,11 @@ const AdminUsers: React.FC = () => {
                   <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Department</label>
-                      <p className="text-sm text-gray-900">{selectedUser.profile.department}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Job Title</label>
-                      <p className="text-sm text-gray-900">{selectedUser.profile.job_title}</p>
+                      <p className="text-sm text-gray-900">{selectedUser.profile.department || 'Not assigned'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">Role</label>
                       <p className="text-sm text-gray-900">{selectedUser.profile.role?.name || 'No role assigned'}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Location</label>
-                      <p className="text-sm text-gray-900">{selectedUser.profile.location}</p>
                     </div>
                   </div>
                 </div>
@@ -536,9 +512,9 @@ const AdminUsers: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          selectedUser.profile.email_notifications ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                          selectedUser.notification_preferences.email_enabled ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {selectedUser.profile.email_notifications ? 'Enabled' : 'Disabled'}
+                          {selectedUser.notification_preferences.email_enabled ? 'Enabled' : 'Disabled'}
                         </div>
                         <p className="text-xs text-gray-500 mt-1">Email Notifications</p>
                       </div>
@@ -555,15 +531,6 @@ const AdminUsers: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bio */}
-                {selectedUser.profile.bio && (
-                  <div className="space-y-4 md:col-span-2">
-                    <h4 className="text-lg font-medium text-ocean-deep">Biography</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-900">{selectedUser.profile.bio}</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="flex justify-end mt-6 pt-6 border-t">
@@ -727,12 +694,13 @@ const AdminUsers: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Employee ID</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Phone Number</label>
                       <input
-                        type="text"
-                        value={createUserData.employee_id}
-                        onChange={(e) => setCreateUserData({ ...createUserData, employee_id: e.target.value })}
+                        type="tel"
+                        value={createUserData.phone_number}
+                        onChange={(e) => setCreateUserData({ ...createUserData, phone_number: e.target.value })}
                         className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
+                        placeholder="+1 (555) 123-4567"
                       />
                     </div>
                   </div>
@@ -743,53 +711,22 @@ const AdminUsers: React.FC = () => {
                     
                     <div>
                       <label className="block text-sm font-medium text-ocean-deep mb-2">Department</label>
-                      <select
+                      <input
+                        type="text"
                         value={createUserData.department}
                         onChange={(e) => setCreateUserData({ ...createUserData, department: e.target.value })}
                         className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
-                      >
-                        <option value="">Select Department</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Architecture">Architecture</option>
-                        <option value="Construction">Construction</option>
-                        <option value="Planning">Planning</option>
-                        <option value="Quality Assurance">Quality Assurance</option>
-                        <option value="Project Management">Project Management</option>
-                        <option value="Administration">Administration</option>
-                        <option value="Other">Other</option>
-                      </select>
+                        placeholder="e.g. Engineering, Architecture, etc."
+                      />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Job Title</label>
+                      <label className="block text-sm font-medium text-ocean-deep mb-2">Role *</label>
                       <select
-                        value={createUserData.job_title}
-                        onChange={(e) => setCreateUserData({ ...createUserData, job_title: e.target.value })}
+                        value={createUserData.role}
+                        onChange={(e) => setCreateUserData({ ...createUserData, role: e.target.value })}
                         className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
-                      >
-                        <option value="">Select Job Title</option>
-                        <option value="Engineer">Engineer</option>
-                        <option value="Senior Engineer">Senior Engineer</option>
-                        <option value="Principal Engineer">Principal Engineer</option>
-                        <option value="Architect">Architect</option>
-                        <option value="Senior Architect">Senior Architect</option>
-                        <option value="Project Manager">Project Manager</option>
-                        <option value="Team Lead">Team Lead</option>
-                        <option value="Supervisor">Supervisor</option>
-                        <option value="Manager">Manager</option>
-                        <option value="Director">Director</option>
-                        <option value="Technician">Technician</option>
-                        <option value="Draftsperson">Draftsperson</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Role</label>
-                      <select
-                        value={createUserData.role_id}
-                        onChange={(e) => setCreateUserData({ ...createUserData, role_id: e.target.value })}
-                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
+                        required
                       >
                         <option value="">Select Role</option>
                         {roles.map(role => (
@@ -797,40 +734,11 @@ const AdminUsers: React.FC = () => {
                         ))}
                       </select>
                     </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Phone Number</label>
-                      <input
-                        type="text"
-                        value={createUserData.phone_number}
-                        onChange={(e) => setCreateUserData({ ...createUserData, phone_number: e.target.value })}
-                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Location</label>
-                      <input
-                        type="text"
-                        value={createUserData.location}
-                        onChange={(e) => setCreateUserData({ ...createUserData, location: e.target.value })}
-                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
-                      />
-                    </div>
                   </div>
                   
-                  {/* Bio and Settings */}
+                  {/* Account Settings */}
                   <div className="md:col-span-2 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-ocean-deep mb-2">Bio</label>
-                      <textarea
-                        rows={3}
-                        value={createUserData.bio}
-                        onChange={(e) => setCreateUserData({ ...createUserData, bio: e.target.value })}
-                        className="mt-1 border border-mist bg-white focus:border-atlantic focus:ring-1 focus:ring-atlantic/20 px-4 py-3 rounded-lg block w-full sm:text-sm"
-                        placeholder="Brief description about the user"
-                      />
-                    </div>
+                    <h4 className="text-lg font-medium text-ocean-deep">Account Settings</h4>
                     
                     <div className="flex items-center space-x-6">
                       <div className="flex items-center">

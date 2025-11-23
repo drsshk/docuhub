@@ -233,7 +233,7 @@ const Projects: React.FC = () => {
                           <span className="mx-2">•</span>
                           <span>{project.drawings?.length || 0} drawings</span>
                           <span className="mx-2">•</span>
-                          <span>By {project.submitted_by.first_name} {project.submitted_by.last_name}</span>
+                          <span>By {typeof project.submitted_by === 'object' ? `${project.submitted_by.first_name} ${project.submitted_by.last_name}` : 'Unknown'}</span>
                           <span className="mx-2">•</span>
                           <span>{new Date(project.date_created).toLocaleDateString()}</span>
                         </div>
