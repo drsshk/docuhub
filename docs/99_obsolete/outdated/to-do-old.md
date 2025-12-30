@@ -1,3 +1,12 @@
+# OBSOLETE — Todo List for Project Completion
+
+**Status:** OBSOLETE — outdated
+**Reason:** Superseded by comprehensive project_pending_items.md (now at /docs/06_backlog/01-pending-items-2025-01.md)
+**Replaced by:** /docs/06_backlog/01-pending-items-2025-01.md
+**Moved on:** 2025-12-30
+
+---
+
 ### Todo List for Project Completion
 
 #### High Priority (Bugs & Critical Fixes)

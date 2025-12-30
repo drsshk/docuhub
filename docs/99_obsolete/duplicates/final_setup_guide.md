@@ -1,3 +1,12 @@
+# OBSOLETE — DocuHub Setup Instructions
+
+**Status:** OBSOLETE — duplicate
+**Reason:** Duplicate of setup_guide.md with unclear filename. Superseded by /docs/02_modules/08-environment-setup.md
+**Replaced by:** /docs/02_modules/08-environment-setup.md
+**Moved on:** 2025-12-30
+
+---
+
 # DocuHub Setup Instructions
 
 ## Quick Start Guide
@@ -36,42 +45,23 @@ django-admin startproject docuhub .
 
 # Create apps directory
 mkdir apps
-touch apps/__init__.py  #on Linux/macOS
-type NUL > apps\__init__.py  #on Windows CMD
+touch apps/__init__.py
 
 # Create Django apps
-python manage.py startapp PaperKeep apps/PaperKeep
-
-
+python manage.py startapp projects apps/projects
+python manage.py startapp accounts apps/accounts
+python manage.py startapp notifications apps/notifications
+python manage.py startapp core apps/core
 ```
 
-### 4. Database Setup
-
-#### PostgreSQL (Recommended)
-```bash
-# Install PostgreSQL and create database
-psql -U postgres
-CREATE DATABASE docuhub_db;
-CREATE USER docuhub_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE docuhub_db TO docuhub_user;
-ALTER USER docuhub_user CREATEDB;
-\q
-```
-
-#### SQLite (For Development)
-If you prefer SQLite for development, update your `.env` file:
-```env
-DATABASE_URL=sqlite:///db.sqlite3
-```
-
-### 5. Environment Configuration
+### 4. Environment Configuration
 
 Create a `.env` file in your project root:
 ```env
 SECRET_KEY=your-very-secret-key-here-make-it-long-and-random
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=postgresql://docuhub_user:your_password@localhost:5432/docuhub_db
+DATABASE_URL=sqlite:///db.sqlite3
 BREVO_API_KEY=your-brevo-api-key-here
 DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 BREVO_SENDER_NAME=DocuHub System
@@ -79,7 +69,9 @@ FRONTEND_URL=http://localhost:8000
 REDIS_URL=redis://localhost:6379/0
 ```
 
-### 6. Apply All Files
+**Note**: SQLite database will be automatically created as `db.sqlite3` in your project root.
+
+### 5. Apply All Files
 
 Copy all the provided files to their respective locations:
 
@@ -89,7 +81,7 @@ Copy all the provided files to their respective locations:
 - All app files to their respective directories
 - Template files to `templates/` directory
 
-### 7. Create Directory Structure
+### 6. Create Directory Structure
 
 ```bash
 # Create necessary directories
@@ -103,7 +95,7 @@ mkdir -p static/images
 mkdir -p media
 ```
 
-### 8. Database Migration
+### 7. Database Migration
 
 ```bash
 # Create and apply migrations
@@ -114,13 +106,13 @@ python manage.py makemigrations core
 python manage.py migrate
 ```
 
-### 9. Create Superuser
+### 8. Create Superuser
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 10. Run Development Server
+### 9. Run Development Server
 
 ```bash
 python manage.py runserver
@@ -135,6 +127,7 @@ docuhub/
 ├── manage.py
 ├── requirements.txt
 ├── .env
+├── db.sqlite3                    # SQLite database (auto-created)
 ├── .gitignore
 ├── docuhub/
 │   ├── __init__.py
@@ -180,6 +173,146 @@ docuhub/
 │   ├── core/
 │   │   └── home.html
 │   ├── projects/
+│   │   ├── dashboard.html
+│   │   ├── project_form.html
+│   │   └── project_detail.html
+│   └── registration/
+│       └── login.html
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── media/
+```
+
+## SQLite Database Benefits
+
+✅ **No Installation Required** - SQLite comes built-in with Python
+✅ **Zero Configuration** - No database server setup needed
+✅ **File-based** - Database stored as a single file
+✅ **Perfect for Development** - Easy to backup, move, or reset
+✅ **Production Ready** - Suitable for small to medium applications
+
+## Database Management
+
+### View Database Contents
+```bash
+# Install SQLite browser (optional)
+# Windows: Download DB Browser for SQLite
+# macOS: brew install --cask db-browser-for-sqlite
+# Linux: sudo apt-get install sqlitebrowser
+
+# Or use command line
+sqlite3 db.sqlite3
+.tables
+.schema projects
+SELECT * FROM projects;
+.quit
+```
+
+### Reset Database
+```bash
+# Delete database file
+rm db.sqlite3
+
+# Recreate database
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+### Backup Database
+```bash
+# Simple file copy
+cp db.sqlite3 backup_$(date +%Y%m%d).sqlite3
+
+# Or use Django dumpdata
+python manage.py dumpdata > backup_data.json
+```
+
+## Brevo Email Setup (Optional)
+
+1. Sign up for a [Brevo account](https://www.brevo.com/)
+2. Get your API key from the Brevo dashboard
+3. Create email templates in Brevo for:
+   - Project submission confirmation
+   - Project approval notification
+   - Project rejection notification
+   - Admin new submission alert
+4. Update your `.env` file with template IDs
+
+**Note**: Email features will work without Brevo setup, but emails won't be sent.
+
+## Production Considerations
+
+For production deployment with SQLite:
+
+### Pros:
+- Simple deployment (just copy the database file)
+- No database server maintenance
+- Fast for read-heavy workloads
+- Built-in backup (file copy)
+
+### Cons:
+- No concurrent writes (Django handles this)
+- File-based (not suitable for distributed systems)
+- Limited to single server deployment
+
+### When to Switch to PostgreSQL:
+- Multiple servers needed
+- Heavy concurrent write operations
+- Need advanced database features
+- Scaling beyond single server
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**: Make sure all apps are properly added to `INSTALLED_APPS`
+2. **Database Locked**: Close any open SQLite browser connections
+3. **Template Errors**: Ensure template directories are created
+4. **Static Files**: Run `python manage.py collectstatic` for production
+5. **Permission Errors**: Check file permissions on db.sqlite3
+
+### Database Issues
+```bash
+# Check database integrity
+sqlite3 db.sqlite3 "PRAGMA integrity_check;"
+
+# Rebuild database if corrupted
+rm db.sqlite3
+python manage.py migrate
+```
+
+### Getting Help
+
+1. Check Django documentation: https://docs.djangoproject.com/
+2. SQLite documentation: https://sqlite.org/docs.html
+3. Review error logs for specific issues
+4. Ensure all dependencies are installed correctly
+
+## Migration to PostgreSQL (Future)
+
+If you need to switch to PostgreSQL later:
+
+1. Install PostgreSQL and psycopg2-binary
+2. Create PostgreSQL database
+3. Update DATABASE_URL in .env
+4. Export data: `python manage.py dumpdata > data.json`
+5. Migrate: `python manage.py migrate`
+6. Import data: `python manage.py loaddata data.json`
+
+## Next Steps
+
+After setup:
+
+1. Create user accounts through the registration page
+2. Create your first project
+3. Add drawings to the project
+4. Test the approval workflow
+5. Configure email notifications (optional)
+6. Customize the interface as needed
+
+Your DocuHub application with SQLite is now ready for use!
 │   │   ├── dashboard.html
 │   │   ├── project_form.html
 │   │   └── project_detail.html

@@ -1,3 +1,12 @@
+OBSOLETE — Permission System Analysis Notes
+
+**Status:** OBSOLETE — unclear
+**Reason:** Technical analysis notes with unclear purpose and relevance to current documentation
+**Replaced by / Related to:** Permission system is documented in architecture.md (now at /docs/02_modules/01-system-architecture.md)
+**Moved on:** 2025-12-30
+
+---
+
 The `apps/projects/views.py` file contains several views, and permissions are handled using a combination of `LoginRequiredMixin` and custom permission checks.
 
 Here's a breakdown:
